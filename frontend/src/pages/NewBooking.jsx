@@ -1,21 +1,32 @@
-import React, { useState } from 'react';
-import Layout from '../components/Layout';
-import { motion } from 'framer-motion';
-import { Calendar, Clock, MapPin, FileText, Send } from 'lucide-react';
-import { bookingService } from '../services/api';
+import React, { useState } from "react";
+import Layout from "../components/Layout";
+import { motion } from "framer-motion";
+import { Calendar, Clock, MapPin, FileText, Send } from "lucide-react";
+import { bookingService } from "../services/api";
 
-const NewBooking = () => {
+const NewBooking = ({ user, onLogout }) => {
+  const currentUserEmail = user?.email || "";
+  const currentUserName = user?.displayName || user?.email || "";
+
   const [formData, setFormData] = useState({
-    roomNumber: '',
-    startTime: '',
-    endTime: '',
-    purpose: '',
-    userEmail: 'student@campus.edu', // Mock for now
-    userName: 'Campus Student',     // Mock for now
+    roomNumber: "",
+    startTime: "",
+    endTime: "",
+    purpose: "",
+    userEmail: currentUserEmail,
+    userName: currentUserName,
   });
 
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+
+  React.useEffect(() => {
+    setFormData((previous) => ({
+      ...previous,
+      userEmail: currentUserEmail,
+      userName: currentUserName,
+    }));
+  }, [currentUserEmail, currentUserName]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -28,26 +39,26 @@ const NewBooking = () => {
       await bookingService.createBooking(formData);
       setSuccess(true);
       setFormData({
-        roomNumber: '',
-        startTime: '',
-        endTime: '',
-        purpose: '',
-        userEmail: 'student@campus.edu',
-        userName: 'Campus Student',
+        roomNumber: "",
+        startTime: "",
+        endTime: "",
+        purpose: "",
+        userEmail: currentUserEmail,
+        userName: currentUserName,
       });
       setTimeout(() => setSuccess(false), 3000);
     } catch (err) {
-      console.error('Booking failed:', err);
-      alert('Failed to create booking. Please try again.');
+      console.error("Booking failed:", err);
+      alert("Failed to create booking. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <Layout>
+    <Layout user={user} onLogout={onLogout}>
       <div className="new-booking-container">
-        <motion.div 
+        <motion.div
           className="form-card glass-morphism animate-fade-in"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -60,49 +71,57 @@ const NewBooking = () => {
           <form onSubmit={handleSubmit} className="booking-form">
             <div className="input-row">
               <div className="input-group">
-                <label><MapPin size={18} /> Room Number</label>
-                <input 
-                  type="text" 
-                  name="roomNumber" 
+                <label>
+                  <MapPin size={18} /> Room Number
+                </label>
+                <input
+                  type="text"
+                  name="roomNumber"
                   value={formData.roomNumber}
                   onChange={handleChange}
-                  placeholder="e.g. LAB-101" 
-                  required 
+                  placeholder="e.g. LAB-101"
+                  required
                 />
               </div>
             </div>
 
             <div className="input-row">
               <div className="input-group">
-                <label><Calendar size={18} /> Start Date & Time</label>
-                <input 
-                  type="datetime-local" 
-                  name="startTime" 
+                <label>
+                  <Calendar size={18} /> Start Date & Time
+                </label>
+                <input
+                  type="datetime-local"
+                  name="startTime"
                   value={formData.startTime}
                   onChange={handleChange}
-                  required 
+                  required
                 />
               </div>
               <div className="input-group">
-                <label><Clock size={18} /> End Date & Time</label>
-                <input 
-                  type="datetime-local" 
-                  name="endTime" 
+                <label>
+                  <Clock size={18} /> End Date & Time
+                </label>
+                <input
+                  type="datetime-local"
+                  name="endTime"
                   value={formData.endTime}
                   onChange={handleChange}
-                  required 
+                  required
                 />
               </div>
             </div>
 
             <div className="input-group">
-              <label><FileText size={18} /> Purpose</label>
-              <textarea 
-                name="purpose" 
+              <label>
+                <FileText size={18} /> Purpose
+              </label>
+              <textarea
+                name="purpose"
                 value={formData.purpose}
                 onChange={handleChange}
-                placeholder="Describe why you need this resource..." 
-                rows="4" 
+                placeholder="Describe why you need this resource..."
+                rows="4"
                 required
               ></textarea>
             </div>
@@ -119,7 +138,7 @@ const NewBooking = () => {
             </button>
 
             {success && (
-              <motion.div 
+              <motion.div
                 className="success-msg"
                 initial={{ scale: 0.8, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
@@ -131,7 +150,7 @@ const NewBooking = () => {
         </motion.div>
       </div>
 
-      <style jsx>{`
+      <style>{`
         .new-booking-container {
           max-width: 800px;
           margin: 0 auto;
@@ -186,7 +205,8 @@ const NewBooking = () => {
           font-size: 0.95rem;
         }
 
-        input, textarea {
+        input,
+        textarea {
           background: rgba(255, 255, 255, 0.05);
           border: 1px solid var(--glass-border);
           border-radius: 12px;
@@ -196,7 +216,8 @@ const NewBooking = () => {
           transition: all 0.3s;
         }
 
-        input:focus, textarea:focus {
+        input:focus,
+        textarea:focus {
           outline: none;
           border-color: var(--primary);
           background: rgba(255, 255, 255, 0.08);
@@ -206,7 +227,11 @@ const NewBooking = () => {
         .submit-btn {
           margin-top: 20px;
           padding: 16px;
-          background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
+          background: linear-gradient(
+            135deg,
+            var(--primary) 0%,
+            var(--primary-hover) 100%
+          );
           color: white;
           border-radius: 12px;
           font-weight: 600;
@@ -241,7 +266,9 @@ const NewBooking = () => {
         }
 
         @media (max-width: 600px) {
-          .input-row { flex-direction: column; }
+          .input-row {
+            flex-direction: column;
+          }
         }
       `}</style>
     </Layout>

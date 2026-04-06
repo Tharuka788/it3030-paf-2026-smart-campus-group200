@@ -1,29 +1,28 @@
-import React, { useEffect, useState } from 'react';
-import Layout from '../components/Layout';
-import { motion } from 'framer-motion';
-import { 
-  Search, 
-  MapPin, 
-  Calendar, 
-  Clock, 
-  Trash2, 
+import React, { useEffect, useState } from "react";
+import Layout from "../components/Layout";
+import { motion } from "framer-motion";
+import {
+  Search,
+  MapPin,
+  Calendar,
+  Clock,
+  Trash2,
   ChevronRight,
-  Filter
-} from 'lucide-react';
-import { bookingService } from '../services/api';
+  Filter,
+} from "lucide-react";
+import { bookingService } from "../services/api";
 
-const MyBookings = () => {
+const MyBookings = ({ user, onLogout }) => {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
 
   const fetchBookings = async () => {
     try {
-      // Mocking user email for now
-      const response = await bookingService.getBookingsByUser('student@campus.edu');
+      const response = await bookingService.getMyBookings();
       setBookings(response.data);
     } catch (err) {
-      console.error('Failed to fetch bookings:', err);
+      console.error("Failed to fetch bookings:", err);
     } finally {
       setLoading(false);
     }
@@ -34,103 +33,133 @@ const MyBookings = () => {
   }, []);
 
   const handleDelete = async (id) => {
-    if (window.confirm('Are you sure you want to cancel this booking?')) {
-       try {
-         await bookingService.deleteBooking(id);
-         setBookings(bookings.filter(b => b.id !== id));
-       } catch (err) {
-         console.error('Failed to delete booking:', err);
-       }
+    if (window.confirm("Are you sure you want to cancel this booking?")) {
+      try {
+        await bookingService.deleteBooking(id);
+        setBookings(bookings.filter((b) => b.id !== id));
+      } catch (err) {
+        console.error("Failed to delete booking:", err);
+      }
     }
   };
 
-  const filteredBookings = bookings.filter(b => 
-    b.roomNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    b.purpose.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredBookings = bookings.filter(
+    (b) =>
+      b.roomNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      b.purpose.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'APPROVED': return '#10b981';
-      case 'PENDING': return '#f59e0b';
-      case 'REJECTED': return '#ef4444';
-      default: return '#94a3b8';
+      case "APPROVED":
+        return "#10b981";
+      case "PENDING":
+        return "#f59e0b";
+      case "REJECTED":
+        return "#ef4444";
+      default:
+        return "#94a3b8";
     }
   };
 
   return (
-    <Layout>
+    <Layout user={user} onLogout={onLogout}>
       <div className="bookings-container">
         <header className="page-header">
-           <h1 className="gradient-text">My Bookings</h1>
-           <p>Manage and track your resource requests.</p>
+          <h1 className="gradient-text">My Bookings</h1>
+          <p>Manage and track your resource requests.</p>
         </header>
 
         <section className="controls glass-morphism">
           <div className="search-box">
-             <Search size={20} className="search-icon" />
-             <input 
-               type="text" 
-               placeholder="Search by room or purpose..." 
-               value={searchTerm}
-               onChange={(e) => setSearchTerm(e.target.value)}
-             />
+            <Search size={20} className="search-icon" />
+            <input
+              type="text"
+              placeholder="Search by room or purpose..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
           </div>
           <button className="filter-btn">
-             <Filter size={20} />
-             <span>Filter</span>
+            <Filter size={20} />
+            <span>Filter</span>
           </button>
         </section>
 
         <section className="bookings-list">
-           {loading ? (
-             <div className="loading-spinner">Loading your bookings...</div>
-           ) : filteredBookings.length === 0 ? (
-             <div className="empty-state glass-morphism">
-               <h3>No bookings found</h3>
-               <p>You haven't made any resource requests yet.</p>
-             </div>
-           ) : (
-             <div className="bookings-grid">
-               {filteredBookings.map((booking, index) => (
-                 <motion.div 
-                   key={booking.id}
-                   className="booking-card glass-morphism"
-                   initial={{ opacity: 0, scale: 0.95 }}
-                   animate={{ opacity: 1, scale: 1 }}
-                   transition={{ delay: index * 0.05 }}
-                 >
-                    <div className="card-header">
-                       <span className="room-name"><MapPin size={16} /> {booking.roomNumber}</span>
-                       <span className="status-badge" style={{ backgroundColor: `${getStatusColor(booking.status)}15`, color: getStatusColor(booking.status) }}>
-                          {booking.status}
-                       </span>
-                    </div>
+          {loading ? (
+            <div className="loading-spinner">Loading your bookings...</div>
+          ) : filteredBookings.length === 0 ? (
+            <div className="empty-state glass-morphism">
+              <h3>No bookings found</h3>
+              <p>You haven't made any resource requests yet.</p>
+            </div>
+          ) : (
+            <div className="bookings-grid">
+              {filteredBookings.map((booking, index) => (
+                <motion.div
+                  key={booking.id}
+                  className="booking-card glass-morphism"
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: index * 0.05 }}
+                >
+                  <div className="card-header">
+                    <span className="room-name">
+                      <MapPin size={16} /> {booking.roomNumber}
+                    </span>
+                    <span
+                      className="status-badge"
+                      style={{
+                        backgroundColor: `${getStatusColor(booking.status)}15`,
+                        color: getStatusColor(booking.status),
+                      }}
+                    >
+                      {booking.status}
+                    </span>
+                  </div>
 
-                    <div className="card-body">
-                       <h4>{booking.purpose}</h4>
-                       <div className="time-info">
-                          <p><Calendar size={14} /> {new Date(booking.startTime).toLocaleDateString()}</p>
-                          <p><Clock size={14} /> {new Date(booking.startTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} - {new Date(booking.endTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</p>
-                       </div>
+                  <div className="card-body">
+                    <h4>{booking.purpose}</h4>
+                    <div className="time-info">
+                      <p>
+                        <Calendar size={14} />{" "}
+                        {new Date(booking.startTime).toLocaleDateString()}
+                      </p>
+                      <p>
+                        <Clock size={14} />{" "}
+                        {new Date(booking.startTime).toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}{" "}
+                        -{" "}
+                        {new Date(booking.endTime).toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </p>
                     </div>
+                  </div>
 
-                    <div className="card-footer">
-                       <button className="details-btn">
-                          View Details <ChevronRight size={16} />
-                       </button>
-                       <button className="delete-btn" onClick={() => handleDelete(booking.id)}>
-                          <Trash2 size={18} />
-                       </button>
-                    </div>
-                 </motion.div>
-               ))}
-             </div>
-           )}
+                  <div className="card-footer">
+                    <button className="details-btn">
+                      View Details <ChevronRight size={16} />
+                    </button>
+                    <button
+                      className="delete-btn"
+                      onClick={() => handleDelete(booking.id)}
+                    >
+                      <Trash2 size={18} />
+                    </button>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          )}
         </section>
       </div>
 
-      <style jsx>{`
+      <style>{`
         .bookings-container {
           display: flex;
           flex-direction: column;
@@ -310,8 +339,12 @@ const MyBookings = () => {
           gap: 15px;
         }
 
-        .empty-state h3 { font-size: 1.5rem; }
-        .empty-state p { color: var(--text-muted); }
+        .empty-state h3 {
+          font-size: 1.5rem;
+        }
+        .empty-state p {
+          color: var(--text-muted);
+        }
       `}</style>
     </Layout>
   );

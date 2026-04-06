@@ -1,35 +1,55 @@
-import React from 'react';
-import Layout from '../components/Layout';
-import { 
-  CheckCircle, 
-  Clock, 
-  XCircle, 
-  Plus,
-  ArrowUpRight
-} from 'lucide-react';
-import { motion } from 'framer-motion';
+import React from "react";
+import Layout from "../components/Layout";
+import { CheckCircle, Clock, XCircle, Plus, ArrowUpRight } from "lucide-react";
+import { motion } from "framer-motion";
 
-const Dashboard = () => {
+const Dashboard = ({ user, onLogout }) => {
   const stats = [
-    { name: 'Total Bookings', value: '12', icon: <Clock size={24} />, color: '#6366f1' },
-    { name: 'Approved', value: '8', icon: <CheckCircle size={24} />, color: '#10b981' },
-    { name: 'Pending', value: '3', icon: <Clock size={24} />, color: '#f59e0b' },
-    { name: 'Rejected', value: '1', icon: <XCircle size={24} />, color: '#ef4444' },
+    {
+      name: "Total Bookings",
+      value: "12",
+      icon: <Clock size={24} />,
+      color: "#6366f1",
+    },
+    {
+      name: "Approved",
+      value: "8",
+      icon: <CheckCircle size={24} />,
+      color: "#10b981",
+    },
+    {
+      name: "Pending",
+      value: "3",
+      icon: <Clock size={24} />,
+      color: "#f59e0b",
+    },
+    {
+      name: "Rejected",
+      value: "1",
+      icon: <XCircle size={24} />,
+      color: "#ef4444",
+    },
   ];
 
   return (
-    <Layout>
+    <Layout user={user} onLogout={onLogout}>
       <div className="dashboard-content">
         <section className="stats-grid">
           {stats.map((stat, index) => (
-            <motion.div 
+            <motion.div
               key={stat.name}
               className="stat-card glass-morphism"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
             >
-              <div className="stat-icon" style={{ backgroundColor: `${stat.color}15`, color: stat.color }}>
+              <div
+                className="stat-icon"
+                style={{
+                  backgroundColor: `${stat.color}15`,
+                  color: stat.color,
+                }}
+              >
                 {stat.icon}
               </div>
               <div className="stat-info">
@@ -41,46 +61,50 @@ const Dashboard = () => {
         </section>
 
         <section className="recent-activity">
-           <div className="section-header">
-             <h3 className="section-title">Recent Bookings</h3>
-             <button className="view-all-btn">
-               View All <ArrowUpRight size={16} />
-             </button>
-           </div>
+          <div className="section-header">
+            <h3 className="section-title">Recent Bookings</h3>
+            <button className="view-all-btn">
+              View All <ArrowUpRight size={16} />
+            </button>
+          </div>
 
-           <div className="activity-list glass-morphism">
-              <table className="activity-table">
-                <thead>
-                  <tr>
-                    <th>Room</th>
-                    <th>Date</th>
-                    <th>Time</th>
-                    <th>Status</th>
-                    <th>Action</th>
+          <div className="activity-list glass-morphism">
+            <table className="activity-table">
+              <thead>
+                <tr>
+                  <th>Room</th>
+                  <th>Date</th>
+                  <th>Time</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {[1, 2, 3].map((i) => (
+                  <tr key={i}>
+                    <td>
+                      <span className="room-badge">Room 30{i}</span>
+                    </td>
+                    <td>Oct {12 + i}, 2023</td>
+                    <td>10:00 AM - 12:00 PM</td>
+                    <td>
+                      <span
+                        className={`status-pill ${i === 1 ? "pending" : "approved"}`}
+                      >
+                        {i === 1 ? "Pending" : "Approved"}
+                      </span>
+                    </td>
+                    <td>
+                      <button className="action-btn">Details</button>
+                    </td>
                   </tr>
-                </thead>
-                <tbody>
-                  {[1, 2, 3].map((i) => (
-                    <tr key={i}>
-                      <td><span className="room-badge">Room 30{i}</span></td>
-                      <td>Oct {12 + i}, 2023</td>
-                      <td>10:00 AM - 12:00 PM</td>
-                      <td>
-                        <span className={`status-pill ${i === 1 ? 'pending' : 'approved'}`}>
-                          {i === 1 ? 'Pending' : 'Approved'}
-                        </span>
-                      </td>
-                      <td>
-                        <button className="action-btn">Details</button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-           </div>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </section>
 
-        <motion.button 
+        <motion.button
           className="fab-btn"
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
@@ -89,7 +113,7 @@ const Dashboard = () => {
         </motion.button>
       </div>
 
-      <style jsx>{`
+      <style>{`
         .dashboard-content {
           display: flex;
           flex-direction: column;
@@ -197,8 +221,14 @@ const Dashboard = () => {
           font-weight: 500;
         }
 
-        .status-pill.pending { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
-        .status-pill.approved { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+        .status-pill.pending {
+          background: rgba(245, 158, 11, 0.1);
+          color: #f59e0b;
+        }
+        .status-pill.approved {
+          background: rgba(16, 185, 129, 0.1);
+          color: #10b981;
+        }
 
         .action-btn {
           background: rgba(255, 255, 255, 0.05);
@@ -219,7 +249,11 @@ const Dashboard = () => {
           width: 64px;
           height: 64px;
           border-radius: 50%;
-          background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
+          background: linear-gradient(
+            135deg,
+            var(--primary) 0%,
+            var(--primary-hover) 100%
+          );
           color: white;
           box-shadow: 0 10px 25px rgba(99, 102, 241, 0.4);
           display: flex;

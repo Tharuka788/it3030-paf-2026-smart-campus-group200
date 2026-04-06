@@ -1,17 +1,47 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-import { GraduationCap, LogIn } from 'lucide-react';
+import React from "react";
+import { motion } from "framer-motion";
+import { GraduationCap, LogIn } from "lucide-react";
+import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { useNavigate } from "react-router-dom";
+import { auth } from "../services/firebase";
 
 const Login = () => {
-  const handleGoogleLogin = () => {
-     // Redirect to Spring Boot OAuth2 endpoint
-     window.location.href = 'http://localhost:8080/oauth2/authorization/google';
+  const navigate = useNavigate();
+  const [loading, setLoading] = React.useState(false);
+  const [error, setError] = React.useState("");
+
+  const handleGoogleLogin = async () => {
+    setLoading(true);
+    setError("");
+    try {
+      const provider = new GoogleAuthProvider();
+      await signInWithPopup(auth, provider);
+      navigate("/dashboard", { replace: true });
+    } catch (err) {
+      const code = err?.code || "";
+      if (code === "auth/configuration-not-found") {
+        setError(
+          "Firebase Authentication is not configured for this project. Enable Authentication and Google provider in Firebase Console."
+        );
+      } else if (code === "auth/unauthorized-domain") {
+        setError(
+          "Current domain is not authorized. Add localhost to Firebase Authentication authorized domains."
+        );
+      } else if (code === "auth/popup-closed-by-user") {
+        setError("Google sign-in popup was closed before completing login.");
+      } else {
+        setError("Google sign in failed. Please try again.");
+      }
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="login-container">
       <div className="login-overlay"></div>
-      <motion.div 
+      <motion.div
         className="login-card glass-morphism animate-fade-in"
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
@@ -24,14 +54,18 @@ const Login = () => {
         </div>
 
         <div className="auth-section">
-          <p className="auth-msg">Sign in to manage your bookings and access smart services.</p>
-          <button 
-            className="google-btn" 
+          <p className="auth-msg">
+            Sign in to manage your bookings and access smart services.
+          </p>
+          <button
+            className="google-btn"
             onClick={handleGoogleLogin}
+            disabled={loading}
           >
             <LogIn size={20} />
-            <span>Continue with Google</span>
+            <span>{loading ? "Signing in..." : "Continue with Google"}</span>
           </button>
+          {error && <p className="auth-error">{error}</p>}
         </div>
 
         <div className="footer-links">
@@ -40,13 +74,17 @@ const Login = () => {
         </div>
       </motion.div>
 
-      <style jsx>{`
+      <style>{`
         .login-container {
           min-height: 100vh;
-	  display: flex;
+          display: flex;
           align-items: center;
           justify-content: center;
-          background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%);
+          background: radial-gradient(
+            circle at center,
+            #1e293b 0%,
+            #0f172a 100%
+          );
           position: relative;
           overflow: hidden;
           padding: 20px;
@@ -56,7 +94,7 @@ const Login = () => {
           position: absolute;
           width: 100%;
           height: 100%;
-          background: url('https://www.transparenttextures.com/patterns/carbon-fibre.png');
+          background: url("https://www.transparenttextures.com/patterns/carbon-fibre.png");
           opacity: 0.05;
           pointer-events: none;
         }
@@ -70,7 +108,7 @@ const Login = () => {
           flex-direction: column;
           gap: 40px;
           box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-z-index: 10;
+          z-index: 10;
         }
 
         .logo-section h1 {
@@ -99,7 +137,11 @@ z-index: 10;
         .google-btn {
           width: 100%;
           padding: 14px;
-          background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
+          background: linear-gradient(
+            135deg,
+            var(--primary) 0%,
+            var(--primary-hover) 100%
+          );
           color: white;
           border-radius: 12px;
           display: flex;
@@ -115,6 +157,17 @@ z-index: 10;
         .google-btn:hover {
           transform: translateY(-2px);
           box-shadow: 0 8px 25px rgba(99, 102, 241, 0.5);
+        }
+
+        .google-btn:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
+
+        .auth-error {
+          margin-top: 12px;
+          color: #f87171;
+          font-size: 0.9rem;
         }
 
         .footer-links {
