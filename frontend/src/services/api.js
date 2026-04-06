@@ -1,0 +1,20 @@
+import axios from 'axios';
+
+const API_BASE_URL = 'http://localhost:8080/api/v1';
+
+const api = axios.create({
+  baseURL: API_BASE_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+export const bookingService = {
+  createBooking: (data) => api.post('/bookings', data),
+  getAllBookings: () => api.get('/bookings'),
+  getBookingsByUser: (email) => api.get(`/bookings/user/${email}`),
+  updateStatus: (id, status) => api.patch(`/bookings/${id}/status?status=${status}`),
+  deleteBooking: (id) => api.delete(`/bookings/${id}`),
+};
+
+export default api;
