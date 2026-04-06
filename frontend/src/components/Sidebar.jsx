@@ -1,27 +1,31 @@
-import React from 'react';
-import { NavLink } from 'react-router-dom';
-import { 
-  Home, 
-  PlusCircle, 
-  Calendar, 
-  User, 
-  Settings, 
+import React from "react";
+import { NavLink } from "react-router-dom";
+import {
+  Home,
+  PlusCircle,
+  Calendar,
+  User,
+  Settings,
   LogOut,
-  GraduationCap
-} from 'lucide-react';
-import { motion } from 'framer-motion';
+  GraduationCap,
+} from "lucide-react";
+import { motion } from "framer-motion";
 
-const Sidebar = () => {
+const Sidebar = ({ onLogout }) => {
   const navItems = [
-    { name: 'Overview', icon: <Home size={22} />, path: '/dashboard' },
-    { name: 'New Booking', icon: <PlusCircle size={22} />, path: '/bookings/new' },
-    { name: 'My Bookings', icon: <Calendar size={22} />, path: '/bookings/my' },
-    { name: 'Profile', icon: <User size={22} />, path: '/profile' },
-    { name: 'Settings', icon: <Settings size={22} />, path: '/settings' },
+    { name: "Overview", icon: <Home size={22} />, path: "/dashboard" },
+    {
+      name: "New Booking",
+      icon: <PlusCircle size={22} />,
+      path: "/bookings/new",
+    },
+    { name: "My Bookings", icon: <Calendar size={22} />, path: "/bookings/my" },
+    { name: "Profile", icon: <User size={22} />, path: "/profile" },
+    { name: "Settings", icon: <Settings size={22} />, path: "/settings" },
   ];
 
   return (
-    <motion.aside 
+    <motion.aside
       className="sidebar glass-morphism"
       initial={{ x: -100, opacity: 0 }}
       animate={{ x: 0, opacity: 1 }}
@@ -34,10 +38,10 @@ const Sidebar = () => {
 
       <nav className="sidebar-nav">
         {navItems.map((item) => (
-          <NavLink 
-            key={item.name} 
-            to={item.path} 
-            className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
+          <NavLink
+            key={item.name}
+            to={item.path}
+            className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}
           >
             {item.icon}
             <span>{item.name}</span>
@@ -46,13 +50,13 @@ const Sidebar = () => {
       </nav>
 
       <div className="sidebar-footer">
-        <button className="logout-btn">
+        <button className="logout-btn" onClick={onLogout}>
           <LogOut size={22} />
           <span>Logout</span>
         </button>
       </div>
 
-      <style jsx>{`
+      <style>{`
         .sidebar {
           width: 280px;
           height: calc(100vh - 40px);
@@ -104,7 +108,11 @@ const Sidebar = () => {
         }
 
         .nav-item.active {
-          background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
+          background: linear-gradient(
+            135deg,
+            var(--primary) 0%,
+            var(--primary-hover) 100%
+          );
           color: white;
           box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
         }

@@ -1,42 +1,50 @@
-import React from 'react';
-import Sidebar from './Sidebar';
-import { motion, AnimatePresence } from 'framer-motion';
+import React from "react";
+import Sidebar from "./Sidebar";
+import { motion, AnimatePresence } from "framer-motion";
 
-const Layout = ({ children }) => {
+const Layout = ({ children, user, onLogout }) => {
+  const displayName = user?.displayName || "Student";
+  const avatarUrl =
+    user?.photoURL ||
+    `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=6366f1&color=fff`;
+
   return (
     <div className="layout-container">
-      <Sidebar />
+      <Sidebar onLogout={onLogout} />
       <main className="main-content">
         <header className="main-header glass-morphism animate-fade-in">
-           <div className="header-left">
-             <h2 className="header-title">Welcome back, <span className="gradient-text">Student 👋</span></h2>
-             <p className="header-date">{new Date().toDateString()}</p>
-           </div>
-           <div className="header-right">
-             <div className="profile-pill glass-morphism">
-               <img src="https://ui-avatars.com/api/?name=Student&background=6366f1&color=fff" alt="Profile" />
-               <span>Student</span>
-             </div>
-           </div>
+          <div className="header-left">
+            <h2 className="header-title">
+              Welcome back,{" "}
+              <span className="gradient-text">{displayName} 👋</span>
+            </h2>
+            <p className="header-date">{new Date().toDateString()}</p>
+          </div>
+          <div className="header-right">
+            <div className="profile-pill glass-morphism">
+              <img src={avatarUrl} alt="Profile" />
+              <span>{displayName}</span>
+            </div>
+          </div>
         </header>
 
         <section className="content-area">
           <AnimatePresence mode="wait">
-             <motion.div
-               key={window.location.pathname}
-               initial={{ opacity: 0, x: 20 }}
-               animate={{ opacity: 1, x: 0 }}
-               exit={{ opacity: 0, x: -20 }}
-               transition={{ duration: 0.3 }}
-               className="page-wrapper"
-             >
-               {children}
-             </motion.div>
+            <motion.div
+              key={window.location.pathname}
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.3 }}
+              className="page-wrapper"
+            >
+              {children}
+            </motion.div>
           </AnimatePresence>
         </section>
       </main>
 
-      <style jsx>{`
+      <style>{`
         .layout-container {
           min-height: 100vh;
           display: flex;
@@ -47,7 +55,7 @@ const Layout = ({ children }) => {
 
         .main-content {
           flex: 1;
-          margin-left: 280px; 
+          margin-left: 280px;
           display: flex;
           flex-direction: column;
           gap: 20px;
