@@ -4,6 +4,8 @@ import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import NewBooking from './pages/NewBooking';
 import MyBookings from './pages/MyBookings';
+import FacilitiesCatalogue from './pages/FacilitiesCatalogue';
+import ManageFacility from './pages/ManageFacility';
 import './index.css';
 
 function App() {
@@ -19,6 +21,14 @@ function App() {
         <Route 
           path="/dashboard" 
           element={isAuthenticated ? <Dashboard /> : <Navigate to="/login" />} 
+        />
+        <Route 
+          path="/facilities" 
+          element={isAuthenticated ? <FacilitiesCatalogue /> : <Navigate to="/login" />} 
+        />
+        <Route 
+          path="/facilities/manage" 
+          element={isAuthenticated ? <ManageFacility /> : <Navigate to="/login" />} 
         />
         <Route 
           path="/bookings/new" 
