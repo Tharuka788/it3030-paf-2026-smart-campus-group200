@@ -16,8 +16,8 @@ public class BookingRequest {
     @NotBlank(message = "User name is required")
     private String userName;
 
-    @NotBlank(message = "Room number is required")
-    private String roomNumber;
+    @NotBlank(message = "Resource ID is required")
+    private String resourceId;
 
     @NotNull(message = "Start time is required")
     private LocalDateTime startTime;
@@ -27,4 +27,7 @@ public class BookingRequest {
 
     @NotBlank(message = "Purpose is required")
     private String purpose;
+
+    @NotNull(message = "Expected attendees count is required")
+    private Integer expectedAttendees;
 }

@@ -23,10 +23,11 @@ public class BookingController {
         Booking booking = new Booking();
         booking.setUserEmail(bookingRequest.getUserEmail());
         booking.setUserName(bookingRequest.getUserName());
-        booking.setRoomNumber(bookingRequest.getRoomNumber());
+        booking.setResourceId(bookingRequest.getResourceId());
         booking.setStartTime(bookingRequest.getStartTime());
         booking.setEndTime(bookingRequest.getEndTime());
         booking.setPurpose(bookingRequest.getPurpose());
+        booking.setExpectedAttendees(bookingRequest.getExpectedAttendees());
         return new ResponseEntity<>(bookingService.createBooking(booking), HttpStatus.CREATED);
     }
 

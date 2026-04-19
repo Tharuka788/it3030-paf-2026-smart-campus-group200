@@ -15,13 +15,15 @@ import java.time.LocalDateTime;
 public class Booking {
     @Id
     private String id;
+    private String resourceId;
     private String userEmail;
     private String userName;
-    private String roomNumber;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
     private String purpose;
+    private Integer expectedAttendees;
     private String status; // PENDING, APPROVED, REJECTED, CANCELLED
+    private String rejectionReason;
     private LocalDateTime createdAt = LocalDateTime.now();
     private LocalDateTime updatedAt = LocalDateTime.now();
 }
