@@ -6,10 +6,11 @@ import { bookingService } from '../services/api';
 
 const NewBooking = () => {
   const [formData, setFormData] = useState({
-    roomNumber: '',
+    resourceId: '',
     startTime: '',
     endTime: '',
     purpose: '',
+    expectedAttendees: '',
     userEmail: 'student@campus.edu', // Mock for now
     userName: 'Campus Student',     // Mock for now
   });
@@ -28,10 +29,11 @@ const NewBooking = () => {
       await bookingService.createBooking(formData);
       setSuccess(true);
       setFormData({
-        roomNumber: '',
+        resourceId: '',
         startTime: '',
         endTime: '',
         purpose: '',
+        expectedAttendees: '',
         userEmail: 'student@campus.edu',
         userName: 'Campus Student',
       });
@@ -60,13 +62,24 @@ const NewBooking = () => {
           <form onSubmit={handleSubmit} className="booking-form">
             <div className="input-row">
               <div className="input-group">
-                <label><MapPin size={18} /> Room Number</label>
+                <label><MapPin size={18} /> Resource ID</label>
                 <input 
                   type="text" 
-                  name="roomNumber" 
-                  value={formData.roomNumber}
+                  name="resourceId" 
+                  value={formData.resourceId}
                   onChange={handleChange}
                   placeholder="e.g. LAB-101" 
+                  required 
+                />
+              </div>
+              <div className="input-group">
+                <label><Calendar size={18} /> Expected Attendees</label>
+                <input 
+                  type="number" 
+                  name="expectedAttendees" 
+                  value={formData.expectedAttendees}
+                  onChange={handleChange}
+                  placeholder="e.g. 50" 
                   required 
                 />
               </div>

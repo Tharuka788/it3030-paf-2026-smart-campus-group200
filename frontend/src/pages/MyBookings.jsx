@@ -45,7 +45,7 @@ const MyBookings = () => {
   };
 
   const filteredBookings = bookings.filter(b => 
-    b.roomNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    b.resourceId?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     b.purpose.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -101,7 +101,7 @@ const MyBookings = () => {
                    transition={{ delay: index * 0.05 }}
                  >
                     <div className="card-header">
-                       <span className="room-name"><MapPin size={16} /> {booking.roomNumber}</span>
+                       <span className="room-name"><MapPin size={16} /> {booking.resourceId}</span>
                        <span className="status-badge" style={{ backgroundColor: `${getStatusColor(booking.status)}15`, color: getStatusColor(booking.status) }}>
                           {booking.status}
                        </span>
