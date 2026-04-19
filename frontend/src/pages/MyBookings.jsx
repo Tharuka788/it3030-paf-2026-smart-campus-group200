@@ -130,7 +130,7 @@ const MyBookings = () => {
         </section>
       </div>
 
-      <style jsx>{`
+      <style jsx="true">{`
         .bookings-container {
           display: flex;
           flex-direction: column;

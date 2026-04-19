@@ -89,7 +89,7 @@ const Dashboard = () => {
         </motion.button>
       </div>
 
-      <style jsx>{`
+      <style jsx="true">{`
         .dashboard-content {
           display: flex;
           flex-direction: column;

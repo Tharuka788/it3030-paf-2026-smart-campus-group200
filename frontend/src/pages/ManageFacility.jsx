@@ -193,7 +193,7 @@ const ManageFacility = () => {
         </motion.div>
       </div>
 
-      <style jsx>{`
+      <style jsx="true">{`
         .new-booking-container {
           max-width: 800px;
           margin: 0 auto;

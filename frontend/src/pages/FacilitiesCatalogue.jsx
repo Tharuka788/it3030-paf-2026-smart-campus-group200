@@ -143,7 +143,7 @@ const FacilitiesCatalogue = () => {
         )}
       </div>
 
-      <style jsx>{`
+      <style jsx="true">{`
         .catalogue-container {
           padding-bottom: 50px;
         }

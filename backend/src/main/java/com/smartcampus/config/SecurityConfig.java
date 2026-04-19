@@ -33,9 +33,10 @@ public class SecurityConfig {
         http
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(authorize -> authorize
+                .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers("/", "/error", "/webjars/**").permitAll()
                 .requestMatchers("/api/v1/facilities/**").permitAll()
-                .requestMatchers("/api/v1/bookings/**").authenticated()
+                .requestMatchers("/api/v1/bookings/**").permitAll()
                 .anyRequest().authenticated()
             )
             .oauth2Login(oauth2 -> oauth2
