@@ -34,6 +34,7 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(authorize -> authorize
                 .requestMatchers("/", "/error", "/webjars/**").permitAll()
+                .requestMatchers("/api/v1/facilities/**").permitAll()
                 .requestMatchers("/api/v1/bookings/**").authenticated()
                 .anyRequest().authenticated()
             )

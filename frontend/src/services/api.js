@@ -17,4 +17,12 @@ export const bookingService = {
   deleteBooking: (id) => api.delete(`/bookings/${id}`),
 };
 
+export const facilityService = {
+  createFacility: (data) => api.post('/facilities', data),
+  getAllFacilities: (params) => api.get('/facilities', { params }),
+  getFacilityById: (id) => api.get(`/facilities/${id}`),
+  updateFacility: (id, data) => api.put(`/facilities/${id}`, data),
+  deleteFacility: (id) => api.delete(`/facilities/${id}`),
+};
+
 export default api;
