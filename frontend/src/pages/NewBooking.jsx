@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
-import { motion } from 'framer-motion';
-import { Calendar, Clock, MapPin, FileText, Send } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Calendar, Clock, MapPin, FileText, Send, AlertCircle, Info } from 'lucide-react';
 import { bookingService } from '../services/api';
+import { format, parseISO, isSameDay } from 'date-fns';
 
 const NewBooking = () => {
   const [formData, setFormData] = useState({
@@ -11,39 +12,69 @@ const NewBooking = () => {
     endTime: '',
     purpose: '',
     expectedAttendees: '',
-    userEmail: 'student@campus.edu', // Mock for now
-    userName: 'Campus Student',     // Mock for now
+    userEmail: localStorage.getItem('userEmail') || 'student@campus.edu',
+    userName: localStorage.getItem('userName') || 'Campus Student',
   });
 
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [error, setError] = useState(null);
+  const [existingBookings, setExistingBookings] = useState([]);
+  const [fetchingAvailability, setFetchingAvailability] = useState(false);
+
+  useEffect(() => {
+    if (formData.resourceId) {
+      fetchAvailability();
+    }
+  }, [formData.resourceId]);
+
+  const fetchAvailability = async () => {
+    setFetchingAvailability(true);
+    try {
+      const response = await bookingService.getBookingsByResource(formData.resourceId);
+      setExistingBookings(response.data);
+    } catch (err) {
+      console.error('Failed to fetch availability:', err);
+    } finally {
+      setFetchingAvailability(false);
+    }
+  };
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+    if (error) setError(null);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+    setError(null);
     try {
       await bookingService.createBooking(formData);
       setSuccess(true);
       setFormData({
+        ...formData,
         resourceId: '',
         startTime: '',
         endTime: '',
         purpose: '',
         expectedAttendees: '',
-        userEmail: 'student@campus.edu',
-        userName: 'Campus Student',
       });
-      setTimeout(() => setSuccess(false), 3000);
+      fetchAvailability();
+      setTimeout(() => setSuccess(false), 5000);
     } catch (err) {
       console.error('Booking failed:', err);
-      alert('Failed to create booking. Please try again.');
+      const message = err.response?.data?.message || 'Failed to create booking. Please try again.';
+      setError(message);
     } finally {
       setLoading(false);
     }
+  };
+
+  const getDayBookings = () => {
+    if (!formData.startTime) return existingBookings.slice(0, 5);
+    const selectedDate = parseISO(formData.startTime);
+    return existingBookings.filter(b => isSameDay(parseISO(b.startTime), selectedDate));
   };
 
   return (
@@ -56,212 +87,398 @@ const NewBooking = () => {
         >
           <div className="form-header">
             <h2 className="gradient-text">New Resource Booking</h2>
-            <p>Request access to campus facilities and equipment.</p>
+            <p>Request access to campus facilities and equipment with automated conflict checking.</p>
           </div>
 
-          <form onSubmit={handleSubmit} className="booking-form">
-            <div className="input-row">
+          <div className="booking-grid">
+            <form onSubmit={handleSubmit} className="booking-form">
+              <div className="input-row">
+                <div className="input-group">
+                  <label><MapPin size={18} /> Booking Resources</label>
+                  <select 
+                    name="resourceId" 
+                    value={formData.resourceId}
+                    onChange={handleChange}
+                    required 
+                  >
+                    <option value="" disabled>Select a resource</option>
+                    <option value="Lecture Hall">Lecture Hall</option>
+                    <option value="Lab">Lab</option>
+                    <option value="Meeting Room">Meeting Room</option>
+                    <option value="Auditorium">Auditorium</option>
+                    <option value="Study Pod">Study Pod</option>
+                  </select>
+                </div>
+                <div className="input-group">
+                  <label><Calendar size={18} /> Expected Attendees</label>
+                  <input 
+                    type="number" 
+                    name="expectedAttendees" 
+                    value={formData.expectedAttendees}
+                    onChange={handleChange}
+                    placeholder="e.g. 50" 
+                    required 
+                  />
+                </div>
+              </div>
+
+              <div className="input-row">
+                <div className="input-group">
+                  <label><Calendar size={18} /> Start Date & Time</label>
+                  <input 
+                    type="datetime-local" 
+                    name="startTime" 
+                    value={formData.startTime}
+                    onChange={handleChange}
+                    required 
+                  />
+                </div>
+                <div className="input-group">
+                  <label><Clock size={18} /> End Date & Time</label>
+                  <input 
+                    type="datetime-local" 
+                    name="endTime" 
+                    value={formData.endTime}
+                    onChange={handleChange}
+                    required 
+                  />
+                </div>
+              </div>
+
               <div className="input-group">
-                <label><MapPin size={18} /> Booking Resources</label>
-                <select 
-                  name="resourceId" 
-                  value={formData.resourceId}
+                <label><FileText size={18} /> Purpose</label>
+                <textarea 
+                  name="purpose" 
+                  value={formData.purpose}
                   onChange={handleChange}
-                  required 
+                  placeholder="Describe why you need this resource..." 
+                  rows="3" 
+                  required
+                ></textarea>
+              </div>
+
+              {error && (
+                <motion.div 
+                  className="error-msg"
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
                 >
-                  <option value="" disabled>Select a resource</option>
-                  <option value="Lecture Hall">Lecture Hall</option>
-                  <option value="Lab">Lab</option>
-                  <option value="Meeting Room">Meeting Room</option>
-                </select>
-              </div>
-              <div className="input-group">
-                <label><Calendar size={18} /> Expected Attendees</label>
-                <input 
-                  type="number" 
-                  name="expectedAttendees" 
-                  value={formData.expectedAttendees}
-                  onChange={handleChange}
-                  placeholder="e.g. 50" 
-                  required 
-                />
-              </div>
-            </div>
-
-            <div className="input-row">
-              <div className="input-group">
-                <label><Calendar size={18} /> Start Date & Time</label>
-                <input 
-                  type="datetime-local" 
-                  name="startTime" 
-                  value={formData.startTime}
-                  onChange={handleChange}
-                  required 
-                />
-              </div>
-              <div className="input-group">
-                <label><Clock size={18} /> End Date & Time</label>
-                <input 
-                  type="datetime-local" 
-                  name="endTime" 
-                  value={formData.endTime}
-                  onChange={handleChange}
-                  required 
-                />
-              </div>
-            </div>
-
-            <div className="input-group">
-              <label><FileText size={18} /> Purpose</label>
-              <textarea 
-                name="purpose" 
-                value={formData.purpose}
-                onChange={handleChange}
-                placeholder="Describe why you need this resource..." 
-                rows="4" 
-                required
-              ></textarea>
-            </div>
-
-            <button type="submit" className="submit-btn" disabled={loading}>
-              {loading ? (
-                <span>Processing...</span>
-              ) : (
-                <>
-                  <Send size={20} />
-                  <span>Submit Request</span>
-                </>
+                  <AlertCircle size={18} />
+                  <span>{error}</span>
+                </motion.div>
               )}
-            </button>
 
-            {success && (
-              <motion.div 
-                className="success-msg"
-                initial={{ scale: 0.8, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-              >
-                Booking request submitted successfully!
-              </motion.div>
-            )}
-          </form>
+              <button type="submit" className="submit-btn" disabled={loading}>
+                {loading ? (
+                  <span>Processing...</span>
+                ) : (
+                  <>
+                    <Send size={20} />
+                    <span>Submit Request</span>
+                  </>
+                )}
+              </button>
+
+              <AnimatePresence>
+                {success && (
+                  <motion.div 
+                    className="success-msg"
+                    initial={{ scale: 0.8, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    exit={{ scale: 0.8, opacity: 0 }}
+                  >
+                    Booking request submitted successfully!
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </form>
+
+            <div className="availability-sidebar">
+              <div className="availability-header">
+                <Info size={18} />
+                <h3>Live Availability</h3>
+              </div>
+              
+              {!formData.resourceId ? (
+                <div className="empty-availability">
+                  <p>Select a resource to see its availability timeline.</p>
+                </div>
+              ) : fetchingAvailability ? (
+                <div className="loading-availability">
+                  <div className="spinner"></div>
+                  <p>Checking schedule...</p>
+                </div>
+              ) : (
+                <div className="availability-list">
+                  <p className="availability-subtitle">
+                    {formData.startTime 
+                      ? `Schedule for ${format(parseISO(formData.startTime), 'MMM dd, yyyy')}`
+                      : 'Upcoming Bookings'}
+                  </p>
+                  
+                  {getDayBookings().length === 0 ? (
+                    <div className="no-bookings">
+                      <p>No bookings found for this period. 30-min buffer will be applied after your booking.</p>
+                    </div>
+                  ) : (
+                    <div className="timeline">
+                      {getDayBookings().map((booking, index) => (
+                        <motion.div 
+                          key={booking.id || index}
+                          className="timeline-item"
+                          initial={{ opacity: 0, x: 20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: index * 0.1 }}
+                        >
+                          <div className="time-range">
+                            {format(parseISO(booking.startTime), 'HH:mm')} - {format(parseISO(booking.endTime), 'HH:mm')}
+                          </div>
+                          <div className="buffer-info">
+                            +30m buffer required
+                          </div>
+                        </motion.div>
+                      ))}
+                    </div>
+                  )}
+                  
+                  <div className="buffer-note">
+                    <Info size={14} />
+                    <span>A 30-minute buffer is automatically added between bookings for maintenance.</span>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
         </motion.div>
       </div>
 
       <style jsx="true">{`
         .new-booking-container {
-          max-width: 800px;
+          max-width: 1000px;
           margin: 0 auto;
           padding-bottom: 50px;
         }
 
         .form-card {
           padding: 40px;
-          border-radius: 20px;
+          border-radius: 24px;
+          box-shadow: 0 20px 40px rgba(0,0,0,0.3);
         }
 
         .form-header {
-          margin-bottom: 40px;
+          margin-bottom: 35px;
           border-bottom: 1px solid var(--glass-border);
-          padding-bottom: 25px;
+          padding-bottom: 20px;
         }
 
         .form-header h2 {
-          font-size: 2rem;
-          font-weight: 700;
-          margin-bottom: 10px;
+          font-size: 2.2rem;
+          font-weight: 800;
+          margin-bottom: 8px;
         }
 
-        .form-header p {
-          color: var(--text-muted);
+        .booking-grid {
+          display: grid;
+          grid-template-columns: 1.5fr 1fr;
+          gap: 40px;
         }
 
         .booking-form {
           display: flex;
           flex-direction: column;
-          gap: 25px;
+          gap: 20px;
         }
 
         .input-row {
           display: flex;
           gap: 20px;
+          width: 100%;
         }
 
         .input-group {
           flex: 1;
           display: flex;
           flex-direction: column;
-          gap: 10px;
+          gap: 8px;
         }
 
         .input-group label {
           display: flex;
           align-items: center;
-          gap: 10px;
+          gap: 8px;
           color: var(--text-muted);
           font-weight: 500;
-          font-size: 0.95rem;
+          font-size: 0.9rem;
         }
 
         input, textarea, select {
+          width: 100%;
           background: rgba(255, 255, 255, 0.05);
           border: 1px solid var(--glass-border);
-          border-radius: 12px;
-          padding: 15px;
+          border-radius: 14px;
+          padding: 14px;
           color: white;
           font-family: inherit;
-          transition: all 0.3s;
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        select option {
-          background: #1e1e2d; /* matching dark theme */
-          color: white;
+        select {
+          cursor: pointer;
+          appearance: none;
+          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+          background-repeat: no-repeat;
+          background-position: right 14px center;
+          padding-right: 45px;
         }
 
         input:focus, textarea:focus, select:focus {
           outline: none;
           border-color: var(--primary);
-          background: rgba(255, 255, 255, 0.08);
-          box-shadow: 0 0 15px rgba(99, 102, 241, 0.2);
+          background: rgba(255, 255, 255, 0.1);
+          box-shadow: 0 0 20px rgba(99, 102, 241, 0.2);
+          transform: translateY(-1px);
+        }
+
+        .error-msg {
+          background: rgba(239, 68, 68, 0.1);
+          color: #ef4444;
+          padding: 15px;
+          border-radius: 14px;
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          font-size: 0.95rem;
+          border: 1px solid rgba(239, 68, 68, 0.2);
         }
 
         .submit-btn {
-          margin-top: 20px;
+          margin-top: 10px;
           padding: 16px;
           background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
           color: white;
-          border-radius: 12px;
+          border-radius: 14px;
           font-weight: 600;
           font-size: 1.1rem;
           display: flex;
           align-items: center;
           justify-content: center;
           gap: 12px;
-          transition: all 0.3s;
-          box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+          transition: all 0.4s;
+          box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
         }
 
         .submit-btn:hover:not(:disabled) {
-          transform: translateY(-2px);
-          box-shadow: 0 8px 25px rgba(99, 102, 241, 0.5);
-        }
-
-        .submit-btn:disabled {
-          opacity: 0.6;
-          cursor: not-allowed;
+          transform: translateY(-3px);
+          box-shadow: 0 15px 30px rgba(99, 102, 241, 0.4);
         }
 
         .success-msg {
-          margin-top: 20px;
+          margin-top: 15px;
           background: rgba(16, 185, 129, 0.1);
           color: #10b981;
-          padding: 15px;
-          border-radius: 12px;
+          padding: 16px;
+          border-radius: 14px;
           text-align: center;
-          font-weight: 500;
+          font-weight: 600;
           border: 1px solid rgba(16, 185, 129, 0.2);
         }
 
-        @media (max-width: 600px) {
+        /* Availability Sidebar */
+        .availability-sidebar {
+          background: rgba(255, 255, 255, 0.03);
+          border-radius: 20px;
+          padding: 25px;
+          border: 1px solid var(--glass-border);
+          display: flex;
+          flex-direction: column;
+          gap: 20px;
+        }
+
+        .availability-header {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          color: var(--primary);
+        }
+
+        .availability-header h3 {
+          font-size: 1.2rem;
+          font-weight: 600;
+          margin: 0;
+        }
+
+        .availability-subtitle {
+          font-size: 0.85rem;
+          color: var(--text-muted);
+          margin-bottom: 15px;
+          text-transform: uppercase;
+          letter-spacing: 1px;
+        }
+
+        .timeline {
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+        }
+
+        .timeline-item {
+          background: rgba(255, 255, 255, 0.05);
+          padding: 15px;
+          border-radius: 12px;
+          border-left: 4px solid var(--primary);
+        }
+
+        .time-range {
+          font-weight: 600;
+          font-size: 1.05rem;
+        }
+
+        .buffer-info {
+          font-size: 0.8rem;
+          color: #f59e0b;
+          margin-top: 4px;
+        }
+
+        .buffer-note {
+          margin-top: auto;
+          display: flex;
+          gap: 10px;
+          font-size: 0.8rem;
+          color: var(--text-muted);
+          line-height: 1.4;
+          background: rgba(99, 102, 241, 0.05);
+          padding: 12px;
+          border-radius: 10px;
+        }
+
+        .empty-availability, .no-bookings {
+          text-align: center;
+          color: var(--text-muted);
+          padding: 40px 20px;
+          font-size: 0.95rem;
+        }
+
+        .loading-availability {
+          text-align: center;
+          padding: 40px;
+        }
+
+        .spinner {
+          width: 30px;
+          height: 30px;
+          border: 3px solid rgba(255,255,255,0.1);
+          border-top-color: var(--primary);
+          border-radius: 50%;
+          margin: 0 auto 15px;
+          animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+          to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 850px) {
+          .booking-grid { grid-template-columns: 1fr; }
           .input-row { flex-direction: column; }
         }
       `}</style>

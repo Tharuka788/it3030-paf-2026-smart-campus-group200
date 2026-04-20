@@ -13,11 +13,13 @@ const Login = () => {
      try {
        const result = await signInWithPopup(auth, googleProvider);
        const user = result.user;
-       
+       // Extract name from email
+       const extractedName = user.email ? user.email.split('@')[0] : 'Student';
+
        // Store user info in localStorage
        localStorage.setItem('isAuthenticated', 'true');
        localStorage.setItem('userEmail', user.email);
-       localStorage.setItem('userName', user.displayName);
+       localStorage.setItem('userName', extractedName);
        localStorage.setItem('userPhoto', user.photoURL);
        
        // Navigate to dashboard without full reload

@@ -7,7 +7,8 @@ import {
   User, 
   Settings, 
   LogOut,
-  GraduationCap
+  GraduationCap,
+  Ticket
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -16,6 +17,7 @@ const Sidebar = () => {
     { name: 'Overview', icon: <Home size={22} />, path: '/dashboard' },
     { name: 'Facilities', icon: <Box size={22} />, path: '/facilities' },
     { name: 'My Bookings', icon: <Calendar size={22} />, path: '/bookings/my' },
+    { name: 'My Tickets', icon: <Ticket size={22} />, path: '/tickets/my' },
     { name: 'Profile', icon: <User size={22} />, path: '/profile' },
     { name: 'Settings', icon: <Settings size={22} />, path: '/settings' },
   ];

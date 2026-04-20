@@ -9,13 +9,13 @@ const Layout = ({ children }) => {
       <main className="main-content">
         <header className="main-header glass-morphism animate-fade-in">
            <div className="header-left">
-             <h2 className="header-title">Welcome back, <span className="gradient-text">Student 👋</span></h2>
+             <h2 className="header-title">Welcome back, <span className="gradient-text">{localStorage.getItem('userName') || 'Student'} 👋</span></h2>
              <p className="header-date">{new Date().toDateString()}</p>
            </div>
            <div className="header-right">
              <div className="profile-pill glass-morphism">
-               <img src="https://ui-avatars.com/api/?name=Student&background=6366f1&color=fff" alt="Profile" />
-               <span>Student</span>
+               <img src={localStorage.getItem('userPhoto') || `https://ui-avatars.com/api/?name=${localStorage.getItem('userName') || 'Student'}&background=6366f1&color=fff`} alt="Profile" />
+               <span>{localStorage.getItem('userName') || 'Student'}</span>
              </div>
            </div>
         </header>

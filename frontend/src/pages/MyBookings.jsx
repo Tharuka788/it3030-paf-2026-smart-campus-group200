@@ -22,8 +22,8 @@ const MyBookings = () => {
 
   const fetchBookings = async () => {
     try {
-      // Mocking user email for now
-      const response = await bookingService.getBookingsByUser('student@campus.edu');
+      const userEmail = localStorage.getItem('userEmail') || 'student@campus.edu';
+      const response = await bookingService.getBookingsByUser(userEmail);
       setBookings(response.data);
     } catch (err) {
       console.error('Failed to fetch bookings:', err);

@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/bookings")
@@ -58,5 +59,15 @@ public class BookingController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteBooking(@PathVariable String id) {
         bookingService.deleteBooking(id);
+    }
+
+    @GetMapping("/resource/{resourceId}")
+    public List<Booking> getBookingsByResource(@PathVariable String resourceId) {
+        return bookingService.getBookingsByResource(resourceId);
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<Map<String, String>> handleIllegalArgumentException(IllegalArgumentException ex) {
+        return ResponseEntity.badRequest().body(Map.of("message", ex.getMessage()));
     }
 }

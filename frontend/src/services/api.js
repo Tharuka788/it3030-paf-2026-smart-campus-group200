@@ -13,6 +13,7 @@ export const bookingService = {
   createBooking: (data) => api.post('/bookings', data),
   getAllBookings: () => api.get('/bookings'),
   getBookingsByUser: (email) => api.get(`/bookings/user/${email}`),
+  getBookingsByResource: (resourceId) => api.get(`/bookings/resource/${resourceId}`),
   updateStatus: (id, status) => api.patch(`/bookings/${id}/status?status=${status}`),
   deleteBooking: (id) => api.delete(`/bookings/${id}`),
 };

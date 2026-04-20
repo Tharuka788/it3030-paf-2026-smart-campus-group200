@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,6 +17,23 @@ public class BookingService {
     private final BookingRepository bookingRepository;
 
     public Booking createBooking(Booking booking) {
+        // Validate overlaps
+        List<Booking> existingBookings = bookingRepository.findByResourceIdAndStatusIn(
+                booking.getResourceId(), Arrays.asList("PENDING", "APPROVED"));
+
+        for (Booking existing : existingBookings) {
+            LocalDateTime existingStart = existing.getStartTime();
+            LocalDateTime existingEnd = existing.getEndTime();
+            
+            // 30 min buffer
+            LocalDateTime bufferStart = existingStart.minusMinutes(30);
+            LocalDateTime bufferEnd = existingEnd.plusMinutes(30);
+
+            if (booking.getStartTime().isBefore(bufferEnd) && booking.getEndTime().isAfter(bufferStart)) {
+                throw new IllegalArgumentException("Booking conflicts with an existing schedule (including 30-min buffer). Please select another time.");
+            }
+        }
+
         booking.setCreatedAt(LocalDateTime.now());
         booking.setUpdatedAt(LocalDateTime.now());
         booking.setStatus("PENDING");
@@ -44,5 +62,9 @@ public class BookingService {
 
     public void deleteBooking(String id) {
         bookingRepository.deleteById(id);
+    }
+
+    public List<Booking> getBookingsByResource(String resourceId) {
+        return bookingRepository.findByResourceIdAndStatusIn(resourceId, Arrays.asList("PENDING", "APPROVED"));
     }
 }
