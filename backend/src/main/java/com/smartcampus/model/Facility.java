@@ -36,7 +36,7 @@ public class Facility {
     }
 
     public enum FacilityStatus {
-        ACTIVE, OUT_OF_SERVICE, MAINTENANCE
+        ACTIVE, IN_STOCK, OUT_OF_STOCK, OUT_OF_SERVICE, MAINTENANCE
     }
 
     @Data
