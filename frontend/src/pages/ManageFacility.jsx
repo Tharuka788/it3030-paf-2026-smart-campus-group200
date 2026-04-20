@@ -42,7 +42,17 @@ const ManageFacility = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData(prev => {
+      const newData = { ...prev, [name]: value };
+      if (name === 'type') {
+        if (value === 'EQUIPMENT' && !['IN_STOCK', 'OUT_OF_STOCK'].includes(prev.status)) {
+          newData.status = 'IN_STOCK';
+        } else if (value !== 'EQUIPMENT' && !['ACTIVE', 'OUT_OF_SERVICE', 'MAINTENANCE'].includes(prev.status)) {
+          newData.status = 'ACTIVE';
+        }
+      }
+      return newData;
+    });
   };
 
   const handleWindowChange = (index, field, value) => {
@@ -123,20 +133,31 @@ const ManageFacility = () => {
               </div>
 
               <div className="input-row">
-                <div className="input-group" style={{flex: 2}}>
-                  <label><MapPin size={18} /> Location</label>
-                  <input type="text" name="location" value={formData.location} onChange={handleChange} placeholder="e.g. Building 1, 3rd Floor" />
-                </div>
+                {formData.type !== 'EQUIPMENT' && (
+                  <div className="input-group" style={{flex: 2}}>
+                    <label><MapPin size={18} /> Location</label>
+                    <input type="text" name="location" value={formData.location} onChange={handleChange} placeholder="e.g. Building 1, 3rd Floor" />
+                  </div>
+                )}
                 <div className="input-group" style={{flex: 1}}>
-                  <label><Info size={18} /> Capacity</label>
-                  <input type="number" name="capacity" value={formData.capacity} onChange={handleChange} placeholder="e.g. 50" />
+                  <label><Info size={18} /> {formData.type === 'EQUIPMENT' ? 'Quantity' : 'Capacity'}</label>
+                  <input type="number" name="capacity" value={formData.capacity} onChange={handleChange} placeholder={formData.type === 'EQUIPMENT' ? 'e.g. 10' : 'e.g. 50'} />
                 </div>
                 <div className="input-group" style={{flex: 1}}>
                   <label><ShieldAlert size={18} /> Status</label>
                   <select name="status" value={formData.status} onChange={handleChange}>
-                      <option value="ACTIVE">Active</option>
-                      <option value="OUT_OF_SERVICE">Out of Service</option>
-                      <option value="MAINTENANCE">Maintenance</option>
+                      {formData.type === 'EQUIPMENT' ? (
+                          <>
+                              <option value="IN_STOCK">In Stock</option>
+                              <option value="OUT_OF_STOCK">Out of Stock</option>
+                          </>
+                      ) : (
+                          <>
+                              <option value="ACTIVE">Active</option>
+                              <option value="OUT_OF_SERVICE">Out of Service</option>
+                              <option value="MAINTENANCE">Maintenance</option>
+                          </>
+                      )}
                   </select>
                 </div>
               </div>
