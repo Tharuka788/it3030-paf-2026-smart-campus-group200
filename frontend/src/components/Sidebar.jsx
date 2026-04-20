@@ -2,7 +2,6 @@ import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { 
   Home, 
-  PlusCircle, 
   Calendar,
   Box, 
   User, 
@@ -16,7 +15,6 @@ const Sidebar = () => {
   const navItems = [
     { name: 'Overview', icon: <Home size={22} />, path: '/dashboard' },
     { name: 'Facilities', icon: <Box size={22} />, path: '/facilities' },
-    { name: 'New Booking', icon: <PlusCircle size={22} />, path: '/bookings/new' },
     { name: 'My Bookings', icon: <Calendar size={22} />, path: '/bookings/my' },
     { name: 'Profile', icon: <User size={22} />, path: '/profile' },
     { name: 'Settings', icon: <Settings size={22} />, path: '/settings' },

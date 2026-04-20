@@ -62,15 +62,18 @@ const NewBooking = () => {
           <form onSubmit={handleSubmit} className="booking-form">
             <div className="input-row">
               <div className="input-group">
-                <label><MapPin size={18} /> Resource ID</label>
-                <input 
-                  type="text" 
+                <label><MapPin size={18} /> Booking Resources</label>
+                <select 
                   name="resourceId" 
                   value={formData.resourceId}
                   onChange={handleChange}
-                  placeholder="e.g. LAB-101" 
                   required 
-                />
+                >
+                  <option value="" disabled>Select a resource</option>
+                  <option value="Lecture Hall">Lecture Hall</option>
+                  <option value="Lab">Lab</option>
+                  <option value="Meeting Room">Meeting Room</option>
+                </select>
               </div>
               <div className="input-group">
                 <label><Calendar size={18} /> Expected Attendees</label>
@@ -199,7 +202,7 @@ const NewBooking = () => {
           font-size: 0.95rem;
         }
 
-        input, textarea {
+        input, textarea, select {
           background: rgba(255, 255, 255, 0.05);
           border: 1px solid var(--glass-border);
           border-radius: 12px;
@@ -209,7 +212,12 @@ const NewBooking = () => {
           transition: all 0.3s;
         }
 
-        input:focus, textarea:focus {
+        select option {
+          background: #1e1e2d; /* matching dark theme */
+          color: white;
+        }
+
+        input:focus, textarea:focus, select:focus {
           outline: none;
           border-color: var(--primary);
           background: rgba(255, 255, 255, 0.08);

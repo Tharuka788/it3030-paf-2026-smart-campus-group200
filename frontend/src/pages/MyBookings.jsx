@@ -1,21 +1,24 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Layout from '../components/Layout';
 import { motion } from 'framer-motion';
 import { 
-  Search, 
-  MapPin, 
   Calendar, 
   Clock, 
-  Trash2, 
-  ChevronRight,
-  Filter
+  Filter,
+  Plus,
+  Users,
+  FileText,
+  CheckCircle,
+  CalendarDays
 } from 'lucide-react';
 import { bookingService } from '../services/api';
 
 const MyBookings = () => {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [filterStatus, setFilterStatus] = useState('All');
+  const navigate = useNavigate();
 
   const fetchBookings = async () => {
     try {
@@ -45,88 +48,149 @@ const MyBookings = () => {
   };
 
   const filteredBookings = bookings.filter(b => 
-    b.resourceId?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    b.purpose.toLowerCase().includes(searchTerm.toLowerCase())
+    filterStatus === 'All' ? true : b.status === filterStatus.toUpperCase()
   );
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'APPROVED': return '#10b981';
-      case 'PENDING': return '#f59e0b';
-      case 'REJECTED': return '#ef4444';
+      case 'APPROVED': return '#10b981'; // green
+      case 'PENDING': return '#f59e0b'; // yellow/orange
+      case 'REJECTED': return '#ef4444'; // red
+      case 'CANCELLED': return '#94a3b8'; // slate/gray
       default: return '#94a3b8';
     }
+  };
+
+  const getStatusBg = (status) => {
+    switch (status) {
+      case 'APPROVED': return 'rgba(16, 185, 129, 0.15)';
+      case 'PENDING': return 'rgba(245, 158, 11, 0.15)';
+      case 'REJECTED': return 'rgba(239, 68, 68, 0.15)';
+      case 'CANCELLED': return 'rgba(148, 163, 184, 0.15)';
+      default: return 'rgba(148, 163, 184, 0.15)';
+    }
+  };
+
+  const stats = {
+    total: bookings.length,
+    pending: bookings.filter(b => b.status === 'PENDING').length,
+    approved: bookings.filter(b => b.status === 'APPROVED').length
   };
 
   return (
     <Layout>
       <div className="bookings-container">
         <header className="page-header">
-           <h1 className="gradient-text">My Bookings</h1>
-           <p>Manage and track your resource requests.</p>
+           <div className="header-titles">
+             <h1 className="text-white">My Bookings</h1>
+             <p>Manage your university resource reservations.</p>
+           </div>
+           <button className="btn-primary new-booking-btn" onClick={() => navigate('/bookings/new')}>
+             <Plus size={18} /> New Booking
+           </button>
         </header>
 
-        <section className="controls glass-morphism">
-          <div className="search-box">
-             <Search size={20} className="search-icon" />
-             <input 
-               type="text" 
-               placeholder="Search by room or purpose..." 
-               value={searchTerm}
-               onChange={(e) => setSearchTerm(e.target.value)}
-             />
+        <section className="stats-grid">
+          <div className="stat-card glass-morphism">
+            <div className="stat-icon-wrapper blue-icon">
+               <CalendarDays size={24} />
+            </div>
+            <div className="stat-info">
+              <span className="stat-label">Total Bookings</span>
+              <span className="stat-value">{stats.total}</span>
+            </div>
           </div>
-          <button className="filter-btn">
-             <Filter size={20} />
-             <span>Filter</span>
-          </button>
+          <div className="stat-card glass-morphism">
+            <div className="stat-icon-wrapper yellow-icon">
+               <Clock size={24} />
+            </div>
+            <div className="stat-info">
+              <span className="stat-label">Pending Approval</span>
+              <span className="stat-value">{stats.pending}</span>
+            </div>
+          </div>
+          <div className="stat-card glass-morphism">
+            <div className="stat-icon-wrapper green-icon">
+               <CheckCircle size={24} />
+            </div>
+            <div className="stat-info">
+              <span className="stat-label">Approved Bookings</span>
+              <span className="stat-value">{stats.approved}</span>
+            </div>
+          </div>
         </section>
 
-        <section className="bookings-list">
-           {loading ? (
-             <div className="loading-spinner">Loading your bookings...</div>
-           ) : filteredBookings.length === 0 ? (
-             <div className="empty-state glass-morphism">
-               <h3>No bookings found</h3>
-               <p>You haven't made any resource requests yet.</p>
-             </div>
-           ) : (
-             <div className="bookings-grid">
-               {filteredBookings.map((booking, index) => (
-                 <motion.div 
-                   key={booking.id}
-                   className="booking-card glass-morphism"
-                   initial={{ opacity: 0, scale: 0.95 }}
-                   animate={{ opacity: 1, scale: 1 }}
-                   transition={{ delay: index * 0.05 }}
-                 >
-                    <div className="card-header">
-                       <span className="room-name"><MapPin size={16} /> {booking.resourceId}</span>
-                       <span className="status-badge" style={{ backgroundColor: `${getStatusColor(booking.status)}15`, color: getStatusColor(booking.status) }}>
-                          {booking.status}
-                       </span>
-                    </div>
+        <section className="recent-activity-section">
+          <div className="section-header">
+            <h2 className="section-title">Recent Activity</h2>
+            <div className="filters">
+              <Filter size={18} className="filter-icon" />
+              {['All', 'Pending', 'Approved', 'Rejected', 'Cancelled'].map(status => (
+                <button 
+                  key={status}
+                  className={`filter-pill ${filterStatus === status ? 'active' : ''}`}
+                  onClick={() => setFilterStatus(status)}
+                >
+                  {status}
+                </button>
+              ))}
+            </div>
+          </div>
 
-                    <div className="card-body">
-                       <h4>{booking.purpose}</h4>
-                       <div className="time-info">
-                          <p><Calendar size={14} /> {new Date(booking.startTime).toLocaleDateString()}</p>
-                          <p><Clock size={14} /> {new Date(booking.startTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} - {new Date(booking.endTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</p>
-                       </div>
-                    </div>
+          <div className="bookings-list">
+             {loading ? (
+               <div className="loading-spinner">Loading your bookings...</div>
+             ) : filteredBookings.length === 0 ? (
+               <div className="empty-state glass-morphism">
+                 <h3>No bookings found</h3>
+                 <p>You haven't made any resource requests yet.</p>
+               </div>
+             ) : (
+               <div className="bookings-grid">
+                 {filteredBookings.map((booking, index) => (
+                   <motion.div 
+                     key={booking.id}
+                     className="booking-card glass-morphism"
+                     initial={{ opacity: 0, scale: 0.95 }}
+                     animate={{ opacity: 1, scale: 1 }}
+                     transition={{ delay: index * 0.05 }}
+                   >
+                      <div className="card-header">
+                         <h3 className="room-name">{booking.resourceId || 'Resource Name'}</h3>
+                         <span className="status-badge" style={{ backgroundColor: getStatusBg(booking.status), color: getStatusColor(booking.status) }}>
+                            {booking.status === 'PENDING' ? 'Pending' : booking.status === 'APPROVED' ? 'Approved' : booking.status === 'REJECTED' ? 'Rejected' : 'Cancelled'}
+                         </span>
+                      </div>
 
-                    <div className="card-footer">
-                       <button className="details-btn">
-                          View Details <ChevronRight size={16} />
-                       </button>
-                       <button className="delete-btn" onClick={() => handleDelete(booking.id)}>
-                          <Trash2 size={18} />
-                       </button>
-                    </div>
-                 </motion.div>
-               ))}
-             </div>
-           )}
+                      <div className="card-body">
+                         <div className="info-row">
+                            <Calendar size={16} className="info-icon" /> 
+                            <span>{new Date(booking.startTime).toLocaleDateString('en-CA')}</span>
+                         </div>
+                         <div className="info-row">
+                            <Clock size={16} className="info-icon" /> 
+                            <span>{new Date(booking.startTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} - {new Date(booking.endTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                         </div>
+                         <div className="info-row">
+                            <Users size={16} className="info-icon" />
+                            <span>{booking.expectedAttendees || 0} Attendees</span>
+                         </div>
+                         <div className="info-row purpose-row">
+                            <FileText size={16} className="info-icon" />
+                            <span>{booking.purpose}</span>
+                         </div>
+                      </div>
+
+                      {booking.status === 'PENDING' && (
+                        <button className="cancel-booking-btn" onClick={(e) => { e.stopPropagation(); handleDelete(booking.id); }}>
+                           Cancel Booking
+                        </button>
+                      )}
+                   </motion.div>
+                 ))}
+               </div>
+             )}
+          </div>
         </section>
       </div>
 
@@ -134,93 +198,180 @@ const MyBookings = () => {
         .bookings-container {
           display: flex;
           flex-direction: column;
-          gap: 30px;
+          gap: 35px;
           padding-bottom: 50px;
+          color: white;
         }
 
-        .page-header h1 {
+        .page-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+
+        .header-titles h1 {
           font-size: 2.2rem;
           font-weight: 700;
-          margin-bottom: 5px;
+          margin-bottom: 8px;
+          color: #ffffff;
         }
 
-        .page-header p {
-          color: var(--text-muted);
+        .header-titles p {
+          color: var(--text-muted, #94a3b8);
+          font-size: 1.05rem;
         }
 
-        .controls {
-          padding: 15px 25px;
+        .new-booking-btn {
           display: flex;
+          align-items: center;
+          gap: 8px;
+          background: #06b6d4;
+          color: #0f172a;
+          font-weight: 600;
+          padding: 12px 24px;
+          border-radius: 12px;
+          border: none;
+          cursor: pointer;
+          transition: all 0.3s;
+          box-shadow: 0 4px 20px rgba(6, 182, 212, 0.3);
+        }
+
+        .new-booking-btn:hover {
+          background: #0891b2;
+          transform: translateY(-2px);
+          box-shadow: 0 6px 25px rgba(6, 182, 212, 0.4);
+        }
+
+        .stats-grid {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 25px;
+        }
+
+        .stat-card {
+          display: flex;
+          align-items: center;
           gap: 20px;
-          border-radius: 14px;
+          padding: 24px;
+          border-radius: 16px;
+          background: rgba(30, 41, 59, 0.5);
+          border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
-        .search-box {
-          flex: 1;
-          position: relative;
+        .stat-icon-wrapper {
+          width: 56px;
+          height: 56px;
+          border-radius: 50%;
           display: flex;
+          justify-content: center;
           align-items: center;
         }
 
-        .search-icon {
-          position: absolute;
-          left: 15px;
-          color: var(--text-muted);
+        .blue-icon {
+          background: rgba(6, 182, 212, 0.15);
+          color: #06b6d4;
         }
 
-        .search-box input {
-          width: 100%;
-          padding: 12px 12px 12px 50px;
-          background: rgba(255, 255, 255, 0.05);
-          border: 1px solid var(--glass-border);
-          border-radius: 12px;
-          color: white;
-          font-family: inherit;
-          transition: all 0.3s;
+        .yellow-icon {
+          background: rgba(245, 158, 11, 0.15);
+          color: #f59e0b;
         }
 
-        .search-box input:focus {
-          outline: none;
-          background: rgba(255, 255, 255, 0.08);
-          border-color: var(--primary);
+        .green-icon {
+          background: rgba(16, 185, 129, 0.15);
+          color: #10b981;
         }
 
-        .filter-btn {
+        .stat-info {
           display: flex;
-          align-items: center;
-          gap: 10px;
-          padding: 12px 25px;
-          background: rgba(255, 255, 255, 0.05);
-          border: 1px solid var(--glass-border);
-          border-radius: 12px;
-          color: var(--text-main);
+          flex-direction: column;
+          gap: 4px;
+        }
+
+        .stat-label {
+          color: var(--text-muted, #94a3b8);
+          font-size: 0.9rem;
           font-weight: 500;
-          transition: all 0.3s;
         }
 
-        .filter-btn:hover {
-          background: rgba(255, 255, 255, 0.1);
+        .stat-value {
+          font-size: 1.8rem;
+          font-weight: 700;
+          color: white;
+        }
+
+        .recent-activity-section {
+          display: flex;
+          flex-direction: column;
+          gap: 25px;
+        }
+
+        .section-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+
+        .section-title {
+          font-size: 1.4rem;
+          font-weight: 600;
+          color: white;
+        }
+
+        .filters {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+        }
+
+        .filter-icon {
+          color: var(--text-muted, #94a3b8);
+          margin-right: 5px;
+        }
+
+        .filter-pill {
+          background: rgba(30, 41, 59, 0.8);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          color: var(--text-muted, #94a3b8);
+          padding: 6px 16px;
+          border-radius: 20px;
+          font-size: 0.9rem;
+          cursor: pointer;
+          transition: all 0.2s;
+        }
+
+        .filter-pill:hover {
+          background: rgba(255, 255, 255, 0.05);
+          color: white;
+        }
+
+        .filter-pill.active {
+          background: rgba(6, 182, 212, 0.15);
+          border-color: #06b6d4;
+          color: #06b6d4;
         }
 
         .bookings-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+          grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
           gap: 25px;
         }
 
         .booking-card {
-          padding: 25px;
+          padding: 24px;
           display: flex;
           flex-direction: column;
           gap: 20px;
-          border-radius: 18px;
+          border-radius: 16px;
+          background: rgba(30, 41, 59, 0.5);
+          border: 1px solid rgba(255, 255, 255, 0.05);
           transition: all 0.3s;
         }
 
         .booking-card:hover {
-          transform: translateY(-5px);
-          box-shadow: 0 15px 30px -10px rgba(0, 0, 0, 0.5);
-          border-color: rgba(99, 102, 241, 0.3);
+          transform: translateY(-4px);
+          box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+          border-color: rgba(255, 255, 255, 0.1);
         }
 
         .card-header {
@@ -230,88 +381,99 @@ const MyBookings = () => {
         }
 
         .room-name {
-          display: flex;
-          align-items: center;
-          gap: 8px;
+          font-size: 1.15rem;
           font-weight: 600;
-          color: var(--primary);
-          background: rgba(99, 102, 241, 0.1);
-          padding: 5px 12px;
-          border-radius: 8px;
-          font-size: 0.9rem;
+          color: white;
+          margin: 0;
         }
 
         .status-badge {
-          font-size: 0.8rem;
+          font-size: 0.75rem;
           font-weight: 600;
-          padding: 4px 10px;
-          border-radius: 4px;
+          padding: 4px 12px;
+          border-radius: 12px;
           letter-spacing: 0.5px;
         }
 
-        .card-body h4 {
-          font-size: 1.15rem;
-          margin-bottom: 12px;
-          color: var(--text-main);
-        }
-
-        .time-info {
+        .card-body {
           display: flex;
           flex-direction: column;
-          gap: 8px;
-          color: var(--text-muted);
-          font-size: 0.9rem;
+          gap: 14px;
         }
 
-        .time-info p {
+        .info-row {
           display: flex;
           align-items: center;
-          gap: 8px;
+          gap: 12px;
+          color: #cbd5e1;
+          font-size: 0.95rem;
         }
 
-        .card-footer {
-          margin-top: auto;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          padding-top: 15px;
+        .info-icon {
+          color: #06b6d4;
+          min-width: 16px;
+        }
+
+        .purpose-row {
+          margin-top: 8px;
+          padding-top: 14px;
           border-top: 1px solid rgba(255, 255, 255, 0.05);
+          align-items: flex-start;
+        }
+        
+        .purpose-row .info-icon {
+          margin-top: 2px;
         }
 
-        .details-btn {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          font-weight: 600;
-          color: var(--text-muted);
-          transition: color 0.3s;
-        }
-
-        .details-btn:hover {
-          color: var(--primary);
-        }
-
-        .delete-btn {
-          padding: 8px;
-          color: #ef4444;
-          border-radius: 8px;
-          transition: all 0.3s;
-        }
-
-        .delete-btn:hover {
+        .cancel-booking-btn {
+          margin-top: auto;
           background: rgba(239, 68, 68, 0.1);
+          color: #ef4444;
+          border: 1px solid rgba(239, 68, 68, 0.2);
+          padding: 10px;
+          border-radius: 10px;
+          font-weight: 500;
+          cursor: pointer;
+          transition: all 0.3s;
+          width: 100%;
+        }
+
+        .cancel-booking-btn:hover {
+          background: rgba(239, 68, 68, 0.2);
         }
 
         .empty-state {
-          padding: 100px 40px;
+          padding: 80px 40px;
           text-align: center;
           display: flex;
           flex-direction: column;
           gap: 15px;
+          border-radius: 16px;
+          background: rgba(30, 41, 59, 0.5);
+          border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
-        .empty-state h3 { font-size: 1.5rem; }
-        .empty-state p { color: var(--text-muted); }
+        .empty-state h3 { font-size: 1.4rem; color: white; }
+        .empty-state p { color: var(--text-muted, #94a3b8); }
+        
+        @media (max-width: 768px) {
+          .stats-grid {
+            grid-template-columns: 1fr;
+          }
+          .page-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 15px;
+          }
+          .section-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 15px;
+          }
+          .filters {
+            flex-wrap: wrap;
+          }
+        }
       `}</style>
     </Layout>
   );
