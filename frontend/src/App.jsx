@@ -9,8 +9,8 @@ import ManageFacility from './pages/ManageFacility';
 import './index.css';
 
 function App() {
-  // Simple auth check (mock for now, will be replaced with real OAuth state)
-  const isAuthenticated = true; // Setting to true for development viewing
+  // Simple auth check using localStorage for demo
+  const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
 
   return (
     <Router>

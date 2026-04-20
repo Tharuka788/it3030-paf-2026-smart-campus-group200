@@ -46,7 +46,13 @@ const Sidebar = () => {
       </nav>
 
       <div className="sidebar-footer">
-        <button className="logout-btn">
+        <button 
+          className="logout-btn"
+          onClick={() => {
+            localStorage.removeItem('isAuthenticated');
+            window.location.href = '/login';
+          }}
+        >
           <LogOut size={22} />
           <span>Logout</span>
         </button>

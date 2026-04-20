@@ -1,11 +1,31 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { GraduationCap, LogIn } from 'lucide-react';
+import { signInWithPopup } from 'firebase/auth';
+import { auth, googleProvider } from '../firebase';
+import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
-  const handleGoogleLogin = () => {
-     // Redirect to Spring Boot OAuth2 endpoint
-     window.location.href = 'http://localhost:8080/oauth2/authorization/google';
+  const navigate = useNavigate();
+  const [error, setError] = useState(null);
+
+  const handleGoogleLogin = async () => {
+     try {
+       const result = await signInWithPopup(auth, googleProvider);
+       const user = result.user;
+       
+       // Store user info in localStorage
+       localStorage.setItem('isAuthenticated', 'true');
+       localStorage.setItem('userEmail', user.email);
+       localStorage.setItem('userName', user.displayName);
+       localStorage.setItem('userPhoto', user.photoURL);
+       
+       // Navigate to dashboard without full reload
+       navigate('/dashboard');
+     } catch (err) {
+       console.error("Google sign in error", err);
+       setError("Failed to sign in with Google. Please try again.");
+     }
   };
 
   return (
@@ -24,6 +44,7 @@ const Login = () => {
         </div>
 
         <div className="auth-section">
+          {error && <p className="error-msg">{error}</p>}
           <p className="auth-msg">Sign in to manage your bookings and access smart services.</p>
           <button 
             className="google-btn" 
@@ -94,6 +115,16 @@ z-index: 10;
           color: var(--text-muted);
           margin-bottom: 25px;
           font-size: 0.95rem;
+        }
+
+        .error-msg {
+          color: #ef4444;
+          background: rgba(239, 68, 68, 0.1);
+          padding: 10px;
+          border-radius: 8px;
+          margin-bottom: 15px;
+          font-size: 0.9rem;
+          border: 1px solid rgba(239, 68, 68, 0.2);
         }
 
         .google-btn {
