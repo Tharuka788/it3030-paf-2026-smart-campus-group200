@@ -22,6 +22,7 @@ public class Booking {
     private LocalDateTime endTime;
     private String purpose;
     private Integer expectedAttendees;
+    private java.util.List<String> selectedSeats;
     private String status; // PENDING, APPROVED, REJECTED, CANCELLED
     private String rejectionReason;
     private LocalDateTime createdAt = LocalDateTime.now();

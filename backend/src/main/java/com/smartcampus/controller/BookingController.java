@@ -30,6 +30,7 @@ public class BookingController {
         booking.setEndTime(bookingRequest.getEndTime());
         booking.setPurpose(bookingRequest.getPurpose());
         booking.setExpectedAttendees(bookingRequest.getExpectedAttendees());
+        booking.setSelectedSeats(bookingRequest.getSelectedSeats());
         return new ResponseEntity<>(bookingService.createBooking(booking), HttpStatus.CREATED);
     }
 

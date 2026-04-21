@@ -30,4 +30,6 @@ public class BookingRequest {
 
     @NotNull(message = "Expected attendees count is required")
     private Integer expectedAttendees;
+
+    private java.util.List<String> selectedSeats;
 }

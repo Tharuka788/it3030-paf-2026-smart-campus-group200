@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../components/Layout';
 import { motion } from 'framer-motion';
-import { Search, Filter, Plus, Edit2, Trash2, MapPin, Users, Tag, Box } from 'lucide-react';
+import { Search, Filter, Plus, Edit2, Trash2, MapPin, Users, Tag, Box, Calendar } from 'lucide-react';
 import { facilityService } from '../services/api';
 
 const FacilitiesCatalogue = () => {
@@ -133,6 +133,29 @@ const FacilitiesCatalogue = () => {
                     )}
                   </div>
                   <div className="card-footer">
+                    {(() => {
+                      const type = fac.type?.toUpperCase().replace(/[\s_]/g, '');
+                      const isLectureHall = type === 'LECTUREHALL';
+                      
+                      return isLectureHall ? (
+                        <button 
+                          onClick={() => {
+                            console.log('Navigating to Hall Booking for:', fac.id);
+                            navigate(`/bookings/hall?id=${fac.id}`);
+                          }} 
+                          className="action-btn book"
+                        >
+                          <Calendar size={16} /> Book
+                        </button>
+                      ) : (
+                        <button 
+                          onClick={() => navigate(`/bookings/new?resourceId=${fac.id}`)} 
+                          className="action-btn book-generic"
+                        >
+                          <Calendar size={16} /> Book
+                        </button>
+                      );
+                    })()}
                     <button onClick={() => navigate(`/facilities/manage?id=${fac.id}`)} className="action-btn edit">
                       <Edit2 size={16} /> Edit
                     </button>
@@ -343,6 +366,18 @@ const FacilitiesCatalogue = () => {
         }
         
         .action-btn.delete:hover { background: rgba(239, 68, 68, 0.2); }
+        
+        .action-btn.book {
+          background: rgba(16, 185, 129, 0.1);
+          color: #34d399;
+        }
+        .action-btn.book:hover { background: rgba(16, 185, 129, 0.2); }
+
+        .action-btn.book-generic {
+          background: rgba(245, 158, 11, 0.1);
+          color: #f59e0b;
+        }
+        .action-btn.book-generic:hover { background: rgba(245, 158, 11, 0.2); }
 
         .empty-state {
           grid-column: 1 / -1;

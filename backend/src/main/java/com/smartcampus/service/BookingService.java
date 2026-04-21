@@ -30,7 +30,20 @@ public class BookingService {
             LocalDateTime bufferEnd = existingEnd.plusMinutes(30);
 
             if (booking.getStartTime().isBefore(bufferEnd) && booking.getEndTime().isAfter(bufferStart)) {
-                throw new IllegalArgumentException("Booking conflicts with an existing schedule (including 30-min buffer). Please select another time.");
+                // If both bookings have selected seats, check for intersection
+                if (booking.getSelectedSeats() != null && !booking.getSelectedSeats().isEmpty() &&
+                    existing.getSelectedSeats() != null && !existing.getSelectedSeats().isEmpty()) {
+                    
+                    boolean hasCommonSeat = booking.getSelectedSeats().stream()
+                            .anyMatch(existing.getSelectedSeats()::contains);
+                    
+                    if (hasCommonSeat) {
+                        throw new IllegalArgumentException("One or more selected seats are already booked for this time.");
+                    }
+                } else {
+                    // If either is a "whole hall" booking, then it's a conflict
+                    throw new IllegalArgumentException("Booking conflicts with an existing schedule (including 30-min buffer). Please select another time.");
+                }
             }
         }
 

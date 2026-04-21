@@ -7,6 +7,7 @@ import MyBookings from './pages/MyBookings';
 import FacilitiesCatalogue from './pages/FacilitiesCatalogue';
 import ManageFacility from './pages/ManageFacility';
 import MyTickets from './pages/MyTickets';
+import HallBooking from './pages/HallBooking';
 import './index.css';
 
 function App() {
@@ -38,6 +39,10 @@ function App() {
         <Route 
           path="/bookings/my" 
           element={isAuthenticated ? <MyBookings /> : <Navigate to="/login" />} 
+        />
+        <Route 
+          path="/bookings/hall" 
+          element={isAuthenticated ? <HallBooking /> : <Navigate to="/login" />} 
         />
         <Route 
           path="/tickets/my" 

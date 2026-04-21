@@ -1,11 +1,16 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import Layout from '../components/Layout';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Calendar, Clock, MapPin, FileText, Send, AlertCircle, Info } from 'lucide-react';
-import { bookingService } from '../services/api';
+import { bookingService, facilityService } from '../services/api';
 import { format, parseISO, isSameDay } from 'date-fns';
 
 const NewBooking = () => {
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const urlResourceId = searchParams.get('resourceId');
+
   const [formData, setFormData] = useState({
     resourceId: '',
     startTime: '',
@@ -23,10 +28,38 @@ const NewBooking = () => {
   const [fetchingAvailability, setFetchingAvailability] = useState(false);
 
   useEffect(() => {
+    if (urlResourceId && !formData.resourceId) {
+       setFormData(prev => ({ ...prev, resourceId: urlResourceId }));
+    }
+  }, [urlResourceId]);
+
+  useEffect(() => {
     if (formData.resourceId) {
       fetchAvailability();
+      // Check if it's a lecture hall and redirect
+      if (formData.resourceId.includes('L') || formData.resourceId.length > 10) { // Simple heuristic or fetch type
+          // If we had the type here we could redirect. 
+          // For now let's just make sure FacilitiesCatalogue navigation is fixed.
+      }
     }
   }, [formData.resourceId]);
+
+  useEffect(() => {
+    const checkResourceAndRedirect = async () => {
+      if (urlResourceId) {
+        try {
+          const { data } = await facilityService.getFacilityById(urlResourceId);
+          const type = data.type?.toUpperCase().replace(/[\s_]/g, '');
+          if (type === 'LECTUREHALL') {
+            navigate(`/bookings/hall?id=${urlResourceId}`);
+          }
+        } catch (err) {
+          console.error('Failed to check resource type:', err);
+        }
+      }
+    };
+    checkResourceAndRedirect();
+  }, [urlResourceId, navigate]);
 
   const fetchAvailability = async () => {
     setFetchingAvailability(true);
