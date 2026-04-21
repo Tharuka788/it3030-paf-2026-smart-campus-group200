@@ -26,6 +26,7 @@ public class BookingController {
         booking.setUserEmail(bookingRequest.getUserEmail().toLowerCase());
         booking.setUserName(bookingRequest.getUserName());
         booking.setResourceId(bookingRequest.getResourceId());
+        booking.setResourceName(bookingRequest.getResourceName());
         booking.setStartTime(bookingRequest.getStartTime());
         booking.setEndTime(bookingRequest.getEndTime());
         booking.setPurpose(bookingRequest.getPurpose());

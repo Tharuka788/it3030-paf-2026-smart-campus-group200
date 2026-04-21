@@ -13,6 +13,7 @@ const NewBooking = () => {
 
   const [formData, setFormData] = useState({
     resourceId: '',
+    resourceName: '',
     startTime: '',
     endTime: '',
     purpose: '',
@@ -49,6 +50,7 @@ const NewBooking = () => {
       if (urlResourceId) {
         try {
           const { data } = await facilityService.getFacilityById(urlResourceId);
+          setFormData(prev => ({ ...prev, resourceName: data.name }));
           const type = data.type?.toUpperCase().replace(/[\s_]/g, '');
           if (type === 'LECTUREHALL') {
             navigate(`/bookings/hall?id=${urlResourceId}`);

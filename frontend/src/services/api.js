@@ -33,4 +33,11 @@ export const userService = {
   getMe: (email) => api.get('/users/me', { params: { email } }),
 };
 
+export const ticketService = {
+  createTicket: (data) => api.post('/tickets', data),
+  getAllTickets: () => api.get('/tickets'),
+  getTicketsByUser: (email) => api.get(`/tickets/user/${email}`),
+  updateStatus: (id, status) => api.patch(`/tickets/${id}/status?status=${status}`),
+};
+
 export default api;

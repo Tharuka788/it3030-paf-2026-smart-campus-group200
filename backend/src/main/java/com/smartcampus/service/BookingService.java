@@ -2,6 +2,7 @@ package com.smartcampus.service;
 
 import com.smartcampus.model.Booking;
 import com.smartcampus.repository.BookingRepository;
+import com.smartcampus.repository.FacilityRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +16,14 @@ import java.util.Optional;
 public class BookingService {
 
     private final BookingRepository bookingRepository;
+    private final FacilityRepository facilityRepository;
+
+    private void populateResourceName(Booking booking) {
+        if (booking.getResourceName() == null || booking.getResourceName().isEmpty()) {
+            facilityRepository.findById(booking.getResourceId())
+                    .ifPresent(f -> booking.setResourceName(f.getName()));
+        }
+    }
 
     public Booking createBooking(Booking booking) {
         // Validate overlaps
@@ -54,15 +63,21 @@ public class BookingService {
     }
 
     public List<Booking> getAllBookings() {
-        return bookingRepository.findAll();
+        List<Booking> bookings = bookingRepository.findAll();
+        bookings.forEach(this::populateResourceName);
+        return bookings;
     }
 
     public List<Booking> getBookingsByUser(String userEmail) {
-        return bookingRepository.findByUserEmail(userEmail);
+        List<Booking> bookings = bookingRepository.findByUserEmail(userEmail);
+        bookings.forEach(this::populateResourceName);
+        return bookings;
     }
 
     public Optional<Booking> getBookingById(String id) {
-        return bookingRepository.findById(id);
+        Optional<Booking> booking = bookingRepository.findById(id);
+        booking.ifPresent(this::populateResourceName);
+        return booking;
     }
 
     public Booking updateBookingStatus(String id, String status) {

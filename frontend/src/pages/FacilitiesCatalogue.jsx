@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../components/Layout';
 import { motion } from 'framer-motion';
-import { Search, Filter, Plus, Edit2, Trash2, MapPin, Users, Tag, Box, Calendar } from 'lucide-react';
+import { Search, Filter, Plus, Edit2, Trash2, MapPin, Users, Tag, Box, Calendar, Monitor } from 'lucide-react';
 import { facilityService } from '../services/api';
 
 const FacilitiesCatalogue = () => {
@@ -67,7 +67,7 @@ const FacilitiesCatalogue = () => {
           {userRole === 'ROLE_ADMIN' && (
             <button 
               className="add-btn"
-              onClick={() => navigate('/facilities/manage')}
+              onClick={() => navigate('/admin/facilities')}
             >
               <Plus size={20} />
               <span>Add Facility</span>
@@ -139,29 +139,40 @@ const FacilitiesCatalogue = () => {
                     {(() => {
                       const type = fac.type?.toUpperCase().replace(/[\s_]/g, '');
                       const isLectureHall = type === 'LECTUREHALL';
+                      const isLab = type === 'LAB';
                       
-                      return isLectureHall ? (
-                        <button 
-                          onClick={() => {
-                            console.log('Navigating to Hall Booking for:', fac.id);
-                            navigate(`/bookings/hall?id=${fac.id}`);
-                          }} 
-                          className="action-btn book"
-                        >
-                          <Calendar size={16} /> Book
-                        </button>
-                      ) : (
-                        <button 
-                          onClick={() => navigate(`/bookings/new?resourceId=${fac.id}`)} 
-                          className="action-btn book-generic"
-                        >
-                          <Calendar size={16} /> Book
-                        </button>
-                      );
+                      if (isLectureHall) {
+                        return (
+                          <button 
+                            onClick={() => navigate(`/bookings/hall?id=${fac.id}`)} 
+                            className="action-btn book"
+                          >
+                            <Calendar size={16} /> Book
+                          </button>
+                        );
+                      } else if (isLab) {
+                        return (
+                          <button 
+                            onClick={() => navigate(`/bookings/lab?id=${fac.id}`)} 
+                            className="action-btn book-lab"
+                          >
+                            <Monitor size={16} /> Book
+                          </button>
+                        );
+                      } else {
+                        return (
+                          <button 
+                            onClick={() => navigate(`/bookings/new?resourceId=${fac.id}`)} 
+                            className="action-btn book-generic"
+                          >
+                            <Calendar size={16} /> Book
+                          </button>
+                        );
+                      }
                     })()}
                     {userRole === 'ROLE_ADMIN' && (
                       <>
-                        <button onClick={() => navigate(`/facilities/manage?id=${fac.id}`)} className="action-btn edit">
+                        <button onClick={() => navigate(`/admin/facilities?id=${fac.id}`)} className="action-btn edit">
                           <Edit2 size={16} /> Edit
                         </button>
                         <button onClick={() => handleDelete(fac.id)} className="action-btn delete">
@@ -400,6 +411,12 @@ const FacilitiesCatalogue = () => {
           color: #d97706;
         }
         .action-btn.book-generic:hover { background: #fef3c7; }
+        
+        .action-btn.book-lab {
+          background: #f5f3ff;
+          color: #7c3aed;
+        }
+        .action-btn.book-lab:hover { background: #ede9fe; }
 
         .empty-state {
           grid-column: 1 / -1;

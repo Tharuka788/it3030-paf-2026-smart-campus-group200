@@ -8,24 +8,20 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
 
-@Document(collection = "bookings")
+@Document(collection = "tickets")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Booking {
+public class Ticket {
     @Id
     private String id;
-    private String resourceId;
-    private String resourceName;
     private String userEmail;
     private String userName;
-    private LocalDateTime startTime;
-    private LocalDateTime endTime;
-    private String purpose;
-    private Integer expectedAttendees;
-    private java.util.List<String> selectedSeats;
-    private String status; // PENDING, APPROVED, REJECTED, CANCELLED
-    private String rejectionReason;
+    private String subject;
+    private String category; // IT Support, Maintenance, Administration
+    private String priority; // HIGH, MEDIUM, LOW
+    private String status; // OPEN, IN_PROGRESS, RESOLVED, CLOSED
+    private String description;
     private LocalDateTime createdAt = LocalDateTime.now();
     private LocalDateTime updatedAt = LocalDateTime.now();
 }

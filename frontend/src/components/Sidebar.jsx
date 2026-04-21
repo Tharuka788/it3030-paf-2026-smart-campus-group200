@@ -8,7 +8,8 @@ import {
   Settings, 
   LogOut,
   GraduationCap,
-  Ticket
+  Ticket,
+  ShieldCheck
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -19,6 +20,7 @@ const Sidebar = () => {
     { name: 'Overview', icon: <Home size={22} />, path: '/dashboard' },
     { name: 'Facilities', icon: <Box size={22} />, path: '/facilities' },
     ...(userRole === 'ROLE_ADMIN' ? [
+      { name: 'Admin Console', icon: <ShieldCheck size={22} />, path: '/admin/dashboard' },
       { name: 'Manage Facilities', icon: <Settings size={22} />, path: '/facilities/manage' }
     ] : []),
     { name: 'My Bookings', icon: <Calendar size={22} />, path: '/bookings/my' },
@@ -65,7 +67,7 @@ const Sidebar = () => {
         </button>
       </div>
 
-      <style jsx>{`
+      <style jsx="true">{`
         .sidebar {
           width: 280px;
           height: calc(100vh - 40px);
