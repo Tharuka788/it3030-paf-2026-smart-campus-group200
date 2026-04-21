@@ -11,7 +11,7 @@ const AdminUsers = () => {
         <p>Control user access, assign roles (Admin/User), and manage campus-wide profile records.</p>
         <div className="status-badge">Module coming soon</div>
       </div>
-      <style jsx>{`
+      <style jsx="true">{`
         .admin-placeholder {
           height: 500px;
           display: flex;

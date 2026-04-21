@@ -10,33 +10,41 @@ import {
   Activity,
   BarChart3
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { facilityService, bookingService } from '../services/api';
 
 const AdminDashboard = () => {
+  const navigate = useNavigate();
   const [stats, setStats] = useState({
     totalUsers: 0,
     totalFacilities: 0,
     activeBookings: 0,
     pendingApprovals: 0
   });
+  const [recentBookings, setRecentBookings] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchAdminStats = async () => {
       try {
-        // In a real app, these would be dedicated admin stat endpoints
-        // For now, we'll derive some from existing services
         const [facilitiesRes, bookingsRes] = await Promise.all([
           facilityService.getAllFacilities(),
           bookingService.getAllBookings()
         ]);
 
         setStats({
-          totalUsers: 124, // Mocked for now
+          totalUsers: 124, 
           totalFacilities: facilitiesRes.data.length,
           activeBookings: bookingsRes.data.filter(b => b.status === 'APPROVED').length,
           pendingApprovals: bookingsRes.data.filter(b => b.status === 'PENDING').length
         });
+
+        // Sort by update time and take latest 5
+        const sorted = [...bookingsRes.data].sort((a, b) => 
+          new Date(b.updatedAt || b.createdAt) - new Date(a.updatedAt || a.createdAt)
+        ).slice(0, 5);
+        setRecentBookings(sorted);
+
       } catch (err) {
         console.error('Failed to fetch admin stats:', err);
       } finally {
@@ -95,17 +103,53 @@ const AdminDashboard = () => {
             <div className="panel-header">
               <div className="panel-title">
                 <BarChart3 size={20} />
-                <h3>Recent System Activity</h3>
+                <h3>Recent Bookings</h3>
               </div>
-              <button className="text-btn">View Detailed Logs <ArrowUpRight size={16} /></button>
+              <button className="text-btn" onClick={() => navigate('/admin/bookings')}>
+                Manage All <ArrowUpRight size={16} />
+              </button>
             </div>
             
-            <div className="placeholder-content">
-              <div className="empty-state">
-                <Activity size={48} />
-                <h4>No critical alerts today</h4>
-                <p>Infrastructure is running smoothly across all campuses.</p>
-              </div>
+            <div className="bookings-table-container">
+              {loading ? (
+                <div className="table-loader">Fetching latest records...</div>
+              ) : recentBookings.length === 0 ? (
+                <div className="empty-state">
+                  <Activity size={48} />
+                  <h4>No bookings yet</h4>
+                  <p>All resource schedules are currently empty.</p>
+                </div>
+              ) : (
+                <table className="admin-table">
+                  <thead>
+                    <tr>
+                      <th>User</th>
+                      <th>Resource</th>
+                      <th>Time</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {recentBookings.map((booking) => (
+                      <tr key={booking.id}>
+                        <td>
+                          <div className="user-cell">
+                            <span className="u-name">{booking.userName}</span>
+                            <span className="u-email">{booking.userEmail}</span>
+                          </div>
+                        </td>
+                        <td><span className="res-tag">{booking.resourceId}</span></td>
+                        <td>{new Date(booking.startTime).toLocaleDateString()}</td>
+                        <td>
+                          <span className={`status-pill-small ${booking.status.toLowerCase()}`}>
+                            {booking.status}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
             </div>
           </section>
 
@@ -126,7 +170,7 @@ const AdminDashboard = () => {
         </div>
       </div>
 
-      <style jsx>{`
+      <style jsx="true">{`
         .admin-dashboard {
           display: flex;
           flex-direction: column;
@@ -262,19 +306,75 @@ const AdminDashboard = () => {
           gap: 6px;
         }
 
-        .placeholder-content {
+        .text-btn:hover { color: var(--primary-hover); }
+        
+        .bookings-table-container {
+          min-height: 300px;
+        }
+
+        .admin-table {
+          width: 100%;
+          border-collapse: separate;
+          border-spacing: 0 10px;
+        }
+
+        .admin-table th {
+          text-align: left;
+          padding: 10px 15px;
+          color: #94a3b8;
+          font-size: 0.8rem;
+          text-transform: uppercase;
+          letter-spacing: 1px;
+          font-weight: 700;
+        }
+
+        .admin-table td {
+          padding: 15px;
+          background: #f8fafc;
+          border-top: 1px solid #f1f5f9;
+          border-bottom: 1px solid #f1f5f9;
+        }
+
+        .admin-table td:first-child { border-left: 1px solid #f1f5f9; border-radius: 12px 0 0 12px; }
+        .admin-table td:last-child { border-right: 1px solid #f1f5f9; border-radius: 0 12px 12px 0; }
+
+        .user-cell { display: flex; flex-direction: column; }
+        .u-name { font-weight: 600; color: #1e293b; font-size: 0.95rem; }
+        .u-email { font-size: 0.75rem; color: #64748b; }
+
+        .res-tag {
+          background: #e0f2fe;
+          color: #0369a1;
+          padding: 4px 10px;
+          border-radius: 6px;
+          font-size: 0.8rem;
+          font-weight: 600;
+        }
+
+        .status-pill-small {
+          padding: 4px 10px;
+          border-radius: 50px;
+          font-size: 0.7rem;
+          font-weight: 700;
+          text-transform: uppercase;
+        }
+        .status-pill-small.pending { background: #fef3c7; color: #d97706; }
+        .status-pill-small.approved { background: #dcfce7; color: #16a34a; }
+        .status-pill-small.rejected { background: #fee2e2; color: #ef4444; }
+
+        .table-loader {
           height: 300px;
           display: flex;
           align-items: center;
           justify-content: center;
-          background: #f8fafc;
-          border-radius: 16px;
-          border: 2px dashed #e2e8f0;
+          color: #94a3b8;
+          font-weight: 500;
         }
 
         .empty-state {
           text-align: center;
           color: #94a3b8;
+          padding: 40px 0;
         }
 
         .empty-state h4 {

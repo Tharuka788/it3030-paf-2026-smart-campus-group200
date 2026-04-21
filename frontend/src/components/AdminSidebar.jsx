@@ -70,7 +70,7 @@ const AdminSidebar = () => {
         </button>
       </div>
 
-      <style jsx>{`
+      <style jsx="true">{`
         .admin-sidebar {
           width: 280px;
           height: calc(100vh - 40px);

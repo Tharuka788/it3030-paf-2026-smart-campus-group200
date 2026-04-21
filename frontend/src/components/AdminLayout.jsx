@@ -51,7 +51,7 @@ const AdminLayout = ({ children }) => {
         </section>
       </main>
 
-      <style jsx>{`
+      <style jsx="true">{`
         .admin-layout-container {
           min-height: 100vh;
           display: flex;

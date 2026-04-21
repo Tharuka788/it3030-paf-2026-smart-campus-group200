@@ -98,7 +98,7 @@ const Register = () => {
         </div>
       </motion.div>
 
-      <style jsx>{`
+      <style jsx="true">{`
         .login-page {
           height: 100vh;
           display: flex;

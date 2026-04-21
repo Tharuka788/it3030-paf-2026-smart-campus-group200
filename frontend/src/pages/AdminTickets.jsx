@@ -114,7 +114,7 @@ const AdminTickets = () => {
         )}
       </div>
 
-      <style jsx>{`
+      <style jsx="true">{`
         .admin-tickets-page {
           display: flex;
           flex-direction: column;

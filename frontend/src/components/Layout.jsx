@@ -36,7 +36,7 @@ const Layout = ({ children }) => {
         </section>
       </main>
 
-      <style jsx>{`
+      <style jsx="true">{`
         .layout-container {
           min-height: 100vh;
           display: flex;

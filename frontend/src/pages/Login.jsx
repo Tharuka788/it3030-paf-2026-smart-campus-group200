@@ -134,7 +134,7 @@ const Login = () => {
         </div>
       </motion.div>
 
-      <style jsx>{`
+      <style jsx="true">{`
         .login-container {
           min-height: 100vh;
 	  display: flex;

@@ -78,8 +78,13 @@ const AdminBookings = () => {
               >
                 <div className="card-header">
                   <div className="user-info">
-                    <User size={16} />
-                    <span>{booking.userName}</span>
+                    <div className="avatar-small">
+                       {booking.userName.charAt(0)}
+                    </div>
+                    <div className="user-details">
+                      <span className="user-name">{booking.userName}</span>
+                      <span className="user-email">{booking.userEmail}</span>
+                    </div>
                   </div>
                   <span className={`status-pill ${booking.status.toLowerCase()}`}>
                     {booking.status}
@@ -91,17 +96,23 @@ const AdminBookings = () => {
                     <MapPin size={18} />
                     <h3>{booking.resourceId}</h3>
                   </div>
-                  <div className="time-info">
-                    <Clock size={16} />
-                    <span>{new Date(booking.startTime).toLocaleString()}</span>
+                  <div className="details-grid">
+                    <div className="detail-item">
+                      <CalendarClock size={16} />
+                      <span>{new Date(booking.startTime).toLocaleDateString()}</span>
+                    </div>
+                    <div className="detail-item">
+                      <Clock size={16} />
+                      <span>{new Date(booking.startTime).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</span>
+                    </div>
                   </div>
-                  <div className="purpose-info">
+                  <div className="purpose-box">
                     <p>{booking.purpose}</p>
                   </div>
                 </div>
 
                 <div className="card-actions">
-                  {booking.status === 'PENDING' && (
+                  {booking.status === 'PENDING' ? (
                     <>
                       <button className="approve-btn" onClick={() => handleStatusUpdate(booking.id, 'APPROVED')}>
                         <CheckCircle size={18} /> Approve
@@ -110,6 +121,10 @@ const AdminBookings = () => {
                         <XCircle size={18} /> Reject
                       </button>
                     </>
+                  ) : (
+                    <button className="status-change-btn" onClick={() => handleStatusUpdate(booking.id, 'PENDING')}>
+                      Reset to Pending
+                    </button>
                   )}
                 </div>
               </motion.div>
@@ -118,7 +133,7 @@ const AdminBookings = () => {
         )}
       </div>
 
-      <style jsx>{`
+      <style jsx="true">{`
         .admin-bookings-page {
           display: flex;
           flex-direction: column;
@@ -159,34 +174,58 @@ const AdminBookings = () => {
           display: flex;
           justify-content: space-between;
           align-items: center;
+          margin-bottom: 5px;
         }
-        .user-info { display: flex; align-items: center; gap: 8px; color: #64748b; font-size: 0.85rem; }
+        .user-info { display: flex; align-items: center; gap: 12px; }
+        .avatar-small {
+          width: 36px;
+          height: 36px;
+          background: #6366f1;
+          color: white;
+          border-radius: 10px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-weight: 700;
+          font-size: 0.9rem;
+        }
+        .user-details { display: flex; flex-direction: column; }
+        .user-name { font-weight: 700; color: #1e293b; font-size: 0.95rem; }
+        .user-email { font-size: 0.75rem; color: #64748b; }
+
         .status-pill { padding: 4px 10px; border-radius: 50px; font-size: 0.75rem; font-weight: 700; }
         .status-pill.pending { background: #fef3c7; color: #d97706; }
         .status-pill.approved { background: #dcfce7; color: #16a34a; }
         .status-pill.rejected { background: #fee2e2; color: #ef4444; }
 
-        .resource-info { display: flex; align-items: center; gap: 10px; color: #1e293b; }
-        .resource-info h3 { font-size: 1.1rem; font-weight: 600; }
-        .time-info { display: flex; align-items: center; gap: 8px; color: #64748b; font-size: 0.9rem; }
-        .purpose-info { background: #f8fafc; padding: 10px; border-radius: 10px; font-size: 0.85rem; color: #475569; }
+        .resource-info { display: flex; align-items: center; gap: 10px; color: #1e293b; margin-bottom: 5px; }
+        .resource-info h3 { font-size: 1.2rem; font-weight: 700; }
+        
+        .details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+        .detail-item { display: flex; align-items: center; gap: 8px; color: #64748b; font-size: 0.85rem; }
+        .detail-item :global(svg) { color: #6366f1; }
 
-        .card-actions { display: flex; gap: 10px; margin-top: 10px; }
-        .approve-btn, .reject-btn {
+        .purpose-box { background: #f8fafc; padding: 12px; border-radius: 12px; font-size: 0.85rem; color: #475569; min-height: 60px; }
+
+        .card-actions { display: flex; gap: 10px; margin-top: 5px; }
+        .approve-btn, .reject-btn, .status-change-btn {
           flex: 1;
           display: flex;
           align-items: center;
           justify-content: center;
           gap: 8px;
-          padding: 10px;
-          border-radius: 10px;
+          padding: 12px;
+          border-radius: 12px;
           font-weight: 600;
           transition: all 0.2s;
+          font-size: 0.9rem;
         }
         .approve-btn { background: #16a34a; color: white; }
-        .approve-btn:hover { background: #15803d; }
+        .approve-btn:hover { background: #15803d; transform: translateY(-2px); }
         .reject-btn { background: #f1f5f9; color: #ef4444; border: 1px solid #fee2e2; }
-        .reject-btn:hover { background: #fee2e2; }
+        .reject-btn:hover { background: #fee2e2; transform: translateY(-2px); }
+        .status-change-btn { background: #f1f5f9; color: #64748b; font-size: 0.8rem; }
+        .status-change-btn:hover { background: #e2e8f0; }
       `}</style>
     </AdminLayout>
   );
