@@ -138,7 +138,7 @@ const AdminDashboard = () => {
                             <span className="u-email">{booking.userEmail}</span>
                           </div>
                         </td>
-                        <td><span className="res-tag">{booking.resourceId}</span></td>
+                        <td><span className="res-tag">{booking.resourceName || booking.resourceId}</span></td>
                         <td>{new Date(booking.startTime).toLocaleDateString()}</td>
                         <td>
                           <span className={`status-pill-small ${booking.status.toLowerCase()}`}>

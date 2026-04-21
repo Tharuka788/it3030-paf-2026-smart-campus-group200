@@ -160,7 +160,7 @@ const MyBookings = () => {
                      transition={{ delay: index * 0.05 }}
                    >
                       <div className="card-header">
-                         <h3 className="room-name">{booking.resourceId || 'Resource Name'}</h3>
+                         <h3 className="room-name">{booking.resourceName || booking.resourceId || 'Resource Name'}</h3>
                          <span className="status-badge" style={{ backgroundColor: getStatusBg(booking.status), color: getStatusColor(booking.status) }}>
                             {booking.status === 'PENDING' ? 'Pending' : booking.status === 'APPROVED' ? 'Approved' : booking.status === 'REJECTED' ? 'Rejected' : 'Cancelled'}
                          </span>

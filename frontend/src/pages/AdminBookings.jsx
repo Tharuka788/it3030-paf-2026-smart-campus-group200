@@ -94,7 +94,7 @@ const AdminBookings = () => {
                 <div className="card-body">
                   <div className="resource-info">
                     <MapPin size={18} />
-                    <h3>{booking.resourceId}</h3>
+                    <h3>{booking.resourceName || booking.resourceId}</h3>
                   </div>
                   <div className="details-grid">
                     <div className="detail-item">

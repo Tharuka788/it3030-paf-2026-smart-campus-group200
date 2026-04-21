@@ -19,6 +19,8 @@ public class BookingRequest {
     @NotBlank(message = "Resource ID is required")
     private String resourceId;
 
+    private String resourceName;
+
     @NotNull(message = "Start time is required")
     private LocalDateTime startTime;
 

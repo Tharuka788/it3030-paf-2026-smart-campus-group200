@@ -143,6 +143,7 @@ const HallBooking = () => {
 
     const bookingData = {
       resourceId: facilityId,
+      resourceName: facility.name,
       userEmail: localStorage.getItem('userEmail') || 'student@campus.edu',
       userName: localStorage.getItem('userName') || 'Campus Student',
       startTime: formData.startTime,

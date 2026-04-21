@@ -16,6 +16,7 @@ public class Booking {
     @Id
     private String id;
     private String resourceId;
+    private String resourceName;
     private String userEmail;
     private String userName;
     private LocalDateTime startTime;
