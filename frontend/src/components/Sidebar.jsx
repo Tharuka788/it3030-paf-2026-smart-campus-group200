@@ -13,9 +13,14 @@ import {
 import { motion } from 'framer-motion';
 
 const Sidebar = () => {
+  const userRole = localStorage.getItem('userRole');
+  
   const navItems = [
     { name: 'Overview', icon: <Home size={22} />, path: '/dashboard' },
     { name: 'Facilities', icon: <Box size={22} />, path: '/facilities' },
+    ...(userRole === 'ROLE_ADMIN' ? [
+      { name: 'Manage Facilities', icon: <Settings size={22} />, path: '/facilities/manage' }
+    ] : []),
     { name: 'My Bookings', icon: <Calendar size={22} />, path: '/bookings/my' },
     { name: 'My Tickets', icon: <Ticket size={22} />, path: '/tickets/my' },
     { name: 'Profile', icon: <User size={22} />, path: '/profile' },

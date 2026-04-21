@@ -26,4 +26,11 @@ export const facilityService = {
   deleteFacility: (id) => api.delete(`/facilities/${id}`),
 };
 
+export const userService = {
+  register: (data) => api.post('/users/register', data),
+  login: (data) => api.post('/users/login', data),
+  syncUser: (data) => api.post('/users/sync', data),
+  getMe: (email) => api.get('/users/me', { params: { email } }),
+};
+
 export default api;
