@@ -13,40 +13,30 @@ import {
   MessageSquare
 } from 'lucide-react';
 
+import { ticketService } from '../services/api';
+
 const MyTickets = () => {
   const [filterStatus, setFilterStatus] = useState('All');
+  const [tickets, setTickets] = useState([]);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  // Mock data for tickets
-  const [tickets] = useState([
-    {
-      id: 'TKT-001',
-      subject: 'Wi-Fi connectivity issue in Library',
-      category: 'IT Support',
-      status: 'OPEN',
-      priority: 'HIGH',
-      createdAt: '2024-04-18T10:30:00Z',
-      lastUpdate: '2 hours ago'
-    },
-    {
-      id: 'TKT-002',
-      subject: 'Broken desk in Lecture Hall 04',
-      category: 'Maintenance',
-      status: 'IN PROGRESS',
-      priority: 'MEDIUM',
-      createdAt: '2024-04-15T14:20:00Z',
-      lastUpdate: '1 day ago'
-    },
-    {
-      id: 'TKT-003',
-      subject: 'Library card replacement request',
-      category: 'Administration',
-      status: 'RESOLVED',
-      priority: 'LOW',
-      createdAt: '2024-04-10T09:00:00Z',
-      lastUpdate: '3 days ago'
-    }
-  ]);
+  useEffect(() => {
+    const fetchMyTickets = async () => {
+      try {
+        const userEmail = localStorage.getItem('userEmail');
+        if (userEmail) {
+          const response = await ticketService.getTicketsByUser(userEmail);
+          setTickets(response.data);
+        }
+      } catch (err) {
+        console.error('Failed to fetch tickets:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchMyTickets();
+  }, []);
 
   const filteredTickets = tickets.filter(t => 
     filterStatus === 'All' ? true : t.status === filterStatus.toUpperCase()
@@ -79,7 +69,7 @@ const MyTickets = () => {
             <h1 className="charcoal-text">My Support Tickets</h1>
             <p className="charcoal-muted">Track and manage your campus assistance requests.</p>
           </div>
-          <button className="btn-primary new-ticket-btn" onClick={() => {}}>
+          <button className="btn-primary new-ticket-btn" onClick={() => navigate('/tickets/new')}>
             <Plus size={18} /> New Ticket
           </button>
         </header>

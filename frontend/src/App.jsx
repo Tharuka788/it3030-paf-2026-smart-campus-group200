@@ -9,12 +9,25 @@ import FacilitiesCatalogue from './pages/FacilitiesCatalogue';
 import ManageFacility from './pages/ManageFacility';
 import MyTickets from './pages/MyTickets';
 import HallBooking from './pages/HallBooking';
+import NewTicket from './pages/NewTicket';
+import AdminDashboard from './pages/AdminDashboard';
+import AdminFacilities from './pages/AdminFacilities';
+import AdminBookings from './pages/AdminBookings';
+import AdminTickets from './pages/AdminTickets';
+import AdminUsers from './pages/AdminUsers';
 import './index.css';
 
 // Protected Route component to check auth status on every navigation
 const ProtectedRoute = ({ children }) => {
   const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
   return isAuthenticated ? children : <Navigate to="/login" replace />;
+};
+
+// Admin Protected Route component
+const AdminProtectedRoute = ({ children }) => {
+  const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
+  const userRole = localStorage.getItem('userRole');
+  return (isAuthenticated && userRole === 'ROLE_ADMIN') ? children : <Navigate to="/dashboard" replace />;
 };
 
 function App() {
@@ -28,6 +41,26 @@ function App() {
         <Route 
           path="/dashboard" 
           element={<ProtectedRoute><Dashboard /></ProtectedRoute>} 
+        />
+        <Route 
+          path="/admin/dashboard" 
+          element={<AdminProtectedRoute><AdminDashboard /></AdminProtectedRoute>} 
+        />
+        <Route 
+          path="/admin/facilities" 
+          element={<AdminProtectedRoute><AdminFacilities /></AdminProtectedRoute>} 
+        />
+        <Route 
+          path="/admin/bookings" 
+          element={<AdminProtectedRoute><AdminBookings /></AdminProtectedRoute>} 
+        />
+        <Route 
+          path="/admin/tickets" 
+          element={<AdminProtectedRoute><AdminTickets /></AdminProtectedRoute>} 
+        />
+        <Route 
+          path="/admin/users" 
+          element={<AdminProtectedRoute><AdminUsers /></AdminProtectedRoute>} 
         />
         <Route 
           path="/facilities" 
@@ -52,6 +85,10 @@ function App() {
         <Route 
           path="/tickets/my" 
           element={<ProtectedRoute><MyTickets /></ProtectedRoute>} 
+        />
+        <Route 
+          path="/tickets/new" 
+          element={<ProtectedRoute><NewTicket /></ProtectedRoute>} 
         />
 
         {/* Fallbacks */}

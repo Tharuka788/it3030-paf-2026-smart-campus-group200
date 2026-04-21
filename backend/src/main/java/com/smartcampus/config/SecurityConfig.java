@@ -51,7 +51,10 @@ public class SecurityConfig {
                 .requestMatchers("/api/v1/users/**").permitAll()
                 .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/facilities/**").permitAll()
                 .requestMatchers("/api/v1/facilities/**").hasRole("ADMIN")
+                .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/bookings").hasRole("ADMIN")
                 .requestMatchers("/api/v1/bookings/**").permitAll()
+                .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/tickets").hasRole("ADMIN")
+                .requestMatchers("/api/v1/tickets/**").permitAll()
                 .anyRequest().permitAll()
             );
         return http.build();

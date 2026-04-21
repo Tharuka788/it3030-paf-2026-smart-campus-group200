@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import Layout from '../components/Layout';
 import { motion } from 'framer-motion';
 import { Save, PlusCircle, Trash2, MapPin, Tag, Box, Info, ShieldAlert } from 'lucide-react';
 import { facilityService } from '../services/api';
@@ -90,7 +89,7 @@ const ManageFacility = () => {
       } else {
         await facilityService.createFacility(payload);
       }
-      navigate('/facilities');
+      navigate('/admin/facilities');
     } catch (err) {
       console.error(err);
       alert('Action failed. Check console.');
@@ -99,7 +98,7 @@ const ManageFacility = () => {
   };
 
   return (
-    <Layout>
+    <>
       <div className="new-booking-container">
         <motion.div 
           className="form-card glass-morphism animate-fade-in"
@@ -384,7 +383,7 @@ const ManageFacility = () => {
           .window-item { flex-direction: column; align-items: stretch; }
         }
       `}</style>
-    </Layout>
+    </>
   );
 };
 

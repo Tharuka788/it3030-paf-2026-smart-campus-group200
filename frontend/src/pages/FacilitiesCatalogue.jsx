@@ -67,7 +67,7 @@ const FacilitiesCatalogue = () => {
           {userRole === 'ROLE_ADMIN' && (
             <button 
               className="add-btn"
-              onClick={() => navigate('/facilities/manage')}
+              onClick={() => navigate('/admin/facilities')}
             >
               <Plus size={20} />
               <span>Add Facility</span>
@@ -161,7 +161,7 @@ const FacilitiesCatalogue = () => {
                     })()}
                     {userRole === 'ROLE_ADMIN' && (
                       <>
-                        <button onClick={() => navigate(`/facilities/manage?id=${fac.id}`)} className="action-btn edit">
+                        <button onClick={() => navigate(`/admin/facilities?id=${fac.id}`)} className="action-btn edit">
                           <Edit2 size={16} /> Edit
                         </button>
                         <button onClick={() => handleDelete(fac.id)} className="action-btn delete">

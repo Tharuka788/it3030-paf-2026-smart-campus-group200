@@ -38,7 +38,12 @@ const Login = () => {
     localStorage.setItem('userName', dbUser.fullName);
     localStorage.setItem('userPhoto', dbUser.pictureUrl || `https://ui-avatars.com/api/?name=${dbUser.fullName}&background=6366f1&color=fff`);
     localStorage.setItem('userRole', dbUser.role);
-    navigate('/dashboard');
+    
+    if (dbUser.role === 'ROLE_ADMIN') {
+      navigate('/admin/dashboard');
+    } else {
+      navigate('/dashboard');
+    }
   };
 
   const handleGoogleLogin = async () => {
