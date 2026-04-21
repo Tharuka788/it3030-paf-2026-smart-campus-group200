@@ -119,14 +119,18 @@ const FacilitiesCatalogue = () => {
                 <motion.div key={fac.id} variants={cardVariants} className="facility-card glass-morphism">
                   <div className="card-header">
                     <h3>{fac.name}</h3>
-                    <span className={`status-badge ${fac.status === 'ACTIVE' ? 'active' : 'inactive'}`}>
-                      {fac.status}
+                    <span className={`status-badge ${['ACTIVE', 'IN_STOCK'].includes(fac.status) ? 'active' : 'inactive'}`}>
+                      {fac.status.replaceAll('_', ' ')}
                     </span>
                   </div>
                   <div className="card-body">
                     <p><Tag size={16} /> {fac.type.replace('_', ' ')}</p>
-                    <p><MapPin size={16} /> {fac.location || 'N/A'}</p>
-                    <p><Users size={16} /> Capacity: {fac.capacity || 'N/A'}</p>
+                    {fac.type !== 'EQUIPMENT' && <p><MapPin size={16} /> {fac.location || 'N/A'}</p>}
+                    {fac.type === 'EQUIPMENT' ? (
+                      <p><Box size={16} /> Quantity: {fac.capacity || 'N/A'}</p>
+                    ) : (
+                      <p><Users size={16} /> Capacity: {fac.capacity || 'N/A'}</p>
+                    )}
                   </div>
                   <div className="card-footer">
                     <button onClick={() => navigate(`/facilities/manage?id=${fac.id}`)} className="action-btn edit">
@@ -283,6 +287,7 @@ const FacilitiesCatalogue = () => {
           padding: 4px 10px;
           border-radius: 6px;
           font-weight: 600;
+          white-space: nowrap;
         }
 
         .status-badge.active { background: rgba(16, 185, 129, 0.15); color: #34d399; }
