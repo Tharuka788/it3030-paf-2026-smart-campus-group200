@@ -15,7 +15,8 @@ import { motion } from 'framer-motion';
 const AdminSidebar = () => {
   const navItems = [
     { name: 'Overview', icon: <LayoutDashboard size={22} />, path: '/admin/dashboard' },
-    { name: 'Facility Management', icon: <Building2 size={22} />, path: '/admin/facilities' },
+    { name: 'Facilities View', icon: <Building2 size={22} />, path: '/facilities' },
+    { name: 'Facility Management', icon: <Settings size={22} />, path: '/admin/facilities' },
     { name: 'Booking Management', icon: <CalendarClock size={22} />, path: '/admin/bookings' },
     { name: 'Tickets Management', icon: <Ticket size={22} />, path: '/admin/tickets' },
     { name: 'User Managements', icon: <Users size={22} />, path: '/admin/users' },

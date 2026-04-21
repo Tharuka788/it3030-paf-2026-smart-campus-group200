@@ -9,6 +9,7 @@ import FacilitiesCatalogue from './pages/FacilitiesCatalogue';
 import ManageFacility from './pages/ManageFacility';
 import MyTickets from './pages/MyTickets';
 import HallBooking from './pages/HallBooking';
+import LabBooking from './pages/LabBooking';
 import NewTicket from './pages/NewTicket';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminFacilities from './pages/AdminFacilities';
@@ -81,6 +82,10 @@ function App() {
         <Route 
           path="/bookings/hall" 
           element={<ProtectedRoute><HallBooking /></ProtectedRoute>} 
+        />
+        <Route 
+          path="/bookings/lab" 
+          element={<ProtectedRoute><LabBooking /></ProtectedRoute>} 
         />
         <Route 
           path="/tickets/my" 
