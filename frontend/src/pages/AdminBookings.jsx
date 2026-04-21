@@ -86,8 +86,8 @@ const AdminBookings = () => {
                       <span className="user-email">{booking.userEmail}</span>
                     </div>
                   </div>
-                  <span className={`status-pill ${booking.status.toLowerCase()}`}>
-                    {booking.status}
+                  <span className={`status-pill ${(booking.status || 'PENDING').toLowerCase()}`}>
+                    {booking.status || 'PENDING'}
                   </span>
                 </div>
 

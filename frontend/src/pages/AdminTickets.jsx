@@ -78,8 +78,8 @@ const AdminTickets = () => {
               >
                 <div className="card-header">
                   <span className="ticket-category">{ticket.category}</span>
-                  <span className={`status-pill ${ticket.status.toLowerCase()}`}>
-                    {ticket.status.replace('_', ' ')}
+                  <span className={`status-pill ${(ticket.status || 'OPEN').toLowerCase()}`}>
+                    {(ticket.status || 'OPEN').replace('_', ' ')}
                   </span>
                 </div>
 
