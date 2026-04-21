@@ -9,7 +9,7 @@ const Layout = ({ children }) => {
       <main className="main-content">
         <header className="main-header glass-morphism animate-fade-in">
            <div className="header-left">
-             <h2 className="header-title">Welcome back, <span className="gradient-text">{localStorage.getItem('userName') || 'Student'} 👋</span></h2>
+             <h2 className="header-title">Welcome back, <span className="username-accent">{localStorage.getItem('userName') || 'Student'} 👋</span></h2>
              <p className="header-date">{new Date().toDateString()}</p>
            </div>
            <div className="header-right">
@@ -40,7 +40,7 @@ const Layout = ({ children }) => {
         .layout-container {
           min-height: 100vh;
           display: flex;
-          background: #0f172a;
+          background: var(--bg-dark);
           padding: 20px;
           gap: 20px;
         }
@@ -58,13 +58,20 @@ const Layout = ({ children }) => {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          border-radius: 16px;
+          border-radius: 20px;
+          background: white;
+          box-shadow: var(--box-shadow);
+          border: 1px solid var(--glass-border);
         }
 
         .header-title {
           font-size: 1.5rem;
           font-weight: 600;
-          color: var(--text-main);
+          color: #334155;
+        }
+
+        .username-accent {
+          color: #0ea5e9;
         }
 
         .header-date {

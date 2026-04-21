@@ -41,7 +41,7 @@ const Sidebar = () => {
             to={item.path} 
             className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
           >
-            {item.icon}
+            <div className="icon-wrapper">{item.icon}</div>
             <span>{item.name}</span>
           </NavLink>
         ))}
@@ -71,6 +71,8 @@ const Sidebar = () => {
           flex-direction: column;
           padding: 30px 20px;
           z-index: 100;
+          box-shadow: var(--box-shadow);
+          border: 1px solid var(--glass-border);
         }
 
         .sidebar-header {
@@ -101,20 +103,30 @@ const Sidebar = () => {
           gap: 15px;
           padding: 12px 20px;
           border-radius: 12px;
-          color: var(--text-muted);
+          color: #334155;
           font-weight: 500;
           transition: all 0.3s;
         }
 
+        .nav-item .icon-wrapper {
+          color: #0ea5e9;
+          display: flex;
+          align-items: center;
+        }
+
         .nav-item:hover {
-          background: rgba(255, 255, 255, 0.05);
+          background: rgba(0, 0, 0, 0.03);
           color: var(--text-main);
         }
 
         .nav-item.active {
-          background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
-          color: white;
-          box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+          background: #f3e8ff;
+          color: #7c3aed;
+          box-shadow: none;
+        }
+
+        .nav-item.active .icon-wrapper {
+          color: #7c3aed;
         }
 
         .sidebar-footer {

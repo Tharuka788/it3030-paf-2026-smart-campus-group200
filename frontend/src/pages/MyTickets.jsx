@@ -54,11 +54,11 @@ const MyTickets = () => {
 
   const getStatusStyle = (status) => {
     switch (status) {
-      case 'OPEN': return { bg: 'rgba(59, 130, 246, 0.15)', color: '#3b82f6' };
-      case 'IN PROGRESS': return { bg: 'rgba(245, 158, 11, 0.15)', color: '#f59e0b' };
-      case 'RESOLVED': return { bg: 'rgba(16, 185, 129, 0.15)', color: '#10b981' };
-      case 'CLOSED': return { bg: 'rgba(148, 163, 184, 0.15)', color: '#94a3b8' };
-      default: return { bg: 'rgba(148, 163, 184, 0.15)', color: '#94a3b8' };
+      case 'OPEN': return { bg: '#dbeafe', color: '#1e40af' }; // light blue
+      case 'IN PROGRESS': return { bg: '#fef3c7', color: '#d97706' }; // light yellow
+      case 'RESOLVED': return { bg: '#dcfce7', color: '#10b981' }; // light green
+      case 'CLOSED': return { bg: '#f1f5f9', color: '#64748b' }; // light gray
+      default: return { bg: '#f1f5f9', color: '#64748b' };
     }
   };
 
@@ -76,8 +76,8 @@ const MyTickets = () => {
       <div className="tickets-container">
         <header className="page-header">
           <div className="header-titles">
-            <h1 className="text-white">My Support Tickets</h1>
-            <p>Track and manage your campus assistance requests.</p>
+            <h1 className="charcoal-text">My Support Tickets</h1>
+            <p className="charcoal-muted">Track and manage your campus assistance requests.</p>
           </div>
           <button className="btn-primary new-ticket-btn" onClick={() => {}}>
             <Plus size={18} /> New Ticket
@@ -191,7 +191,7 @@ const MyTickets = () => {
           flex-direction: column;
           gap: 35px;
           padding-bottom: 50px;
-          color: white;
+          color: #334155;
         }
 
         .page-header {
@@ -200,15 +200,15 @@ const MyTickets = () => {
           align-items: center;
         }
 
-        .header-titles h1 {
+        .header-titles h1.charcoal-text {
           font-size: 2.2rem;
           font-weight: 700;
           margin-bottom: 8px;
-          color: #ffffff;
+          color: #334155;
         }
 
-        .header-titles p {
-          color: #94a3b8;
+        .charcoal-muted {
+          color: #64748b;
           font-size: 1.05rem;
         }
 
@@ -216,7 +216,7 @@ const MyTickets = () => {
           display: flex;
           align-items: center;
           gap: 8px;
-          background: #3b82f6;
+          background: #0ea5e9;
           color: white;
           font-weight: 600;
           padding: 12px 24px;
@@ -224,13 +224,13 @@ const MyTickets = () => {
           border: none;
           cursor: pointer;
           transition: all 0.3s;
-          box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);
+          box-shadow: 0 4px 15px rgba(14, 165, 233, 0.2);
         }
 
         .new-ticket-btn:hover {
-          background: #2563eb;
+          background: #0284c7;
           transform: translateY(-2px);
-          box-shadow: 0 6px 25px rgba(59, 130, 246, 0.4);
+          box-shadow: 0 6px 20px rgba(14, 165, 233, 0.3);
         }
 
         .stats-grid {
@@ -244,9 +244,10 @@ const MyTickets = () => {
           align-items: center;
           gap: 20px;
           padding: 24px;
-          border-radius: 16px;
-          background: rgba(30, 41, 59, 0.5);
-          border: 1px solid rgba(255, 255, 255, 0.05);
+          border-radius: 20px;
+          background: #ffffff;
+          border: 1px solid var(--glass-border);
+          box-shadow: var(--box-shadow);
         }
 
         .stat-icon-wrapper {
@@ -264,28 +265,32 @@ const MyTickets = () => {
 
         .stat-info { display: flex; flex-direction: column; gap: 4px; }
         .stat-label { color: #94a3b8; font-size: 0.9rem; font-weight: 500; }
-        .stat-value { font-size: 1.8rem; font-weight: 700; color: white; }
+        .stat-value { font-size: 1.8rem; font-weight: 700; color: #334155; }
 
         .tickets-section { display: flex; flex-direction: column; gap: 25px; }
         .section-header { display: flex; justify-content: space-between; align-items: center; }
-        .section-title { font-size: 1.4rem; font-weight: 600; color: white; }
+        .section-title { font-size: 1.4rem; font-weight: 600; color: #334155; }
 
         .filters { display: flex; align-items: center; gap: 12px; }
         .filter-icon { color: #94a3b8; margin-right: 5px; }
         .filter-pill {
-          background: rgba(30, 41, 59, 0.8);
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          color: #94a3b8;
+          background: #f1f5f9;
+          border: 1px solid transparent;
+          color: #64748b;
           padding: 6px 16px;
           border-radius: 20px;
           font-size: 0.9rem;
           cursor: pointer;
           transition: all 0.2s;
         }
+        .filter-pill:hover {
+          background: #e2e8f0;
+          color: #334155;
+        }
         .filter-pill.active {
-          background: rgba(59, 130, 246, 0.15);
-          border-color: #3b82f6;
-          color: #3b82f6;
+          background: #dbeafe;
+          border-color: #bfdbfe;
+          color: #1e3a8a;
         }
 
         .tickets-grid {
@@ -299,16 +304,17 @@ const MyTickets = () => {
           display: flex;
           flex-direction: column;
           gap: 16px;
-          border-radius: 16px;
-          background: rgba(30, 41, 59, 0.5);
-          border: 1px solid rgba(255, 255, 255, 0.05);
-          transition: all 0.3s;
+          border-radius: 20px;
+          background: #ffffff;
+          border: 1px solid #f1f5f9;
+          box-shadow: var(--box-shadow);
+          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .ticket-card:hover {
-          transform: translateY(-4px);
-          border-color: rgba(255, 255, 255, 0.1);
-          box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+          transform: translateY(-5px);
+          box-shadow: var(--box-shadow-hover);
+          border-color: #e2e8f0;
         }
 
         .ticket-header {
@@ -335,7 +341,7 @@ const MyTickets = () => {
         .ticket-subject {
           font-size: 1.1rem;
           font-weight: 600;
-          color: white;
+          color: #334155;
           line-height: 1.4;
         }
 
@@ -357,31 +363,33 @@ const MyTickets = () => {
         .ticket-footer {
           margin-top: 8px;
           padding-top: 16px;
-          border-top: 1px solid rgba(255, 255, 255, 0.05);
+          border-top: 1px solid #f1f5f9;
         }
 
         .view-details-btn {
           width: 100%;
           padding: 10px;
-          background: rgba(255, 255, 255, 0.05);
-          border: 1px solid rgba(255, 255, 255, 0.1);
+          background: #f8fafc;
+          border: 1px solid #e2e8f0;
           border-radius: 10px;
-          color: white;
-          font-weight: 500;
+          color: #334155;
+          font-weight: 600;
           cursor: pointer;
           transition: all 0.2s;
         }
 
         .view-details-btn:hover {
-          background: rgba(255, 255, 255, 0.1);
+          background: #f1f5f9;
+          border-color: #cbd5e1;
         }
 
         .empty-state {
           padding: 60px 40px;
           text-align: center;
-          border-radius: 16px;
-          background: rgba(30, 41, 59, 0.5);
-          border: 1px solid rgba(255, 255, 255, 0.05);
+          border-radius: 20px;
+          background: #ffffff;
+          border: 1px solid #f1f5f9;
+          box-shadow: var(--box-shadow);
         }
 
         @media (max-width: 768px) {

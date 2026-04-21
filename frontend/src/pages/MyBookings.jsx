@@ -54,20 +54,20 @@ const MyBookings = () => {
   const getStatusColor = (status) => {
     switch (status) {
       case 'APPROVED': return '#10b981'; // green
-      case 'PENDING': return '#f59e0b'; // yellow/orange
+      case 'PENDING': return '#d97706'; // golden-orange
       case 'REJECTED': return '#ef4444'; // red
-      case 'CANCELLED': return '#94a3b8'; // slate/gray
-      default: return '#94a3b8';
+      case 'CANCELLED': return '#64748b'; // slate/gray
+      default: return '#64748b';
     }
   };
 
   const getStatusBg = (status) => {
     switch (status) {
-      case 'APPROVED': return 'rgba(16, 185, 129, 0.15)';
-      case 'PENDING': return 'rgba(245, 158, 11, 0.15)';
-      case 'REJECTED': return 'rgba(239, 68, 68, 0.15)';
-      case 'CANCELLED': return 'rgba(148, 163, 184, 0.15)';
-      default: return 'rgba(148, 163, 184, 0.15)';
+      case 'APPROVED': return '#dcfce7'; // light green
+      case 'PENDING': return '#fef3c7'; // light golden-orange
+      case 'REJECTED': return '#fee2e2'; // light red
+      case 'CANCELLED': return '#f1f5f9'; // light gray
+      default: return '#f1f5f9';
     }
   };
 
@@ -82,8 +82,8 @@ const MyBookings = () => {
       <div className="bookings-container">
         <header className="page-header">
            <div className="header-titles">
-             <h1 className="text-white">My Bookings</h1>
-             <p>Manage your university resource reservations.</p>
+             <h1 className="charcoal-text">My Bookings</h1>
+             <p className="charcoal-muted">Manage your university resource reservations.</p>
            </div>
            <button className="btn-primary new-booking-btn" onClick={() => navigate('/bookings/new')}>
              <Plus size={18} /> New Booking
@@ -97,7 +97,7 @@ const MyBookings = () => {
             </div>
             <div className="stat-info">
               <span className="stat-label">Total Bookings</span>
-              <span className="stat-value">{stats.total}</span>
+              <span className="stat-value gold-text">{stats.total}</span>
             </div>
           </div>
           <div className="stat-card glass-morphism">
@@ -106,7 +106,7 @@ const MyBookings = () => {
             </div>
             <div className="stat-info">
               <span className="stat-label">Pending Approval</span>
-              <span className="stat-value">{stats.pending}</span>
+              <span className="stat-value golden-yellow-text">{stats.pending}</span>
             </div>
           </div>
           <div className="stat-card glass-morphism">
@@ -115,7 +115,7 @@ const MyBookings = () => {
             </div>
             <div className="stat-info">
               <span className="stat-label">Approved Bookings</span>
-              <span className="stat-value">{stats.approved}</span>
+              <span className="stat-value green-text">{stats.approved}</span>
             </div>
           </div>
         </section>
@@ -200,7 +200,7 @@ const MyBookings = () => {
           flex-direction: column;
           gap: 35px;
           padding-bottom: 50px;
-          color: white;
+          color: #334155;
         }
 
         .page-header {
@@ -209,15 +209,15 @@ const MyBookings = () => {
           align-items: center;
         }
 
-        .header-titles h1 {
+        .header-titles h1.charcoal-text {
           font-size: 2.2rem;
           font-weight: 700;
           margin-bottom: 8px;
-          color: #ffffff;
+          color: #334155;
         }
 
-        .header-titles p {
-          color: var(--text-muted, #94a3b8);
+        .charcoal-muted {
+          color: #64748b;
           font-size: 1.05rem;
         }
 
@@ -225,21 +225,21 @@ const MyBookings = () => {
           display: flex;
           align-items: center;
           gap: 8px;
-          background: #06b6d4;
-          color: #0f172a;
+          background: #0ea5e9;
+          color: white;
           font-weight: 600;
           padding: 12px 24px;
           border-radius: 12px;
           border: none;
           cursor: pointer;
           transition: all 0.3s;
-          box-shadow: 0 4px 20px rgba(6, 182, 212, 0.3);
+          box-shadow: 0 4px 15px rgba(14, 165, 233, 0.2);
         }
 
         .new-booking-btn:hover {
-          background: #0891b2;
+          background: #0284c7;
           transform: translateY(-2px);
-          box-shadow: 0 6px 25px rgba(6, 182, 212, 0.4);
+          box-shadow: 0 6px 20px rgba(14, 165, 233, 0.3);
         }
 
         .stats-grid {
@@ -254,8 +254,9 @@ const MyBookings = () => {
           gap: 20px;
           padding: 24px;
           border-radius: 16px;
-          background: rgba(30, 41, 59, 0.5);
-          border: 1px solid rgba(255, 255, 255, 0.05);
+          background: #ffffff;
+          border: 1px solid var(--glass-border);
+          box-shadow: var(--box-shadow);
         }
 
         .stat-icon-wrapper {
@@ -297,8 +298,11 @@ const MyBookings = () => {
         .stat-value {
           font-size: 1.8rem;
           font-weight: 700;
-          color: white;
         }
+
+        .gold-text { color: #d4af37; }
+        .golden-yellow-text { color: #f59e0b; }
+        .green-text { color: #10b981; }
 
         .recent-activity-section {
           display: flex;
@@ -315,7 +319,7 @@ const MyBookings = () => {
         .section-title {
           font-size: 1.4rem;
           font-weight: 600;
-          color: white;
+          color: #334155;
         }
 
         .filters {
@@ -330,9 +334,9 @@ const MyBookings = () => {
         }
 
         .filter-pill {
-          background: rgba(30, 41, 59, 0.8);
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          color: var(--text-muted, #94a3b8);
+          background: #f1f5f9;
+          border: 1px solid transparent;
+          color: #64748b;
           padding: 6px 16px;
           border-radius: 20px;
           font-size: 0.9rem;
@@ -341,14 +345,14 @@ const MyBookings = () => {
         }
 
         .filter-pill:hover {
-          background: rgba(255, 255, 255, 0.05);
-          color: white;
+          background: #e2e8f0;
+          color: #334155;
         }
 
         .filter-pill.active {
-          background: rgba(6, 182, 212, 0.15);
-          border-color: #06b6d4;
-          color: #06b6d4;
+          background: #dbeafe;
+          border-color: #bfdbfe;
+          color: #1e3a8a;
         }
 
         .bookings-grid {
@@ -362,16 +366,17 @@ const MyBookings = () => {
           display: flex;
           flex-direction: column;
           gap: 20px;
-          border-radius: 16px;
-          background: rgba(30, 41, 59, 0.5);
-          border: 1px solid rgba(255, 255, 255, 0.05);
-          transition: all 0.3s;
+          border-radius: 20px;
+          background: #ffffff;
+          border: 1px solid #f1f5f9;
+          box-shadow: var(--box-shadow);
+          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .booking-card:hover {
-          transform: translateY(-4px);
-          box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
-          border-color: rgba(255, 255, 255, 0.1);
+          transform: translateY(-5px);
+          box-shadow: var(--box-shadow-hover);
+          border-color: #e2e8f0;
         }
 
         .card-header {
@@ -383,7 +388,7 @@ const MyBookings = () => {
         .room-name {
           font-size: 1.15rem;
           font-weight: 600;
-          color: white;
+          color: #334155;
           margin: 0;
         }
 
@@ -405,12 +410,12 @@ const MyBookings = () => {
           display: flex;
           align-items: center;
           gap: 12px;
-          color: #cbd5e1;
+          color: #64748b;
           font-size: 0.95rem;
         }
 
         .info-icon {
-          color: #06b6d4;
+          color: #0ea5e9;
           min-width: 16px;
         }
 
@@ -427,15 +432,15 @@ const MyBookings = () => {
 
         .cancel-booking-btn {
           margin-top: auto;
-          background: rgba(239, 68, 68, 0.1);
+          background: transparent;
           color: #ef4444;
-          border: 1px solid rgba(239, 68, 68, 0.2);
-          padding: 10px;
-          border-radius: 10px;
-          font-weight: 500;
+          border: none;
+          padding: 8px 0;
+          font-weight: 600;
           cursor: pointer;
           transition: all 0.3s;
-          width: 100%;
+          width: fit-content;
+          text-decoration: underline;
         }
 
         .cancel-booking-btn:hover {
@@ -453,7 +458,7 @@ const MyBookings = () => {
           border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
-        .empty-state h3 { font-size: 1.4rem; color: white; }
+        .empty-state h3 { font-size: 1.4rem; color: #334155; }
         .empty-state p { color: var(--text-muted, #94a3b8); }
         
         @media (max-width: 768px) {

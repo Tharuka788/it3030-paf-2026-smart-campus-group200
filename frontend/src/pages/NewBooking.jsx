@@ -295,7 +295,8 @@ const NewBooking = () => {
         .form-card {
           padding: 40px;
           border-radius: 24px;
-          box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+          background: white;
+          box-shadow: 0 20px 40px rgba(0,0,0,0.05);
         }
 
         .form-header {
@@ -346,11 +347,11 @@ const NewBooking = () => {
 
         input, textarea, select {
           width: 100%;
-          background: rgba(255, 255, 255, 0.05);
+          background: #f8fafc;
           border: 1px solid var(--glass-border);
           border-radius: 14px;
           padding: 14px;
-          color: white;
+          color: var(--text-main);
           font-family: inherit;
           transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
@@ -358,7 +359,7 @@ const NewBooking = () => {
         select {
           cursor: pointer;
           appearance: none;
-          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
           background-repeat: no-repeat;
           background-position: right 14px center;
           padding-right: 45px;
@@ -418,7 +419,7 @@ const NewBooking = () => {
 
         /* Availability Sidebar */
         .availability-sidebar {
-          background: rgba(255, 255, 255, 0.03);
+          background: #f8fafc;
           border-radius: 20px;
           padding: 25px;
           border: 1px solid var(--glass-border);
@@ -455,10 +456,11 @@ const NewBooking = () => {
         }
 
         .timeline-item {
-          background: rgba(255, 255, 255, 0.05);
+          background: white;
           padding: 15px;
           border-radius: 12px;
           border-left: 4px solid var(--primary);
+          box-shadow: 0 4px 10px rgba(0,0,0,0.03);
         }
 
         .time-range {
@@ -499,7 +501,7 @@ const NewBooking = () => {
         .spinner {
           width: 30px;
           height: 30px;
-          border: 3px solid rgba(255,255,255,0.1);
+          border: 3px solid rgba(0,0,0,0.05);
           border-top-color: var(--primary);
           border-radius: 50%;
           margin: 0 auto 15px;

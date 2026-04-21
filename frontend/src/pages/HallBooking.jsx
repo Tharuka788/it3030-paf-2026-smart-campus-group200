@@ -489,7 +489,7 @@ const HallBooking = () => {
           .card-header h2 {
             font-size: 1.5rem;
             margin: 0;
-            color: white;
+            color: var(--text-main);
           }
 
           .detail-grid {
@@ -529,7 +529,7 @@ const HallBooking = () => {
 
           .description-section p {
             line-height: 1.6;
-            color: rgba(255,255,255,0.8);
+            color: var(--text-main);
           }
 
           .time-selection {
@@ -548,11 +548,11 @@ const HallBooking = () => {
 
           .input-group input, .input-group textarea {
             width: 100%;
-            background: rgba(0,0,0,0.2);
+            background: white;
             border: 1px solid var(--glass-border);
             border-radius: 12px;
             padding: 12px;
-            color: white;
+            color: var(--text-main);
             outline: none;
             transition: all 0.3s;
           }
@@ -589,18 +589,21 @@ const HallBooking = () => {
           .visual-container {
             padding: 20px 30px;
             border-radius: 24px;
-            background: rgba(15, 23, 42, 0.6);
+            background: white;
+            box-shadow: var(--box-shadow);
+            border: 1px solid var(--glass-border);
           }
 
           .room-layout {
-            background: rgba(0,0,0,0.3);
+            background: #ffffff;
             border-radius: 20px;
             padding: 25px;
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 25px;
-            border: 1px solid rgba(255,255,255,0.05);
+            border: 1px solid rgba(0,0,0,0.06);
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
             margin-bottom: 25px;
           }
 
@@ -611,9 +614,9 @@ const HallBooking = () => {
 
           .whiteboard-line {
             height: 4px;
-            background: white;
+            background: #64748b;
             border-radius: 2px;
-            box-shadow: 0 0 15px rgba(255,255,255,0.5);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
             margin-bottom: 5px;
           }
 
@@ -628,7 +631,7 @@ const HallBooking = () => {
           }
 
           .stage-box {
-            background: rgba(255,255,255,0.05);
+            background: white;
             border: 1px solid var(--glass-border);
             padding: 12px 25px;
             border-radius: 12px;
@@ -655,7 +658,7 @@ const HallBooking = () => {
 
           .seat {
             aspect-ratio: 1;
-            background: rgba(6, 182, 212, 0.1);
+            background: #ffffff;
             border: 1.5px solid #06b6d4;
             border-radius: 8px;
             display: flex;
@@ -754,11 +757,11 @@ const HallBooking = () => {
             transition: color 0.3s;
           }
 
-          .back-btn:hover { color: white; }
+          .back-btn:hover { color: var(--text-main); }
 
           .confirm-btn {
-            background: white;
-            color: #0f172a;
+            background: var(--primary);
+            color: white;
             padding: 14px 40px;
             border-radius: 12px;
             font-weight: 700;
@@ -767,7 +770,7 @@ const HallBooking = () => {
 
           .confirm-btn:hover:not(:disabled) {
             transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(255,255,255,0.2);
+            box-shadow: 0 10px 20px rgba(79, 70, 229, 0.3);
           }
 
           .confirm-btn:disabled {
