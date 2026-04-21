@@ -281,6 +281,7 @@ const HallBooking = () => {
                     <Clock size={18} />
                     <span>Viewing availability for: </span>
                     <strong>{format(new Date(formData.startTime), 'MMM d, h:mm a')} - {format(new Date(formData.endTime), 'h:mm a')}</strong>
+                    <span className="buffer-badge">+30m buffer</span>
                   </div>
                   <button className="change-time-toggle" onClick={() => setStep(1)}>
                     Change Time
@@ -677,9 +678,9 @@ const HallBooking = () => {
           }
 
           .seat.booked {
-            background: rgba(107, 33, 168, 0.4);
-            border-color: #6b21a8;
-            color: #d8b4fe;
+            background: #f1f5f9;
+            border-color: #cbd5e1;
+            color: #94a3b8;
             cursor: not-allowed;
             position: relative;
             overflow: hidden;
@@ -693,8 +694,8 @@ const HallBooking = () => {
               45deg,
               transparent,
               transparent 5px,
-              rgba(168, 85, 247, 0.1) 5px,
-              rgba(168, 85, 247, 0.1) 10px
+              rgba(0, 0, 0, 0.05) 5px,
+              rgba(0, 0, 0, 0.05) 10px
             );
           }
 
@@ -736,7 +737,7 @@ const HallBooking = () => {
           }
 
           .dot.available { border-color: #06b6d4; background: rgba(6, 182, 212, 0.1); }
-          .dot.booked { border-color: #6b21a8; background: rgba(107, 33, 168, 0.2); }
+          .dot.booked { border-color: #cbd5e1; background: #f1f5f9; }
           .dot.selected { background: #ec4899; }
           .dot.accessible { border-color: #14b8a6; background: rgba(20, 184, 166, 0.1); }
           .dot.storage { border-color: rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); }
@@ -820,6 +821,16 @@ const HallBooking = () => {
             .detail-grid {
               grid-template-columns: 1fr;
             }
+          }
+          .buffer-badge {
+            font-size: 0.75rem;
+            background: #fffbeb;
+            color: #d97706;
+            padding: 2px 8px;
+            border-radius: 4px;
+            border: 1px solid #fef3c7;
+            margin-left: 10px;
+            font-weight: 600;
           }
         `}</style>
       </div>
