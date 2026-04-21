@@ -60,8 +60,8 @@ const FacilitiesCatalogue = () => {
       <div className="catalogue-container">
         <div className="catalogue-header">
           <div>
-            <h1 className="gradient-text">Facilities & Assets</h1>
-            <p>Browse and manage available resources.</p>
+            <h1 className="charcoal-text">Facilities & Assets</h1>
+            <p className="charcoal-muted">Browse and manage available resources.</p>
           </div>
           <button 
             className="add-btn"
@@ -173,23 +173,25 @@ const FacilitiesCatalogue = () => {
       <style jsx="true">{`
         .catalogue-container {
           padding-bottom: 50px;
+          color: #334155;
         }
 
         .catalogue-header {
           display: flex;
           justify-content: space-between;
-          align-items: flex-start;
-          margin-bottom: 30px;
+          align-items: center;
+          margin-bottom: 35px;
         }
-        
-        .catalogue-header h1 {
+
+        .catalogue-header h1.charcoal-text {
           font-size: 2.2rem;
           font-weight: 700;
           margin-bottom: 5px;
+          color: #334155;
         }
-        
-        .catalogue-header p {
-          color: var(--text-muted);
+
+        .charcoal-muted {
+          color: #64748b;
           font-size: 1.1rem;
         }
 
@@ -197,38 +199,42 @@ const FacilitiesCatalogue = () => {
           display: flex;
           align-items: center;
           gap: 10px;
-          background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
+          background: #0ea5e9;
           color: white;
           padding: 12px 24px;
           border-radius: 12px;
           font-weight: 600;
-          box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+          box-shadow: 0 4px 15px rgba(14, 165, 233, 0.2);
           transition: all 0.3s;
         }
 
         .add-btn:hover {
+          background: #0284c7;
           transform: translateY(-2px);
-          box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+          box-shadow: 0 6px 20px rgba(14, 165, 233, 0.3);
         }
 
         .search-bar {
           display: grid;
-          grid-template-columns: 1fr auto auto auto;
+          grid-template-columns: 1.5fr 1fr 120px auto;
           gap: 15px;
           padding: 15px;
-          border-radius: 16px;
-          margin-bottom: 30px;
+          border-radius: 20px;
+          margin-bottom: 40px;
           align-items: center;
+          background: white;
+          box-shadow: var(--box-shadow);
+          border: 1px solid var(--glass-border);
         }
 
         .search-input-group {
           display: flex;
           align-items: center;
           gap: 10px;
-          background: rgba(0, 0, 0, 0.3);
+          background: #f8fafc;
           padding: 12px 20px;
-          border-radius: 10px;
-          border: 1px solid rgba(255,255,255,0.05);
+          border-radius: 12px;
+          border: 1px solid #e2e8f0;
         }
 
         .search-input-group .icon {
@@ -239,17 +245,19 @@ const FacilitiesCatalogue = () => {
           flex: 1;
           background: transparent;
           border: none;
-          color: white;
+          color: #334155;
           outline: none;
+          font-weight: 500;
         }
 
         .search-bar select, .search-bar input[type="number"] {
-          background: rgba(0, 0, 0, 0.3);
-          border: 1px solid rgba(255,255,255,0.05);
-          color: white;
+          background: #f8fafc;
+          border: 1px solid #e2e8f0;
+          color: #334155;
           padding: 12px 20px;
-          border-radius: 10px;
+          border-radius: 12px;
           outline: none;
+          font-weight: 500;
         }
         
         .search-bar select option {
@@ -259,17 +267,20 @@ const FacilitiesCatalogue = () => {
         .filter-btn {
           display: flex;
           align-items: center;
+          justify-content: center;
           gap: 8px;
-          background: rgba(255, 255, 255, 0.1);
-          color: white;
-          padding: 12px 20px;
-          border-radius: 10px;
-          font-weight: 500;
-          transition: background 0.3s;
+          background: #f1f5f9;
+          color: #334155;
+          padding: 12px 24px;
+          border-radius: 12px;
+          font-weight: 600;
+          transition: all 0.3s;
+          border: 1px solid #e2e8f0;
         }
         
         .filter-btn:hover {
-          background: rgba(255, 255, 255, 0.2);
+          background: #e2e8f0;
+          color: #1e293b;
         }
 
         .facilities-grid {
@@ -280,16 +291,19 @@ const FacilitiesCatalogue = () => {
 
         .facility-card {
           padding: 24px;
-          border-radius: 16px;
+          border-radius: 20px;
+          background: #ffffff;
           display: flex;
           flex-direction: column;
-          transition: all 0.3s;
+          border: 1px solid #f1f5f9;
+          box-shadow: var(--box-shadow);
+          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .facility-card:hover {
-          border-color: var(--primary);
-          box-shadow: 0 10px 30px rgba(0,0,0,0.5);
           transform: translateY(-5px);
+          box-shadow: var(--box-shadow-hover);
+          border-color: #e2e8f0;
         }
 
         .card-header {
@@ -303,6 +317,7 @@ const FacilitiesCatalogue = () => {
           font-size: 1.25rem;
           font-weight: 600;
           margin: 0;
+          color: #334155;
         }
 
         .status-badge {
@@ -313,8 +328,8 @@ const FacilitiesCatalogue = () => {
           white-space: nowrap;
         }
 
-        .status-badge.active { background: rgba(16, 185, 129, 0.15); color: #34d399; }
-        .status-badge.inactive { background: rgba(239, 68, 68, 0.15); color: #f87171; }
+        .status-badge.active { background: #dcfce7; color: #10b981; }
+        .status-badge.inactive { background: #fee2e2; color: #ef4444; }
 
         .card-body {
           display: flex;
@@ -327,7 +342,7 @@ const FacilitiesCatalogue = () => {
           display: flex;
           align-items: center;
           gap: 10px;
-          color: var(--text-muted);
+          color: #64748b;
           font-size: 0.95rem;
           margin: 0;
         }
@@ -337,7 +352,7 @@ const FacilitiesCatalogue = () => {
           display: flex;
           gap: 10px;
           padding-top: 20px;
-          border-top: 1px solid rgba(255,255,255,0.05);
+          border-top: 1px solid #f1f5f9;
         }
 
         .action-btn {
@@ -354,39 +369,39 @@ const FacilitiesCatalogue = () => {
         }
 
         .action-btn.edit {
-          background: rgba(99, 102, 241, 0.1);
-          color: #818cf8;
+          background: #f1f5f9;
+          color: #6366f1;
         }
         
-        .action-btn.edit:hover { background: rgba(99, 102, 241, 0.2); }
+        .action-btn.edit:hover { background: #e2e8f0; }
 
         .action-btn.delete {
-          background: rgba(239, 68, 68, 0.1);
-          color: #f87171;
+          background: #fff1f2;
+          color: #ef4444;
         }
         
-        .action-btn.delete:hover { background: rgba(239, 68, 68, 0.2); }
+        .action-btn.delete:hover { background: #ffe4e6; }
         
         .action-btn.book {
-          background: rgba(16, 185, 129, 0.1);
-          color: #34d399;
+          background: #f0fdf4;
+          color: #10b981;
         }
-        .action-btn.book:hover { background: rgba(16, 185, 129, 0.2); }
+        .action-btn.book:hover { background: #dcfce7; }
 
         .action-btn.book-generic {
-          background: rgba(245, 158, 11, 0.1);
-          color: #f59e0b;
+          background: #fffbeb;
+          color: #d97706;
         }
-        .action-btn.book-generic:hover { background: rgba(245, 158, 11, 0.2); }
+        .action-btn.book-generic:hover { background: #fef3c7; }
 
         .empty-state {
           grid-column: 1 / -1;
           text-align: center;
           padding: 60px 20px;
-          background: rgba(255,255,255,0.02);
-          border-radius: 16px;
-          border: 1px dashed rgba(255,255,255,0.1);
-          color: var(--text-muted);
+          background: #f8fafc;
+          border-radius: 20px;
+          border: 1px dashed #cbd5e1;
+          color: #64748b;
         }
         
         .loading-state {
