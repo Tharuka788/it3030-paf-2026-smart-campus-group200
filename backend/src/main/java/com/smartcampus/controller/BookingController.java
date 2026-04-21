@@ -23,7 +23,7 @@ public class BookingController {
     @PostMapping()
     public ResponseEntity<Booking> createBooking(@Valid @RequestBody BookingRequest bookingRequest) {
         Booking booking = new Booking();
-        booking.setUserEmail(bookingRequest.getUserEmail());
+        booking.setUserEmail(bookingRequest.getUserEmail().toLowerCase());
         booking.setUserName(bookingRequest.getUserName());
         booking.setResourceId(bookingRequest.getResourceId());
         booking.setStartTime(bookingRequest.getStartTime());
@@ -39,9 +39,9 @@ public class BookingController {
         return bookingService.getAllBookings();
     }
 
-    @GetMapping("/user/{userEmail}")
+    @GetMapping("/user/{userEmail:.+}")
     public List<Booking> getBookingsByUser(@PathVariable String userEmail) {
-        return bookingService.getBookingsByUser(userEmail);
+        return bookingService.getBookingsByUser(userEmail.toLowerCase());
     }
 
     @GetMapping("/{id}")

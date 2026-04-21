@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './pages/Login';
+import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import NewBooking from './pages/NewBooking';
 import MyBookings from './pages/MyBookings';
@@ -10,48 +11,52 @@ import MyTickets from './pages/MyTickets';
 import HallBooking from './pages/HallBooking';
 import './index.css';
 
-function App() {
-  // Simple auth check using localStorage for demo
+// Protected Route component to check auth status on every navigation
+const ProtectedRoute = ({ children }) => {
   const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
+  return isAuthenticated ? children : <Navigate to="/login" replace />;
+};
 
+function App() {
   return (
     <Router>
       <Routes>
         <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
         
         {/* Authenticated Routes */}
         <Route 
           path="/dashboard" 
-          element={isAuthenticated ? <Dashboard /> : <Navigate to="/login" />} 
+          element={<ProtectedRoute><Dashboard /></ProtectedRoute>} 
         />
         <Route 
           path="/facilities" 
-          element={isAuthenticated ? <FacilitiesCatalogue /> : <Navigate to="/login" />} 
+          element={<ProtectedRoute><FacilitiesCatalogue /></ProtectedRoute>} 
         />
         <Route 
           path="/facilities/manage" 
-          element={isAuthenticated ? <ManageFacility /> : <Navigate to="/login" />} 
+          element={<ProtectedRoute><ManageFacility /></ProtectedRoute>} 
         />
         <Route 
           path="/bookings/new" 
-          element={isAuthenticated ? <NewBooking /> : <Navigate to="/login" />} 
+          element={<ProtectedRoute><NewBooking /></ProtectedRoute>} 
         />
         <Route 
           path="/bookings/my" 
-          element={isAuthenticated ? <MyBookings /> : <Navigate to="/login" />} 
+          element={<ProtectedRoute><MyBookings /></ProtectedRoute>} 
         />
         <Route 
           path="/bookings/hall" 
-          element={isAuthenticated ? <HallBooking /> : <Navigate to="/login" />} 
+          element={<ProtectedRoute><HallBooking /></ProtectedRoute>} 
         />
         <Route 
           path="/tickets/my" 
-          element={isAuthenticated ? <MyTickets /> : <Navigate to="/login" />} 
+          element={<ProtectedRoute><MyTickets /></ProtectedRoute>} 
         />
 
         {/* Fallbacks */}
-        <Route path="/" element={<Navigate to="/dashboard" />} />
-        <Route path="*" element={<Navigate to="/dashboard" />} />
+        <Route path="/" element={<Navigate to="/dashboard" replace />} />
+        <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>
     </Router>
   );

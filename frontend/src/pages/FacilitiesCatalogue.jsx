@@ -10,6 +10,7 @@ const FacilitiesCatalogue = () => {
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState({ type: '', minCapacity: '', location: '' });
   const navigate = useNavigate();
+  const userRole = localStorage.getItem('userRole');
 
   const fetchFacilities = async () => {
     setLoading(true);
@@ -63,13 +64,15 @@ const FacilitiesCatalogue = () => {
             <h1 className="charcoal-text">Facilities & Assets</h1>
             <p className="charcoal-muted">Browse and manage available resources.</p>
           </div>
-          <button 
-            className="add-btn"
-            onClick={() => navigate('/facilities/manage')}
-          >
-            <Plus size={20} />
-            <span>Add Facility</span>
-          </button>
+          {userRole === 'ROLE_ADMIN' && (
+            <button 
+              className="add-btn"
+              onClick={() => navigate('/facilities/manage')}
+            >
+              <Plus size={20} />
+              <span>Add Facility</span>
+            </button>
+          )}
         </div>
 
         <form className="search-bar glass-morphism" onSubmit={handleSearch}>
@@ -156,12 +159,16 @@ const FacilitiesCatalogue = () => {
                         </button>
                       );
                     })()}
-                    <button onClick={() => navigate(`/facilities/manage?id=${fac.id}`)} className="action-btn edit">
-                      <Edit2 size={16} /> Edit
-                    </button>
-                    <button onClick={() => handleDelete(fac.id)} className="action-btn delete">
-                      <Trash2 size={16} /> Delete
-                    </button>
+                    {userRole === 'ROLE_ADMIN' && (
+                      <>
+                        <button onClick={() => navigate(`/facilities/manage?id=${fac.id}`)} className="action-btn edit">
+                          <Edit2 size={16} /> Edit
+                        </button>
+                        <button onClick={() => handleDelete(fac.id)} className="action-btn delete">
+                          <Trash2 size={16} /> Delete
+                        </button>
+                      </>
+                    )}
                   </div>
                 </motion.div>
               ))
