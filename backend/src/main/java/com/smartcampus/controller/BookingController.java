@@ -39,7 +39,7 @@ public class BookingController {
         return bookingService.getAllBookings();
     }
 
-    @GetMapping("/user/{userEmail}")
+    @GetMapping("/user/{userEmail:.+}")
     public List<Booking> getBookingsByUser(@PathVariable String userEmail) {
         return bookingService.getBookingsByUser(userEmail);
     }

@@ -22,7 +22,11 @@ const MyBookings = () => {
 
   const fetchBookings = async () => {
     try {
-      const userEmail = localStorage.getItem('userEmail') || 'student@campus.edu';
+      const userEmail = localStorage.getItem('userEmail');
+      if (!userEmail) {
+        setLoading(false);
+        return;
+      }
       const response = await bookingService.getBookingsByUser(userEmail);
       setBookings(response.data);
     } catch (err) {
