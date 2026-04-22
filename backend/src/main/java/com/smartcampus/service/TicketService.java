@@ -82,5 +82,21 @@ public class TicketService {
             ticket.setUpdatedAt(LocalDateTime.now());
             return ticketRepository.save(ticket);
         }).orElseThrow(() -> new RuntimeException("Ticket not found"));
+    public void deleteTicket(String id) {
+        ticketRepository.findById(id).ifPresent(ticket -> {
+            // Delete associated files
+            if (ticket.getAttachmentPaths() != null) {
+                for (String filePathStr : ticket.getAttachmentPaths()) {
+                    try {
+                        Path filePath = Paths.get(filePathStr);
+                        Files.deleteIfExists(filePath);
+                    } catch (IOException e) {
+                        System.err.println("Failed to delete file: " + filePathStr + " - " + e.getMessage());
+                    }
+                }
+            }
+            // Delete record
+            ticketRepository.deleteById(id);
+        });
     }
 }

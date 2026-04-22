@@ -16,7 +16,8 @@ import {
   ExternalLink,
   FileIcon,
   Building,
-  ChevronRight
+  ChevronRight,
+  Trash2
 } from 'lucide-react';
 
 const AdminTickets = () => {
@@ -73,6 +74,21 @@ const AdminTickets = () => {
       setModalStatus('');
     }
   }, [selectedTicket]);
+
+  const handleDelete = async (id) => {
+    if (window.confirm('Are you sure you want to delete this ticket? This will also remove all associated attachments.')) {
+      try {
+        await ticketService.deleteTicket(id);
+        setTickets(prev => prev.filter(t => t.id !== id));
+        if (selectedTicket && selectedTicket.id === id) {
+          setSelectedTicket(null);
+        }
+      } catch (err) {
+        console.error('Failed to delete ticket:', err);
+        alert('Failed to delete ticket. Please try again.');
+      }
+    }
+  };
 
   const filteredTickets = filter === 'ALL' 
     ? tickets 
@@ -153,16 +169,28 @@ const AdminTickets = () => {
                     </div>
                     <div className="status-update-box" onClick={(e) => e.stopPropagation()}>
                       <label>Update Status</label>
-                      <select 
-                        className="status-select"
-                        value={ticket.status} 
-                        onChange={(e) => handleStatusUpdate(ticket.id, e.target.value, '')}
-                      >
-                        <option value="OPEN">Open</option>
-                        <option value="IN_PROGRESS">In Progress</option>
-                        <option value="RESOLVED">Resolved</option>
-                        <option value="CLOSED">Closed</option>
-                      </select>
+                      <div className="status-actions-mini">
+                        <select 
+                          className="status-select"
+                          value={ticket.status} 
+                          onChange={(e) => handleStatusUpdate(ticket.id, e.target.value, '')}
+                        >
+                          <option value="OPEN">Open</option>
+                          <option value="IN_PROGRESS">In Progress</option>
+                          <option value="RESOLVED">Resolved</option>
+                          <option value="CLOSED">Closed</option>
+                        </select>
+                        <button 
+                          className="delete-card-btn"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDelete(ticket.id);
+                          }}
+                          title="Delete Ticket"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -434,19 +462,21 @@ const AdminTickets = () => {
         .priority-medium { color: #f59e0b; }
         .priority-low { color: #10b981; }
 
-        .contact-info { font-size: 0.8rem; color: #94a3b8; font-weight: 600; display: flex; flex-direction: column; gap: 6px; }
-        .status-select {
-          width: 100%;
-          padding: 12px;
-          border-radius: 12px;
-          border: 1px solid #e2e8f0;
-          background: #f8fafc;
-          font-weight: 700;
-          color: #1e293b;
-          outline: none;
-          transition: all 0.2s;
+        .status-update-box label { font-size: 0.7rem; font-weight: 800; color: #94a3b8; text-transform: uppercase; margin-bottom: 8px; }
+        .status-actions-mini { display: flex; align-items: center; gap: 8px; }
+        .status-select { 
+          flex: 1; padding: 10px 14px; border-radius: 12px; border: 1px solid #e2e8f0; background: white; 
+          font-weight: 700; color: #1e293b; cursor: pointer; transition: all 0.2s;
         }
-        .status-select:focus { border-color: #6366f1; background: white; }
+        .status-select:hover { border-color: #6366f1; }
+
+        .delete-card-btn {
+          padding: 10px; border-radius: 12px; border: 1px solid #fee2e2; background: #fff1f2;
+          color: #ef4444; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center;
+        }
+        .delete-card-btn:hover { background: #ef4444; color: white; border-color: #ef4444; transform: scale(1.05); }
+
+        .contact-info { font-size: 0.8rem; color: #94a3b8; font-weight: 600; display: flex; flex-direction: column; gap: 6px; }
 
         /* Modal Styles */
         .modal-backdrop {

@@ -53,5 +53,9 @@ public class TicketController {
             @RequestParam String status,
             @RequestParam(required = false) String adminComments) {
         return ticketService.updateTicketStatus(id, status, adminComments);
+    @DeleteMapping("/v1/tickets/{id}")
+    public ResponseEntity<Void> deleteTicket(@PathVariable String id) {
+        ticketService.deleteTicket(id);
+        return ResponseEntity.noContent().build();
     }
 }
