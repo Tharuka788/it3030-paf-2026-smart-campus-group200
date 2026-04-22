@@ -72,9 +72,12 @@ public class TicketService {
         return ticketRepository.findById(id);
     }
 
-    public Ticket updateTicketStatus(String id, String status) {
+    public Ticket updateTicketStatus(String id, String status, String adminComments) {
         return ticketRepository.findById(id).map(ticket -> {
             ticket.setStatus(status);
+            if (adminComments != null) {
+                ticket.setAdminComments(adminComments);
+            }
             // Updating manual time if auditing somehow fails, but auditing should handle it
             ticket.setUpdatedAt(LocalDateTime.now());
             return ticketRepository.save(ticket);

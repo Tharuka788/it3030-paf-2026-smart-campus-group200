@@ -24,6 +24,7 @@ const AdminTickets = () => {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('ALL');
   const [selectedTicket, setSelectedTicket] = useState(null);
+  const [adminComment, setAdminComment] = useState('');
 
   const fetchAllTickets = async () => {
     setLoading(true);
@@ -41,18 +42,27 @@ const AdminTickets = () => {
     fetchAllTickets();
   }, []);
 
-  const handleStatusUpdate = async (id, status) => {
+  const handleStatusUpdate = async (id, status, commentToUse) => {
     try {
-      await ticketService.updateStatus(id, status);
+      await ticketService.updateStatus(id, status, commentToUse || adminComment);
       fetchAllTickets();
       // Update selected ticket state if modal is open
       if (selectedTicket && selectedTicket.id === id) {
-        setSelectedTicket(prev => ({ ...prev, status }));
+        setSelectedTicket(prev => ({ ...prev, status, adminComments: commentToUse || adminComment }));
+        setAdminComment(''); // Clear after successful update in modal
       }
     } catch (err) {
       console.error('Failed to update status:', err);
     }
   };
+
+  useEffect(() => {
+    if (selectedTicket) {
+      setAdminComment(selectedTicket.adminComments || '');
+    } else {
+      setAdminComment('');
+    }
+  }, [selectedTicket]);
 
   const filteredTickets = filter === 'ALL' 
     ? tickets 
@@ -131,12 +141,12 @@ const AdminTickets = () => {
                       <div className="contact-item"><Phone size={14} /> {ticket.contactNumber}</div>
                       <div className="contact-item"><Mail size={14} /> {ticket.email}</div>
                     </div>
-                    <div className="status-update-box">
+                    <div className="status-update-box" onClick={(e) => e.stopPropagation()}>
                       <label>Update Status</label>
                       <select 
                         className="status-select"
                         value={ticket.status} 
-                        onChange={(e) => handleStatusUpdate(ticket.id, e.target.value)}
+                        onChange={(e) => handleStatusUpdate(ticket.id, e.target.value, '')}
                       >
                         <option value="OPEN">Open</option>
                         <option value="IN_PROGRESS">In Progress</option>
@@ -280,6 +290,17 @@ const AdminTickets = () => {
 
                     <section className="detail-section status-footer-section">
                       <div className="section-label">ADMIN MANAGEMENT</div>
+                      
+                      <div className="admin-comment-input-group">
+                        <label>Admin Feedback / Resolution Notes</label>
+                        <textarea 
+                          placeholder="Type a message to the user here..."
+                          value={adminComment}
+                          onChange={(e) => setAdminComment(e.target.value)}
+                          className="admin-comment-textarea"
+                        />
+                      </div>
+
                       <div className="status-control-wrapper">
                         <label>Modify Ticket Status</label>
                         <select 
@@ -474,6 +495,14 @@ const AdminTickets = () => {
         .attachment-details { flex: 1; display: flex; flex-direction: column; }
         .file-name-text { font-size: 0.85rem; font-weight: 600; color: #1e293b; }
         .view-action-btn { font-size: 0.75rem; font-weight: 700; color: #6366f1; text-decoration: none; display: flex; align-items: center; gap: 4px; margin-top: 2px; }
+
+        .admin-comment-input-group { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
+        .admin-comment-input-group label { font-size: 0.85rem; font-weight: 700; color: #1e293b; }
+        .admin-comment-textarea {
+          width: 100%; height: 100px; padding: 12px; border-radius: 14px; border: 2px solid #e2e8f0;
+          background: #f8fafc; font-size: 0.95rem; color: #1e293b; resize: none; outline: none; transition: all 0.2s;
+        }
+        .admin-comment-textarea:focus { border-color: #6366f1; background: white; box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1); }
 
         .mb-20 { margin-bottom: 20px; }
         .status-footer-section { margin-top: auto; padding-top: 30px; border-top: 1px dashed #e2e8f0; }

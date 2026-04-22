@@ -40,7 +40,8 @@ export const ticketService = {
   }),
   getAllTickets: () => api.get('/v1/tickets'),
   getTicketsByUser: (email) => api.get(`/v1/tickets/user/${email}`),
-  updateStatus: (id, status) => api.patch(`/v1/tickets/${id}/status?status=${status}`),
+  updateStatus: (id, status, adminComments) => 
+    api.patch(`/v1/tickets/${id}/status?status=${status}${adminComments ? `&adminComments=${encodeURIComponent(adminComments)}` : ''}`),
 };
 
 export default api;

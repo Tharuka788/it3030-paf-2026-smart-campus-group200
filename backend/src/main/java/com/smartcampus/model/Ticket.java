@@ -39,6 +39,8 @@ public class Ticket {
     private String status = "Open";
     
     private List<String> attachmentPaths = new ArrayList<>();
+    
+    private String adminComments;
 
     @CreatedDate
     private LocalDateTime createdAt;

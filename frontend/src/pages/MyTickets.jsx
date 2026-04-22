@@ -163,6 +163,16 @@ const MyTickets = () => {
                         </div>
                       </div>
 
+                      {ticket.adminComments && (
+                        <div className="admin-response-section">
+                          <div className="response-header">
+                            <MessageSquare size={14} />
+                            <span>Response from Admin</span>
+                          </div>
+                          <p className="response-text">{ticket.adminComments}</p>
+                        </div>
+                      )}
+
                       <div className="ticket-footer">
                         <button className="view-details-btn">View Details</button>
                       </div>
@@ -348,6 +358,36 @@ const MyTickets = () => {
           gap: 10px;
           color: #94a3b8;
           font-size: 0.9rem;
+        }
+        .detail-item span {
+          font-weight: 500;
+        }
+
+        .admin-response-section {
+          background: #f0f9ff;
+          border: 1px solid #bae6fd;
+          border-radius: 12px;
+          padding: 15px;
+          margin-top: 15px;
+        }
+
+        .response-header {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          color: #0369a1;
+          font-weight: 700;
+          font-size: 0.85rem;
+          margin-bottom: 8px;
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+        }
+
+        .response-text {
+          margin: 0;
+          font-size: 0.95rem;
+          color: #075985;
+          line-height: 1.5;
         }
 
         .ticket-footer {
