@@ -17,6 +17,7 @@ public class BookingService {
 
     private final BookingRepository bookingRepository;
     private final FacilityRepository facilityRepository;
+    private final EmailService emailService;
 
     private void populateResourceName(Booking booking) {
         if (booking.getResourceName() == null || booking.getResourceName().isEmpty()) {
@@ -59,7 +60,13 @@ public class BookingService {
         booking.setCreatedAt(LocalDateTime.now());
         booking.setUpdatedAt(LocalDateTime.now());
         booking.setStatus("PENDING");
-        return bookingRepository.save(booking);
+        Booking savedBooking = bookingRepository.save(booking);
+        
+        // Populate resource name before sending email if it's missing
+        populateResourceName(savedBooking);
+        emailService.sendBookingConfirmation(savedBooking);
+        
+        return savedBooking;
     }
 
     public List<Booking> getAllBookings() {
@@ -84,12 +91,23 @@ public class BookingService {
         return bookingRepository.findById(id).map(booking -> {
             booking.setStatus(status);
             booking.setUpdatedAt(LocalDateTime.now());
-            return bookingRepository.save(booking);
+            Booking savedBooking = bookingRepository.save(booking);
+            
+            if ("CANCELLED".equalsIgnoreCase(status)) {
+                populateResourceName(savedBooking);
+                emailService.sendBookingCancellation(savedBooking);
+            }
+            
+            return savedBooking;
         }).orElseThrow(() -> new RuntimeException("Booking not found with id: " + id));
     }
 
     public void deleteBooking(String id) {
-        bookingRepository.deleteById(id);
+        bookingRepository.findById(id).ifPresent(booking -> {
+            populateResourceName(booking);
+            emailService.sendBookingCancellation(booking);
+            bookingRepository.deleteById(id);
+        });
     }
 
     public List<Booking> getBookingsByResource(String resourceId) {
