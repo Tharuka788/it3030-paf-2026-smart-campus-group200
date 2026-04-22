@@ -177,10 +177,16 @@ const AdminTickets = () => {
                   {/* Left Side: Ticket Content */}
                   <div className="modal-side-column">
                     <section className="detail-section">
-                      <div className="section-label">TICKET INFORMATION</div>
-                      <h1 className="full-subject">{selectedTicket.subject}</h1>
-                      <div className="full-description">
-                        {selectedTicket.detailedDescription}
+                      <div className="section-label">TICKET CORE INFORMATION</div>
+                      <div className="info-group mb-20">
+                        <label>Subject (Short Description)</label>
+                        <h1 className="full-subject">{selectedTicket.subject}</h1>
+                      </div>
+                      <div className="info-group">
+                        <label>Detailed Description</label>
+                        <div className="full-description">
+                          {selectedTicket.detailedDescription}
+                        </div>
                       </div>
                     </section>
 
@@ -198,13 +204,13 @@ const AdminTickets = () => {
                       </div>
                       <div className="side-by-side-info mt-15">
                         <div className="info-group">
-                          <label>Priority Level</label>
+                          <label>Priority level</label>
                           <span className={`p-text priority-${selectedTicket.priority?.toLowerCase()}`}>
                             {selectedTicket.priority}
                           </span>
                         </div>
                         <div className="info-group">
-                          <label>Service Impact</label>
+                          <label>Impact</label>
                           <span>{selectedTicket.impact}</span>
                         </div>
                       </div>
@@ -214,26 +220,28 @@ const AdminTickets = () => {
                   {/* Right Side: User & Attachments */}
                   <div className="modal-side-column">
                     <section className="detail-section highlight-box">
-                      <div className="section-label">REQUESTER DETAILS</div>
+                      <div className="section-label">REQUSTER CONTACT INFORMATION</div>
                       <div className="user-detail-card">
-                        <div className="user-master-info">
-                          <div className="user-avatar-placeholder">
-                            <User size={24} />
+                        <div className="contact-list-detailed">
+                          <div className="detail-item-row">
+                            <label>User Name</label>
+                            <span>{selectedTicket.userName}</span>
                           </div>
-                          <div>
-                            <h3>{selectedTicket.userName}</h3>
-                            <p className="user-dept">{selectedTicket.departmentName}</p>
+                          <div className="detail-item-row">
+                            <label>Department Name</label>
+                            <span>{selectedTicket.departmentName}</span>
                           </div>
-                        </div>
-                        <div className="contact-grid">
-                          <div className="contact-chip">
-                            <Mail size={14} /> {selectedTicket.email}
+                          <div className="detail-item-row">
+                            <label>Email Address</label>
+                            <span>{selectedTicket.email}</span>
                           </div>
-                          <div className="contact-chip">
-                            <Phone size={14} /> {selectedTicket.contactNumber}
+                          <div className="detail-item-row">
+                            <label>Contact Number</label>
+                            <span>{selectedTicket.contactNumber}</span>
                           </div>
-                          <div className="contact-chip">
-                            <Clock size={14} /> Created: {selectedTicket.createdAt ? new Date(selectedTicket.createdAt).toLocaleString() : 'N/A'}
+                          <div className="detail-item-row">
+                            <label>Submission Time</label>
+                            <span>{selectedTicket.createdAt ? new Date(selectedTicket.createdAt).toLocaleString() : 'N/A'}</span>
                           </div>
                         </div>
                       </div>
@@ -260,7 +268,7 @@ const AdminTickets = () => {
                                 <div className="attachment-details">
                                   <span className="file-name-text">{fileName}</span>
                                   <a href={fullUrl} target="_blank" rel="noopener noreferrer" className="view-action-btn">
-                                    View Full Size <ExternalLink size={12} />
+                                    Open PNG/File <ExternalLink size={12} />
                                   </a>
                                 </div>
                               </div>
@@ -271,9 +279,9 @@ const AdminTickets = () => {
                     )}
 
                     <section className="detail-section status-footer-section">
-                      <div className="section-label">ADMIN ACTION</div>
+                      <div className="section-label">ADMIN MANAGEMENT</div>
                       <div className="status-control-wrapper">
-                        <label>Update Ticket Status</label>
+                        <label>Modify Ticket Status</label>
                         <select 
                           className="modal-status-select-large"
                           value={selectedTicket.status} 
@@ -453,13 +461,11 @@ const AdminTickets = () => {
         .mt-15 { margin-top: 15px; }
 
         .user-detail-card { display: flex; flex-direction: column; gap: 20px; }
-        .user-master-info { display: flex; align-items: center; gap: 15px; }
-        .user-avatar-placeholder { width: 48px; height: 48px; background: #6366f1; color: white; border-radius: 12px; display: flex; align-items: center; justify-content: center; }
-        .user-master-info h3 { margin: 0; font-size: 1.1rem; font-weight: 800; color: #1e293b; }
-        .user-dept { margin: 2px 0 0 0; color: #64748b; font-size: 0.85rem; font-weight: 600; }
-
-        .contact-grid { display: flex; flex-direction: column; gap: 10px; }
-        .contact-chip { display: flex; align-items: center; gap: 10px; font-size: 0.9rem; color: #475569; font-weight: 500; }
+        .contact-list-detailed { display: flex; flex-direction: column; gap: 15px; }
+        .detail-item-row { display: flex; justify-content: space-between; align-items: center; padding-bottom: 10px; border-bottom: 1px solid #f1f5f9; }
+        .detail-item-row:last-child { border-bottom: none; }
+        .detail-item-row label { font-size: 0.75rem; color: #64748b; font-weight: 700; width: 140px; }
+        .detail-item-row span { font-weight: 700; color: #1e293b; font-size: 0.95rem; text-align: right; flex: 1; }
 
         .attachments-list-vertical { display: flex; flex-direction: column; gap: 12px; }
         .attachment-row-item { display: flex; align-items: center; gap: 15px; padding: 12px; background: white; border-radius: 12px; border: 1px solid #f1f5f9; }
@@ -469,6 +475,7 @@ const AdminTickets = () => {
         .file-name-text { font-size: 0.85rem; font-weight: 600; color: #1e293b; }
         .view-action-btn { font-size: 0.75rem; font-weight: 700; color: #6366f1; text-decoration: none; display: flex; align-items: center; gap: 4px; margin-top: 2px; }
 
+        .mb-20 { margin-bottom: 20px; }
         .status-footer-section { margin-top: auto; padding-top: 30px; border-top: 1px dashed #e2e8f0; }
         .status-control-wrapper { display: flex; flex-direction: column; gap: 10px; }
         .status-control-wrapper label { font-size: 0.85rem; font-weight: 700; color: #1e293b; }
