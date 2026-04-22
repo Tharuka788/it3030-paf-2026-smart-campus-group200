@@ -79,14 +79,22 @@ const NewTicket = () => {
 
   const handleFileChange = (e) => {
     const files = Array.from(e.target.files);
+    
+    // Check if adding these would exceed the limit of 3
+    const potentialTotal = attachments.length + files.length;
+    if (potentialTotal > 3) {
+      alert('You can only upload a maximum of 3 attachments.');
+      return;
+    }
+
     const validFiles = files.filter(file => {
       const isValidSize = file.size <= 5 * 1024 * 1024; // 5MB
-      const isValidType = ['image/jpeg', 'image/png', 'application/pdf'].includes(file.type);
+      const isValidType = file.type === 'image/png';
       return isValidSize && isValidType;
     });
 
     if (validFiles.length !== files.length) {
-      alert('Some files were ignored. Max size 5MB and only Images/PDFs are allowed.');
+      alert('Only PNG files under 5MB are allowed.');
     }
 
     setAttachments(prev => [...prev, ...validFiles]);
@@ -321,7 +329,7 @@ const NewTicket = () => {
                   <div className="upload-box">
                     <Paperclip size={32} />
                     <span>Click to upload or drag files here</span>
-                    <small>Max file size: 5MB (Images, PDF)</small>
+                    <small>Max 3 PNG files (Max 5MB each)</small>
                   </div>
                 </label>
                 <div className="attachment-list">
