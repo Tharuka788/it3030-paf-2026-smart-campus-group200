@@ -173,38 +173,94 @@ const AdminTickets = () => {
               </header>
 
               <div className="modal-body-scrollable">
-                <div className="modal-grid">
-                  <div className="modal-main-content">
+                <div className="modal-grid-balanced">
+                  {/* Left Side: Ticket Content */}
+                  <div className="modal-side-column">
                     <section className="detail-section">
+                      <div className="section-label">TICKET INFORMATION</div>
                       <h1 className="full-subject">{selectedTicket.subject}</h1>
                       <div className="full-description">
                         {selectedTicket.detailedDescription}
                       </div>
                     </section>
 
+                    <section className="detail-section highlight-box">
+                      <div className="section-label">CLASSIFICATION & IMPACT</div>
+                      <div className="side-by-side-info">
+                        <div className="info-group">
+                          <label>Category</label>
+                          <span>{selectedTicket.category}</span>
+                        </div>
+                        <div className="info-group">
+                          <label>Subcategory</label>
+                          <span>{selectedTicket.subcategory}</span>
+                        </div>
+                      </div>
+                      <div className="side-by-side-info mt-15">
+                        <div className="info-group">
+                          <label>Priority Level</label>
+                          <span className={`p-text priority-${selectedTicket.priority?.toLowerCase()}`}>
+                            {selectedTicket.priority}
+                          </span>
+                        </div>
+                        <div className="info-group">
+                          <label>Service Impact</label>
+                          <span>{selectedTicket.impact}</span>
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+
+                  {/* Right Side: User & Attachments */}
+                  <div className="modal-side-column">
+                    <section className="detail-section highlight-box">
+                      <div className="section-label">REQUESTER DETAILS</div>
+                      <div className="user-detail-card">
+                        <div className="user-master-info">
+                          <div className="user-avatar-placeholder">
+                            <User size={24} />
+                          </div>
+                          <div>
+                            <h3>{selectedTicket.userName}</h3>
+                            <p className="user-dept">{selectedTicket.departmentName}</p>
+                          </div>
+                        </div>
+                        <div className="contact-grid">
+                          <div className="contact-chip">
+                            <Mail size={14} /> {selectedTicket.email}
+                          </div>
+                          <div className="contact-chip">
+                            <Phone size={14} /> {selectedTicket.contactNumber}
+                          </div>
+                          <div className="contact-chip">
+                            <Clock size={14} /> Created: {selectedTicket.createdAt ? new Date(selectedTicket.createdAt).toLocaleString() : 'N/A'}
+                          </div>
+                        </div>
+                      </div>
+                    </section>
+
                     {selectedTicket.attachmentPaths?.length > 0 && (
                       <section className="detail-section">
-                        <h3>Attachments ({selectedTicket.attachmentPaths.length})</h3>
-                        <div className="attachments-gallery">
+                        <div className="section-label">ATTACHMENTS ({selectedTicket.attachmentPaths.length})</div>
+                        <div className="attachments-list-vertical">
                           {selectedTicket.attachmentPaths.map((path, idx) => {
-                            // Extract filename from path (handle Windows and Unix separators)
                             const cleanPath = path.replace(/\\/g, '/');
                             const fileName = cleanPath.split('/').pop();
                             const fullUrl = `${IMAGE_BASE_URL}/${cleanPath}`;
                             
                             return (
-                              <div key={idx} className="attachment-card">
-                                <div className="attachment-preview">
+                              <div key={idx} className="attachment-row-item">
+                                <div className="attachment-preview-mini">
                                   {path.toLowerCase().endsWith('.png') ? (
                                     <img src={fullUrl} alt="attachment" />
                                   ) : (
-                                    <FileIcon size={32} color="#94a3b8" />
+                                    <FileIcon size={18} />
                                   )}
                                 </div>
-                                <div className="attachment-info">
-                                  <span className="file-name">{fileName}</span>
-                                  <a href={fullUrl} target="_blank" rel="noopener noreferrer" className="view-link">
-                                    <ExternalLink size={14} /> Open
+                                <div className="attachment-details">
+                                  <span className="file-name-text">{fileName}</span>
+                                  <a href={fullUrl} target="_blank" rel="noopener noreferrer" className="view-action-btn">
+                                    View Full Size <ExternalLink size={12} />
                                   </a>
                                 </div>
                               </div>
@@ -213,67 +269,24 @@ const AdminTickets = () => {
                         </div>
                       </section>
                     )}
+
+                    <section className="detail-section status-footer-section">
+                      <div className="section-label">ADMIN ACTION</div>
+                      <div className="status-control-wrapper">
+                        <label>Update Ticket Status</label>
+                        <select 
+                          className="modal-status-select-large"
+                          value={selectedTicket.status} 
+                          onChange={(e) => handleStatusUpdate(selectedTicket.id, e.target.value)}
+                        >
+                          <option value="OPEN">Open</option>
+                          <option value="IN_PROGRESS">In Progress</option>
+                          <option value="RESOLVED">Resolved</option>
+                          <option value="CLOSED">Closed</option>
+                        </select>
+                      </div>
+                    </section>
                   </div>
-
-                  <aside className="modal-sidebar">
-                    <div className="sidebar-group">
-                      <h4>Submission Info</h4>
-                      <div className="side-detail-item">
-                        <User size={16} />
-                        <div>
-                          <strong>{selectedTicket.userName}</strong>
-                          <p>{selectedTicket.email}</p>
-                          <p>{selectedTicket.contactNumber}</p>
-                        </div>
-                      </div>
-                      <div className="side-detail-item">
-                        <Building size={16} />
-                        <div>
-                          <strong>{selectedTicket.departmentName}</strong>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="sidebar-group">
-                      <h4>Classification</h4>
-                      <div className="side-info-pill">
-                        <label>Category</label>
-                        <span>{selectedTicket.category}</span>
-                      </div>
-                      <div className="side-info-pill">
-                        <label>Subcategory</label>
-                        <span>{selectedTicket.subcategory}</span>
-                      </div>
-                    </div>
-
-                    <div className="sidebar-group">
-                      <h4>Priority & Impact</h4>
-                      <div className="side-info-pill">
-                        <label>Priority</label>
-                        <span className={`p-text priority-${selectedTicket.priority?.toLowerCase()}`}>
-                          {selectedTicket.priority}
-                        </span>
-                      </div>
-                      <div className="side-info-pill">
-                        <label>Impact</label>
-                        <span>{selectedTicket.impact}</span>
-                      </div>
-                    </div>
-
-                    <div className="sidebar-group status-control">
-                      <h4>Update Status</h4>
-                      <select 
-                        className="modal-status-select"
-                        value={selectedTicket.status} 
-                        onChange={(e) => handleStatusUpdate(selectedTicket.id, e.target.value)}
-                      >
-                        <option value="OPEN">Open</option>
-                        <option value="IN_PROGRESS">In Progress</option>
-                        <option value="RESOLVED">Resolved</option>
-                        <option value="CLOSED">Closed</option>
-                      </select>
-                    </div>
-                  </aside>
                 </div>
               </div>
             </motion.div>
@@ -422,40 +435,47 @@ const AdminTickets = () => {
         }
         .close-modal-btn:hover { background: #fee2e2; color: #ef4444; }
 
-        .modal-body-scrollable { padding: 32px; overflow-y: auto; flex: 1; }
-        .modal-grid { display: grid; grid-template-columns: 1fr 300px; gap: 40px; }
+        .modal-body-scrollable { padding: 0; overflow-y: auto; flex: 1; }
+        .modal-grid-balanced { display: grid; grid-template-columns: 1fr 1fr; }
+        .modal-side-column { padding: 32px; display: flex; flex-direction: column; gap: 30px; }
+        .modal-side-column:first-child { border-right: 1px solid #f1f5f9; }
         
-        .full-subject { font-size: 2.25rem; font-weight: 800; color: #1e293b; margin: 0 0 20px 0; line-height: 1.2; }
-        .full-description { font-size: 1.1rem; color: #475569; line-height: 1.7; white-space: pre-wrap; }
-
-        .detail-section { margin-bottom: 40px; }
-        .detail-section h3 { font-size: 1.1rem; font-weight: 800; margin-bottom: 20px; color: #1e293b; }
-
-        .attachments-gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; }
-        .attachment-card { border-radius: 16px; border: 1px solid #f1f5f9; overflow: hidden; background: #f8fafc; }
-        .attachment-preview { height: 120px; display: flex; align-items: center; justify-content: center; background: #e2e8f0; }
-        .attachment-preview img { width: 100%; height: 100%; object-fit: cover; }
-        .attachment-info { padding: 10px; display: flex; flex-direction: column; gap: 5px; }
-        .file-name { font-size: 0.75rem; font-weight: 600; color: #475569; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .view-link { font-size: 0.75rem; font-weight: 700; color: #6366f1; display: flex; align-items: center; gap: 4px; text-decoration: none; }
-
-        .modal-sidebar { background: #f8fafc; border-radius: 20px; padding: 20px; display: flex; flex-direction: column; gap: 25px; }
-        .sidebar-group h4 { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: #94a3b8; margin: 0 0 12px 0; }
+        .section-label { font-size: 0.7rem; font-weight: 800; color: #94a3b8; letter-spacing: 0.1em; margin-bottom: 15px; }
+        .highlight-box { background: #f8fafc; padding: 24px; border-radius: 20px; border: 1px solid #f1f5f9; }
         
-        .side-detail-item { display: flex; gap: 12px; color: #334155; }
-        .side-detail-item p { margin: 2px 0; font-size: 0.85rem; color: #64748b; }
-        
-        .side-info-pill { display: flex; flex-direction: column; gap: 4px; }
-        .side-info-pill label { font-size: 0.7rem; color: #94a3b8; font-weight: 700; }
-        .side-info-pill span { font-weight: 700; color: #1e293b; }
-        .p-text { font-weight: 900 !important; }
+        .full-subject { font-size: 1.8rem; font-weight: 800; color: #1e293b; margin: 0 0 15px 0; line-height: 1.2; }
+        .full-description { font-size: 1rem; color: #475569; line-height: 1.6; white-space: pre-wrap; }
 
-        .status-control { margin-top: auto; padding-top: 20px; border-top: 20px; }
-        .modal-status-select { 
-          width: 100%; padding: 12px; border-radius: 12px; border: 2px solid #e2e8f0; 
-          background: white; font-weight: 800; cursor: pointer; transition: all 0.2s;
+        .side-by-side-info { display: flex; gap: 30px; }
+        .info-group { flex: 1; display: flex; flex-direction: column; gap: 5px; }
+        .info-group label { font-size: 0.75rem; color: #64748b; font-weight: 600; }
+        .info-group span { font-weight: 700; color: #1e293b; font-size: 1rem; }
+        .mt-15 { margin-top: 15px; }
+
+        .user-detail-card { display: flex; flex-direction: column; gap: 20px; }
+        .user-master-info { display: flex; align-items: center; gap: 15px; }
+        .user-avatar-placeholder { width: 48px; height: 48px; background: #6366f1; color: white; border-radius: 12px; display: flex; align-items: center; justify-content: center; }
+        .user-master-info h3 { margin: 0; font-size: 1.1rem; font-weight: 800; color: #1e293b; }
+        .user-dept { margin: 2px 0 0 0; color: #64748b; font-size: 0.85rem; font-weight: 600; }
+
+        .contact-grid { display: flex; flex-direction: column; gap: 10px; }
+        .contact-chip { display: flex; align-items: center; gap: 10px; font-size: 0.9rem; color: #475569; font-weight: 500; }
+
+        .attachments-list-vertical { display: flex; flex-direction: column; gap: 12px; }
+        .attachment-row-item { display: flex; align-items: center; gap: 15px; padding: 12px; background: white; border-radius: 12px; border: 1px solid #f1f5f9; }
+        .attachment-preview-mini { width: 40px; height: 40px; background: #e2e8f0; border-radius: 8px; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+        .attachment-preview-mini img { width: 100%; height: 100%; object-fit: cover; }
+        .attachment-details { flex: 1; display: flex; flex-direction: column; }
+        .file-name-text { font-size: 0.85rem; font-weight: 600; color: #1e293b; }
+        .view-action-btn { font-size: 0.75rem; font-weight: 700; color: #6366f1; text-decoration: none; display: flex; align-items: center; gap: 4px; margin-top: 2px; }
+
+        .status-footer-section { margin-top: auto; padding-top: 30px; border-top: 1px dashed #e2e8f0; }
+        .status-control-wrapper { display: flex; flex-direction: column; gap: 10px; }
+        .status-control-wrapper label { font-size: 0.85rem; font-weight: 700; color: #1e293b; }
+        .modal-status-select-large { 
+          width: 100%; padding: 14px; border-radius: 14px; border: 2px solid #e2e8f0; 
+          background: white; font-weight: 800; cursor: pointer; color: #1e293b; font-size: 1rem;
         }
-        .modal-status-select:focus { border-color: #6366f1; }
       `}</style>
     </AdminLayout>
   );
