@@ -77,26 +77,45 @@ const AdminTickets = () => {
                 animate={{ opacity: 1, y: 0 }}
               >
                 <div className="card-header">
-                  <span className="ticket-category">{ticket.category}</span>
+                  <div className="category-group">
+                    <span className="ticket-category">{ticket.category}</span>
+                    <span className="ticket-subcategory"> / {ticket.subcategory}</span>
+                  </div>
                   <span className={`status-pill ${(ticket.status || 'OPEN').toLowerCase()}`}>
                     {(ticket.status || 'OPEN').replace('_', ' ')}
                   </span>
                 </div>
 
                 <h3 className="ticket-subject">{ticket.subject}</h3>
+                <p className="ticket-desc-excerpt">{ticket.description?.substring(0, 100)}{ticket.description?.length > 100 ? '...' : ''}</p>
                 
                 <div className="ticket-meta">
-                  <div className="meta-item">
-                    <User size={14} />
-                    <span>{ticket.userName}</span>
+                  <div className="meta-row">
+                    <div className="meta-item">
+                      <User size={14} />
+                      <span>{ticket.userName} ({ticket.department})</span>
+                    </div>
+                    <div className="meta-item">
+                      <Clock size={14} />
+                      <span>{new Date(ticket.createdAt).toLocaleDateString()}</span>
+                    </div>
                   </div>
-                  <div className="meta-item">
-                    <AlertCircle size={14} className={`priority-${ticket.priority.toLowerCase()}`} />
-                    <span>{ticket.priority} Priority</span>
+                  <div className="meta-row">
+                    <div className="meta-item">
+                      <AlertCircle size={14} className={`priority-${ticket.priority?.toLowerCase()}`} />
+                      <span>{ticket.priority} Priority</span>
+                    </div>
+                    <div className="meta-item">
+                      <Activity size={14} />
+                      <span>Impact: {ticket.impact}</span>
+                    </div>
                   </div>
                 </div>
 
                 <div className="card-actions">
+                  <div className="contact-info">
+                    <Phone size={14} /> {ticket.contactNumber} | <Mail size={14} /> {ticket.email}
+                  </div>
                   <select 
                     className="status-select"
                     value={ticket.status} 
@@ -134,19 +153,24 @@ const AdminTickets = () => {
           border: 1px solid #e2e8f0;
         }
         .header-filters select { border: none; outline: none; font-weight: 600; color: #475569; }
+        
+        .category-group { display: flex; align-items: center; gap: 4px; }
+        .ticket-subcategory { font-size: 0.75rem; font-weight: 600; color: #94a3b8; text-transform: uppercase; }
 
         .admin-tickets-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+          grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
           gap: 20px;
         }
         .admin-ticket-card {
           padding: 24px;
           background: white;
-          border-radius: 20px;
+          border-radius: 24px;
           display: flex;
           flex-direction: column;
-          gap: 12px;
+          gap: 15px;
+          border: 1px solid #f1f5f9;
+          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
         }
         .card-header { display: flex; justify-content: space-between; align-items: center; }
         .ticket-category { font-size: 0.75rem; font-weight: 700; color: #6366f1; text-transform: uppercase; }
@@ -156,26 +180,31 @@ const AdminTickets = () => {
         .status-pill.in_progress { background: #fef3c7; color: #d97706; }
         .status-pill.resolved { background: #dcfce7; color: #16a34a; }
 
-        .ticket-subject { font-size: 1.1rem; font-weight: 600; color: #1e293b; }
+        .ticket-subject { font-size: 1.15rem; font-weight: 700; color: #1e293b; margin: 0; }
+        .ticket-desc-excerpt { font-size: 0.9rem; color: #64748b; line-height: 1.5; margin: 0; }
         
-        .ticket-meta { display: flex; flex-direction: column; gap: 8px; margin-top: 5px; }
-        .meta-item { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: #64748b; }
+        .ticket-meta { display: flex; flex-direction: column; gap: 10px; padding: 15px 0; border-top: 1px solid #f1f5f9; border-bottom: 1px solid #f1f5f9; }
+        .meta-row { display: flex; justify-content: space-between; align-items: center; }
+        .meta-item { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: #475569; font-weight: 500; }
         
         .priority-high { color: #ef4444; }
         .priority-medium { color: #f59e0b; }
         .priority-low { color: #10b981; }
 
-        .card-actions { margin-top: 15px; }
+        .card-actions { display: flex; flex-direction: column; gap: 15px; margin-top: 5px; }
+        .contact-info { font-size: 0.8rem; color: #94a3b8; font-weight: 600; display: flex; align-items: center; gap: 6px; }
         .status-select {
           width: 100%;
-          padding: 10px;
-          border-radius: 10px;
+          padding: 12px;
+          border-radius: 12px;
           border: 1px solid #e2e8f0;
           background: #f8fafc;
-          font-weight: 600;
-          color: #475569;
+          font-weight: 700;
+          color: #1e293b;
           outline: none;
+          transition: all 0.2s;
         }
+        .status-select:focus { border-color: #6366f1; background: white; }
       `}</style>
     </AdminLayout>
   );

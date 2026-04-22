@@ -18,8 +18,12 @@ public class Ticket {
     private String userEmail;
     private String userName;
     private String subject;
-    private String category; // IT Support, Maintenance, Administration
-    private String priority; // HIGH, MEDIUM, LOW
+    private String category; // IT Support, Maintenance, etc.
+    private String subcategory; // Wi-Fi, Electrical, etc.
+    private String department;
+    private String contactNumber;
+    private String priority; // HIGH, MEDIUM, LOW, CRITICAL
+    private String impact; // Individual, Department, Organization
     private String status; // OPEN, IN_PROGRESS, RESOLVED, CLOSED
     private String description;
     private LocalDateTime createdAt = LocalDateTime.now();
