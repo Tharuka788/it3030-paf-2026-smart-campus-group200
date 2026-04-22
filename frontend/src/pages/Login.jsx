@@ -50,7 +50,7 @@ const Login = () => {
         <div className="logo-section">
           <GraduationCap size={64} className="logo-icon" />
           <h1 className="gradient-text">Smart Campus</h1>
-          <p className="subtitle">Seamless Access to Campus Resources</p>
+          <p className="subtitle"> Access to Campus Resources</p>
         </div>
 
         <div className="auth-section">
