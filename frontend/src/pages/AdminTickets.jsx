@@ -47,16 +47,15 @@ const AdminTickets = () => {
   const handleStatusUpdate = async (id, status, commentToUse) => {
     setUpdating(true);
     try {
-      await ticketService.updateStatus(id, status, commentToUse || adminComment);
+      const response = await ticketService.updateStatus(id, status, commentToUse || adminComment);
+      const updatedTicket = response.data;
+      
       await fetchAllTickets();
-      // Update selected ticket state if modal is open
+      
+      // Update selected ticket state if modal is open - keep the note active
       if (selectedTicket && selectedTicket.id === id) {
-        setSelectedTicket(prev => ({ 
-          ...prev, 
-          status, 
-          adminComments: commentToUse || adminComment 
-        }));
-        // We don't clear adminComment here anymore, let the user see it's saved
+        setSelectedTicket(updatedTicket);
+        // Note: The useEffect will handle setting setAdminComment(updatedTicket.adminComments)
       }
     } catch (err) {
       console.error('Failed to update status:', err);
