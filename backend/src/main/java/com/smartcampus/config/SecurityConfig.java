@@ -55,6 +55,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/v1/bookings/**").permitAll()
                 .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/tickets").permitAll()
                 .requestMatchers("/api/v1/tickets/**").permitAll()
+                .requestMatchers(org.springframework.http.HttpMethod.GET, "/uploads/**").permitAll()
                 .anyRequest().permitAll()
             );
         return http.build();
