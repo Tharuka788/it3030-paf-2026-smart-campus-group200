@@ -1,5 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import Layout from './components/Layout';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
@@ -65,11 +66,11 @@ function App() {
         />
         <Route 
           path="/facilities" 
-          element={<ProtectedRoute><FacilitiesCatalogue /></ProtectedRoute>} 
+          element={<ProtectedRoute><Layout><FacilitiesCatalogue /></Layout></ProtectedRoute>} 
         />
         <Route 
           path="/facilities/manage" 
-          element={<ProtectedRoute><ManageFacility /></ProtectedRoute>} 
+          element={<ProtectedRoute><Layout><ManageFacility /></Layout></ProtectedRoute>} 
         />
         <Route 
           path="/bookings/new" 
