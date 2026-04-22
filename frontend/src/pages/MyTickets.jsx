@@ -463,9 +463,9 @@ const MyTickets = () => {
         }
 
         .tickets-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-          gap: 25px;
+          display: flex;
+          flex-direction: column;
+          gap: 20px;
         }
 
         .ticket-card {
