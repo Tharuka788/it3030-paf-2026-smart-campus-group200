@@ -370,6 +370,14 @@ const AdminTickets = () => {
                           </>
                         )}
                       </button>
+
+                      <button 
+                        className="modal-delete-btn"
+                        onClick={() => handleDelete(selectedTicket.id)}
+                      >
+                        <Trash2 size={18} />
+                        <span>Delete Ticket Permanently</span>
+                      </button>
                     </section>
                   </div>
                 </div>
@@ -582,6 +590,15 @@ const AdminTickets = () => {
         .save-update-btn:hover { background: #4f46e5; transform: translateY(-2px); box-shadow: 0 6px 15px rgba(99, 102, 241, 0.4); }
         .save-update-btn:active { transform: translateY(0); }
         .save-update-btn:disabled { background: #94a3b8; cursor: not-allowed; transform: none; }
+
+        .modal-delete-btn {
+          width: 100%; margin-top: 15px; padding: 14px; border-radius: 14px;
+          border: 2px solid #fee2e2; background: white; color: #ef4444;
+          font-weight: 700; font-size: 0.9rem; cursor: pointer;
+          display: flex; align-items: center; justify-content: center; gap: 8px;
+          transition: all 0.2s;
+        }
+        .modal-delete-btn:hover { background: #fff1f2; border-color: #fecaca; transform: translateY(-2px); }
 
         .spin { animation: spin 1s linear infinite; }
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
