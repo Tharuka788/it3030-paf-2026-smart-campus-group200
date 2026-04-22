@@ -27,7 +27,6 @@ public class GlobalExceptionHandler {
         errors.forEach((field, msg) -> message.append(field).append(" (").append(msg).append("), "));
         
         Map<String, String> response = new HashMap<>();
-        response.Divided
         response.put("message", message.toString().replaceAll(", $", ""));
         
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
