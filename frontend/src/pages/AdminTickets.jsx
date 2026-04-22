@@ -25,6 +25,8 @@ const AdminTickets = () => {
   const [filter, setFilter] = useState('ALL');
   const [selectedTicket, setSelectedTicket] = useState(null);
   const [adminComment, setAdminComment] = useState('');
+  const [modalStatus, setModalStatus] = useState('');
+  const [updating, setUpdating] = useState(false);
 
   const fetchAllTickets = async () => {
     setLoading(true);
@@ -43,24 +45,33 @@ const AdminTickets = () => {
   }, []);
 
   const handleStatusUpdate = async (id, status, commentToUse) => {
+    setUpdating(true);
     try {
       await ticketService.updateStatus(id, status, commentToUse || adminComment);
-      fetchAllTickets();
+      await fetchAllTickets();
       // Update selected ticket state if modal is open
       if (selectedTicket && selectedTicket.id === id) {
-        setSelectedTicket(prev => ({ ...prev, status, adminComments: commentToUse || adminComment }));
-        setAdminComment(''); // Clear after successful update in modal
+        setSelectedTicket(prev => ({ 
+          ...prev, 
+          status, 
+          adminComments: commentToUse || adminComment 
+        }));
+        // We don't clear adminComment here anymore, let the user see it's saved
       }
     } catch (err) {
       console.error('Failed to update status:', err);
+    } finally {
+      setUpdating(false);
     }
   };
 
   useEffect(() => {
     if (selectedTicket) {
       setAdminComment(selectedTicket.adminComments || '');
+      setModalStatus(selectedTicket.status || 'OPEN');
     } else {
       setAdminComment('');
+      setModalStatus('');
     }
   }, [selectedTicket]);
 
@@ -305,8 +316,8 @@ const AdminTickets = () => {
                         <label>Modify Ticket Status</label>
                         <select 
                           className="modal-status-select-large"
-                          value={selectedTicket.status} 
-                          onChange={(e) => handleStatusUpdate(selectedTicket.id, e.target.value)}
+                          value={modalStatus} 
+                          onChange={(e) => setModalStatus(e.target.value)}
                         >
                           <option value="OPEN">Open</option>
                           <option value="IN_PROGRESS">In Progress</option>
@@ -314,6 +325,24 @@ const AdminTickets = () => {
                           <option value="CLOSED">Closed</option>
                         </select>
                       </div>
+
+                      <button 
+                        className={`save-update-btn ${updating ? 'updating' : ''}`}
+                        onClick={() => handleStatusUpdate(selectedTicket.id, modalStatus)}
+                        disabled={updating}
+                      >
+                        {updating ? (
+                          <>
+                            <Activity size={18} className="spin" />
+                            <span>Saving...</span>
+                          </>
+                        ) : (
+                          <>
+                            <CheckCircle size={18} />
+                            <span>Save Changes</span>
+                          </>
+                        )}
+                      </button>
                     </section>
                   </div>
                 </div>
@@ -511,7 +540,22 @@ const AdminTickets = () => {
         .modal-status-select-large { 
           width: 100%; padding: 14px; border-radius: 14px; border: 2px solid #e2e8f0; 
           background: white; font-weight: 800; cursor: pointer; color: #1e293b; font-size: 1rem;
+          margin-bottom: 15px;
         }
+
+        .save-update-btn {
+          width: 100%; padding: 16px; border-radius: 16px; border: none;
+          background: #6366f1; color: white; font-weight: 800; font-size: 1rem;
+          cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px;
+          transition: all 0.3s; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+
+        .save-update-btn:hover { background: #4f46e5; transform: translateY(-2px); box-shadow: 0 6px 15px rgba(99, 102, 241, 0.4); }
+        .save-update-btn:active { transform: translateY(0); }
+        .save-update-btn:disabled { background: #94a3b8; cursor: not-allowed; transform: none; }
+
+        .spin { animation: spin 1s linear infinite; }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
       `}</style>
     </AdminLayout>
   );
