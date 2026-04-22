@@ -182,6 +182,13 @@ const MyTickets = () => {
                         </div>
                       </div>
 
+                      {ticket.adminComments && (
+                        <div className="card-admin-note-preview">
+                          <MessageSquare size={12} />
+                          <p>{ticket.adminComments.length > 60 ? `${ticket.adminComments.substring(0, 60)}...` : ticket.adminComments}</p>
+                        </div>
+                      )}
+
                       <div className="ticket-footer">
                         <button 
                           className="view-details-btn"
@@ -523,6 +530,31 @@ const MyTickets = () => {
         }
         .detail-item span {
           font-weight: 500;
+        }
+
+        .card-admin-note-preview {
+          margin-top: 15px;
+          background: #f8fafc;
+          border-left: 3px solid #6366f1;
+          padding: 10px 12px;
+          border-radius: 8px;
+          display: flex;
+          align-items: flex-start;
+          gap: 8px;
+        }
+
+        .card-admin-note-preview p {
+          margin: 0;
+          font-size: 0.8rem;
+          color: #475569;
+          font-style: italic;
+          line-height: 1.4;
+        }
+
+        .card-admin-note-preview svg {
+          color: #6366f1;
+          margin-top: 2px;
+          flex-shrink: 0;
         }
 
         .admin-response-section {
