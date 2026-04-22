@@ -21,6 +21,23 @@ import {
 } from 'lucide-react';
 import { ticketService } from '../services/api';
 
+const Section = ({ title, icon: Icon, children }) => (
+  <motion.div 
+    className="form-section glass-morphism"
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.5 }}
+  >
+    <div className="section-title">
+      <Icon size={20} className="section-icon" />
+      <h3>{title}</h3>
+    </div>
+    <div className="section-content">
+      {children}
+    </div>
+  </motion.div>
+);
+
 const NewTicket = () => {
   const [formData, setFormData] = useState({
     subject: '',
@@ -115,23 +132,6 @@ const NewTicket = () => {
     }
   };
 
-  const Section = ({ title, icon: Icon, children }) => (
-    <motion.div 
-      className="form-section glass-morphism"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-    >
-      <div className="section-title">
-        <Icon size={20} className="section-icon" />
-        <h3>{title}</h3>
-      </div>
-      <div className="section-content">
-        {children}
-      </div>
-    </motion.div>
-  );
-
   if (success) {
     return (
       <Layout>
@@ -175,122 +175,83 @@ const NewTicket = () => {
             </motion.div>
           )}
 
-          <div className="form-grid">
-            <div className="main-col">
-              <Section title="1. Basic Information" icon={FileText}>
+          <div className="form-stack">
+            <Section title="1. Basic Information" icon={FileText}>
+              <div className="input-group">
+                <label>Subject (Short Description) *</label>
+                <input 
+                  type="text" 
+                  name="subject"
+                  required
+                  placeholder="e.g., Room 302 Projector not working"
+                  value={formData.subject}
+                  onChange={handleChange}
+                />
+              </div>
+              <div className="input-group">
+                <label>Detailed Description *</label>
+                <textarea 
+                  name="description"
+                  rows="6"
+                  required
+                  placeholder="Provide exact details of the incident or request..."
+                  value={formData.description}
+                  onChange={handleChange}
+                ></textarea>
+              </div>
+            </Section>
+
+            <Section title="2. User Details" icon={User}>
+              <div className="form-row">
                 <div className="input-group">
-                  <label>Subject (Short Description) *</label>
+                  <label><User size={16} /> Full Name *</label>
                   <input 
                     type="text" 
-                    name="subject"
+                    name="userName"
                     required
-                    placeholder="e.g., Room 302 Projector not working"
-                    value={formData.subject}
+                    value={formData.userName}
                     onChange={handleChange}
                   />
                 </div>
                 <div className="input-group">
-                  <label>Detailed Description *</label>
-                  <textarea 
-                    name="description"
-                    rows="6"
+                  <label><Building size={16} /> Department *</label>
+                  <input 
+                    type="text" 
+                    name="department"
                     required
-                    placeholder="Provide exact details of the incident or request..."
-                    value={formData.description}
+                    placeholder="e.g., Computer Science"
+                    value={formData.department}
                     onChange={handleChange}
-                  ></textarea>
+                  />
                 </div>
-              </Section>
+              </div>
+              <div className="form-row">
+                <div className="input-group">
+                  <label><Phone size={16} /> Contact Number *</label>
+                  <input 
+                    type="text" 
+                    name="contactNumber"
+                    required
+                    placeholder="e.g., +94 77 123 4567"
+                    value={formData.contactNumber}
+                    onChange={handleChange}
+                  />
+                </div>
+                <div className="input-group">
+                  <label><Mail size={16} /> Email Address *</label>
+                  <input 
+                    type="email" 
+                    name="email"
+                    required
+                    value={formData.email}
+                    onChange={handleChange}
+                  />
+                </div>
+              </div>
+            </Section>
 
-              <Section title="2. User Details" icon={User}>
-                <div className="form-row">
-                  <div className="input-group">
-                    <label><User size={16} /> Full Name *</label>
-                    <input 
-                      type="text" 
-                      name="userName"
-                      required
-                      value={formData.userName}
-                      onChange={handleChange}
-                    />
-                  </div>
-                  <div className="input-group">
-                    <label><Building size={16} /> Department *</label>
-                    <input 
-                      type="text" 
-                      name="department"
-                      required
-                      placeholder="e.g., Computer Science"
-                      value={formData.department}
-                      onChange={handleChange}
-                    />
-                  </div>
-                </div>
-                <div className="form-row">
-                  <div className="input-group">
-                    <label><Phone size={16} /> Contact Number *</label>
-                    <input 
-                      type="text" 
-                      name="contactNumber"
-                      required
-                      placeholder="e.g., +94 77 123 4567"
-                      value={formData.contactNumber}
-                      onChange={handleChange}
-                    />
-                  </div>
-                  <div className="input-group">
-                    <label><Mail size={16} /> Email Address *</label>
-                    <input 
-                      type="email" 
-                      name="email"
-                      required
-                      value={formData.email}
-                      onChange={handleChange}
-                    />
-                  </div>
-                </div>
-              </Section>
-
-              <Section title="5. Attachments" icon={Paperclip}>
-                <div className="upload-container">
-                  <label className="upload-trigger">
-                    <input 
-                      type="file" 
-                      multiple 
-                      onChange={handleFileChange}
-                      className="hidden-input"
-                    />
-                    <div className="upload-box">
-                      <Paperclip size={32} />
-                      <span>Click to upload or drag files here</span>
-                      <small>Max file size: 5MB (Images, PDF)</small>
-                    </div>
-                  </label>
-                  <div className="attachment-list">
-                    <AnimatePresence>
-                      {attachments.map((file, idx) => (
-                        <motion.div 
-                          key={idx}
-                          className="attachment-item"
-                          initial={{ opacity: 0, x: -10 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          exit={{ opacity: 0, scale: 0.95 }}
-                        >
-                          <div className="file-info">
-                            <FileText size={18} />
-                            <span>{file.name} ({(file.size / 1024).toFixed(1)} KB)</span>
-                          </div>
-                          <X size={16} className="remove-file" onClick={() => removeFile(idx)} />
-                        </motion.div>
-                      ))}
-                    </AnimatePresence>
-                  </div>
-                </div>
-              </Section>
-            </div>
-
-            <div className="side-col">
-              <Section title="3. Ticket Classification" icon={Tag}>
+            <Section title="3. Ticket Classification" icon={Tag}>
+              <div className="form-row">
                 <div className="input-group">
                   <label><Tag size={16} /> Category *</label>
                   <select 
@@ -318,9 +279,11 @@ const NewTicket = () => {
                     ))}
                   </select>
                 </div>
-              </Section>
+              </div>
+            </Section>
 
-              <Section title="4. Priority & Impact" icon={AlertOctagon}>
+            <Section title="4. Priority & Impact" icon={AlertOctagon}>
+              <div className="form-row">
                 <div className="input-group">
                   <label><AlertOctagon size={16} /> Priority *</label>
                   <select 
@@ -343,23 +306,60 @@ const NewTicket = () => {
                     {impacts.map(i => <option key={i} value={i}>{i}</option>)}
                   </select>
                 </div>
-              </Section>
+              </div>
+            </Section>
 
-              <button type="submit" className="huge-submit-btn" disabled={loading}>
-                {loading ? 'Processing...' : (
-                  <>
-                    <Send size={24} /> Submit Request
-                  </>
-                )}
-              </button>
-            </div>
+            <Section title="5. Attachments" icon={Paperclip}>
+              <div className="upload-container">
+                <label className="upload-trigger">
+                  <input 
+                    type="file" 
+                    multiple 
+                    onChange={handleFileChange}
+                    className="hidden-input"
+                  />
+                  <div className="upload-box">
+                    <Paperclip size={32} />
+                    <span>Click to upload or drag files here</span>
+                    <small>Max file size: 5MB (Images, PDF)</small>
+                  </div>
+                </label>
+                <div className="attachment-list">
+                  <AnimatePresence>
+                    {attachments.map((file, idx) => (
+                      <motion.div 
+                        key={idx}
+                        className="attachment-item"
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, scale: 0.95 }}
+                      >
+                        <div className="file-info">
+                          <FileText size={18} />
+                          <span>{file.name} ({(file.size / 1024).toFixed(1)} KB)</span>
+                        </div>
+                        <X size={16} className="remove-file" onClick={() => removeFile(idx)} />
+                      </motion.div>
+                    ))}
+                  </AnimatePresence>
+                </div>
+              </div>
+            </Section>
+
+            <button type="submit" className="huge-submit-btn" disabled={loading}>
+              {loading ? 'Processing...' : (
+                <>
+                  <Send size={24} /> Submit Request
+                </>
+              )}
+            </button>
           </div>
         </form>
       </div>
 
       <style jsx="true">{`
         .new-ticket-overhaul {
-          max-width: 1200px;
+          max-width: 900px;
           margin: 0 auto;
           padding-bottom: 80px;
         }
@@ -382,16 +382,10 @@ const NewTicket = () => {
         .page-header h1 { font-size: 2.8rem; font-weight: 850; margin-bottom: 10px; }
         .page-header p { color: #64748b; font-size: 1.1rem; }
 
-        .form-grid {
-          display: grid;
-          grid-template-columns: 1.8fr 1fr;
-          gap: 30px;
-        }
-
-        .main-col, .side-col {
+        .form-stack {
           display: flex;
           flex-direction: column;
-          gap: 25px;
+          gap: 30px;
         }
 
         .form-section {
@@ -399,6 +393,7 @@ const NewTicket = () => {
           border-radius: 24px;
           padding: 30px;
           border: 1px solid #f1f5f9;
+          box-shadow: 0 4px 15px rgba(0,0,0,0.02);
         }
 
         .section-title {
@@ -507,6 +502,7 @@ const NewTicket = () => {
           transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
           box-shadow: 0 10px 25px rgba(99, 102, 241, 0.3);
           margin-top: 10px;
+          width: 100%;
         }
         .huge-submit-btn:hover:not(:disabled) { 
           transform: translateY(-5px); 
@@ -535,10 +531,6 @@ const NewTicket = () => {
         .success-card h2 { font-size: 2.2rem; font-weight: 850; margin: 0; color: #1e293b; }
         .success-card p { color: #64748b; font-size: 1.1rem; line-height: 1.6; }
 
-        @media (max-width: 992px) {
-          .form-grid { grid-template-columns: 1fr; }
-          .side-col { order: -1; }
-        }
         @media (max-width: 640px) {
           .form-row { grid-template-columns: 1fr; }
         }
