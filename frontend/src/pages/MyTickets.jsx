@@ -38,16 +38,19 @@ const MyTickets = () => {
     fetchMyTickets();
   }, []);
 
-  const filteredTickets = tickets.filter(t => 
-    filterStatus === 'All' ? true : t.status === filterStatus.toUpperCase()
-  );
+  const filteredTickets = tickets.filter(t => {
+    if (filterStatus === 'All') return true;
+    const normalizedStatus = t.status?.replace('_', ' ').toUpperCase();
+    return normalizedStatus === filterStatus.toUpperCase();
+  });
 
   const getStatusStyle = (status) => {
-    switch (status) {
-      case 'OPEN': return { bg: '#dbeafe', color: '#1e40af' }; // light blue
-      case 'IN PROGRESS': return { bg: '#fef3c7', color: '#d97706' }; // light yellow
-      case 'RESOLVED': return { bg: '#dcfce7', color: '#10b981' }; // light green
-      case 'CLOSED': return { bg: '#f1f5f9', color: '#64748b' }; // light gray
+    const normalized = status?.replace('_', ' ').toUpperCase();
+    switch (normalized) {
+      case 'OPEN': return { bg: '#dbeafe', color: '#1e40af' };
+      case 'IN PROGRESS': return { bg: '#fef3c7', color: '#d97706' };
+      case 'RESOLVED': return { bg: '#dcfce7', color: '#10b981' };
+      case 'CLOSED': return { bg: '#f1f5f9', color: '#64748b' };
       default: return { bg: '#f1f5f9', color: '#64748b' };
     }
   };
@@ -90,7 +93,9 @@ const MyTickets = () => {
             </div>
             <div className="stat-info">
               <span className="stat-label">In Progress</span>
-              <span className="stat-value">{tickets.filter(t => t.status === 'IN PROGRESS').length}</span>
+              <span className="stat-value">
+                {tickets.filter(t => t.status?.replace('_', ' ').toUpperCase() === 'IN PROGRESS').length}
+              </span>
             </div>
           </div>
           <div className="stat-card glass-morphism">
@@ -99,7 +104,9 @@ const MyTickets = () => {
             </div>
             <div className="stat-info">
               <span className="stat-label">Resolved</span>
-              <span className="stat-value">{tickets.filter(t => t.status === 'RESOLVED').length}</span>
+              <span className="stat-value">
+                {tickets.filter(t => t.status?.toUpperCase() === 'RESOLVED').length}
+              </span>
             </div>
           </div>
         </section>
@@ -159,7 +166,11 @@ const MyTickets = () => {
                         </div>
                         <div className="detail-item">
                           <Clock size={14} />
-                          <span>Updated {new Date(ticket.updatedAt).toLocaleDateString()}</span>
+                          <span>
+                            {ticket.updatedAt 
+                              ? `Updated ${new Date(ticket.updatedAt).toLocaleDateString()}` 
+                              : `Created ${new Date(ticket.createdAt).toLocaleDateString()}`}
+                          </span>
                         </div>
                       </div>
 
