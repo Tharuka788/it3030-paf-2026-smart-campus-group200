@@ -88,7 +88,7 @@ const Layout = ({ children }) => {
         .layout-container {
           min-height: 100vh;
           display: flex;
-          background: var(--bg-dark);
+          background: #f8fafc;
           padding: 20px;
           gap: 20px;
         }
