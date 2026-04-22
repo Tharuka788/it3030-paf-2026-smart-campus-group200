@@ -71,7 +71,7 @@ const AdminTickets = () => {
         {loading ? (
           <div className="admin-loader">Loading tickets...</div>
         ) : (
-          <div className="admin-tickets-grid">
+          <div className="admin-tickets-list">
             {filteredTickets.map((ticket) => (
               <motion.div 
                 key={ticket.id}
@@ -79,56 +79,62 @@ const AdminTickets = () => {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
               >
-                <div className="card-header">
-                  <div className="category-group">
-                    <span className="ticket-category">{ticket.category}</span>
-                    <span className="ticket-subcategory"> / {ticket.subcategory}</span>
-                  </div>
-                  <span className={`status-pill ${(ticket.status || 'OPEN').toLowerCase()}`}>
-                    {(ticket.status || 'OPEN').replace('_', ' ')}
-                  </span>
-                </div>
+                <div className="card-content-layout">
+                  <div className="main-info">
+                    <div className="card-header">
+                      <div className="category-group">
+                        <span className="ticket-category">{ticket.category}</span>
+                        <span className="ticket-subcategory"> / {ticket.subcategory}</span>
+                      </div>
+                      <span className={`status-pill ${(ticket.status || 'OPEN').toLowerCase()}`}>
+                        {(ticket.status || 'OPEN').replace('_', ' ')}
+                      </span>
+                    </div>
 
-                <h3 className="ticket-subject">{ticket.subject}</h3>
-                <p className="ticket-desc-excerpt">{ticket.detailedDescription?.substring(0, 100)}{ticket.detailedDescription?.length > 100 ? '...' : ''}</p>
-                
-                <div className="ticket-meta">
-                  <div className="meta-row">
-                    <div className="meta-item">
-                      <User size={14} />
-                      <span>{ticket.userName} ({ticket.departmentName})</span>
-                    </div>
-                    <div className="meta-item">
-                      <Clock size={14} />
-                      <span>{ticket.createdAt ? new Date(ticket.createdAt).toLocaleDateString() : 'Pending'}</span>
+                    <h3 className="ticket-subject">{ticket.subject}</h3>
+                    <p className="ticket-desc-excerpt">{ticket.detailedDescription?.substring(0, 150)}{ticket.detailedDescription?.length > 150 ? '...' : ''}</p>
+                    
+                    <div className="ticket-meta">
+                      <div className="meta-row">
+                        <div className="meta-item">
+                          <User size={14} />
+                          <span>{ticket.userName} ({ticket.departmentName})</span>
+                        </div>
+                        <div className="meta-item">
+                          <Clock size={14} />
+                          <span>{ticket.createdAt ? new Date(ticket.createdAt).toLocaleDateString() : 'Pending'}</span>
+                        </div>
+                        <div className="meta-item">
+                          <AlertCircle size={14} className={`priority-${ticket.priority?.toLowerCase()}`} />
+                          <span>{ticket.priority} Priority</span>
+                        </div>
+                        <div className="meta-item">
+                          <Activity size={14} />
+                          <span>Impact: {ticket.impact}</span>
+                        </div>
+                      </div>
                     </div>
                   </div>
-                  <div className="meta-row">
-                    <div className="meta-item">
-                      <AlertCircle size={14} className={`priority-${ticket.priority?.toLowerCase()}`} />
-                      <span>{ticket.priority} Priority</span>
-                    </div>
-                    <div className="meta-item">
-                      <Activity size={14} />
-                      <span>Impact: {ticket.impact}</span>
-                    </div>
-                  </div>
-                </div>
 
-                <div className="card-actions">
-                  <div className="contact-info">
-                    <Phone size={14} /> {ticket.contactNumber} | <Mail size={14} /> {ticket.email}
+                  <div className="side-actions">
+                    <div className="contact-info">
+                      <div className="contact-item"><Phone size={14} /> {ticket.contactNumber}</div>
+                      <div className="contact-item"><Mail size={14} /> {ticket.email}</div>
+                    </div>
+                    <div className="status-update-box">
+                      <label>Update Status</label>
+                      <select 
+                        className="status-select"
+                        value={ticket.status} 
+                        onChange={(e) => handleStatusUpdate(ticket.id, e.target.value)}
+                      >
+                        <option value="OPEN">Open</option>
+                        <option value="IN_PROGRESS">In Progress</option>
+                        <option value="RESOLVED">Resolved</option>
+                        <option value="CLOSED">Closed</option>
+                      </select>
+                    </div>
                   </div>
-                  <select 
-                    className="status-select"
-                    value={ticket.status} 
-                    onChange={(e) => handleStatusUpdate(ticket.id, e.target.value)}
-                  >
-                    <option value="OPEN">Open</option>
-                    <option value="IN_PROGRESS">In Progress</option>
-                    <option value="RESOLVED">Resolved</option>
-                    <option value="CLOSED">Closed</option>
-                  </select>
                 </div>
               </motion.div>
             ))}
@@ -138,13 +144,15 @@ const AdminTickets = () => {
 
       <style jsx="true">{`
         .admin-tickets-page {
+          max-width: 1000px;
+          margin: 0 auto;
           display: flex;
           flex-direction: column;
           gap: 25px;
         }
         .page-header { display: flex; justify-content: space-between; align-items: center; }
-        .header-text h2 { font-size: 1.8rem; font-weight: 700; color: #1e293b; }
-        .header-text p { color: #64748b; }
+        .header-text h2 { font-size: 1.8rem; font-weight: 800; color: #1e293b; margin: 0; }
+        .header-text p { color: #64748b; margin: 5px 0 0 0; }
         
         .header-filters {
           display: flex;
@@ -160,20 +168,34 @@ const AdminTickets = () => {
         .category-group { display: flex; align-items: center; gap: 4px; }
         .ticket-subcategory { font-size: 0.75rem; font-weight: 600; color: #94a3b8; text-transform: uppercase; }
 
-        .admin-tickets-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+        .admin-tickets-list {
+          display: flex;
+          flex-direction: column;
           gap: 20px;
         }
         .admin-ticket-card {
-          padding: 24px;
           background: white;
           border-radius: 24px;
-          display: flex;
-          flex-direction: column;
-          gap: 15px;
           border: 1px solid #f1f5f9;
           box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+          transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .admin-ticket-card:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+        
+        .card-content-layout {
+          display: flex;
+          gap: 30px;
+          padding: 24px;
+        }
+        .main-info { flex: 1; display: flex; flex-direction: column; gap: 12px; }
+        .side-actions { 
+          width: 250px; 
+          padding-left: 30px; 
+          border-left: 1px solid #f1f5f9;
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
+          gap: 20px;
         }
         .card-header { display: flex; justify-content: space-between; align-items: center; }
         .ticket-category { font-size: 0.75rem; font-weight: 700; color: #6366f1; text-transform: uppercase; }
