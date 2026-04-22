@@ -14,16 +14,12 @@ import java.util.Optional;
 public class TicketService {
 
     private final TicketRepository ticketRepository;
-    private final EmailService emailService;
 
     public Ticket createTicket(Ticket ticket) {
         ticket.setCreatedAt(LocalDateTime.now());
         ticket.setUpdatedAt(LocalDateTime.now());
         ticket.setStatus("OPEN");
-        Ticket savedTicket = ticketRepository.save(ticket);
-        
-        emailService.sendTicketCreation(savedTicket);
-        return savedTicket;
+        return ticketRepository.save(ticket);
     }
 
     public List<Ticket> getAllTickets() {
@@ -42,10 +38,7 @@ public class TicketService {
         return ticketRepository.findById(id).map(ticket -> {
             ticket.setStatus(status);
             ticket.setUpdatedAt(LocalDateTime.now());
-            Ticket savedTicket = ticketRepository.save(ticket);
-            
-            emailService.sendTicketStatusUpdate(savedTicket);
-            return savedTicket;
+            return ticketRepository.save(ticket);
         }).orElseThrow(() -> new RuntimeException("Ticket not found"));
     }
 }
