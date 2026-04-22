@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import AdminLayout from '../components/AdminLayout';
 import { ticketService, IMAGE_BASE_URL } from '../services/api';
 import { motion, AnimatePresence } from 'framer-motion';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 import { 
   Ticket, 
   CheckCircle, 
@@ -17,7 +19,8 @@ import {
   FileIcon,
   Building,
   ChevronRight,
-  Trash2
+  Trash2,
+  FileText
 } from 'lucide-react';
 
 const AdminTickets = () => {
@@ -90,6 +93,51 @@ const AdminTickets = () => {
     }
   };
 
+  const exportToPDF = () => {
+    const doc = new jsPDF();
+    
+    // Add Branding & Title
+    doc.setFontSize(22);
+    doc.setTextColor(99, 102, 241); // Indigo color
+    doc.text('Smart Campus Hub', 14, 22);
+    
+    doc.setFontSize(16);
+    doc.setTextColor(51, 65, 85);
+    doc.text('Support Management - Institutional Report', 14, 32);
+    
+    doc.setFontSize(10);
+    doc.setTextColor(100, 116, 139);
+    doc.text(`Generated on: ${new Date().toLocaleString()}`, 14, 40);
+    doc.text(`Report Scope: ${filter} Tickets`, 14, 45);
+    doc.text(`Total Records: ${filteredTickets.length}`, 14, 50);
+
+    // Prepare table data
+    const tableColumn = ["ID", "User", "Subject", "Category", "Priority", "Status", "Created"];
+    const tableRows = filteredTickets.map(ticket => [
+      ticket.id.substring(0, 8) + '...',
+      ticket.userName,
+      ticket.subject,
+      ticket.category,
+      ticket.priority,
+      ticket.status,
+      new Date(ticket.createdAt).toLocaleDateString()
+    ]);
+
+    // Generate Table
+    autoTable(doc, {
+      head: [tableColumn],
+      body: tableRows,
+      startY: 60,
+      theme: 'grid',
+      headStyles: { fillColor: [99, 102, 241], textColor: [255, 255, 255], fontStyle: 'bold' },
+      styles: { fontSize: 8, cellPadding: 3 },
+      alternateRowStyles: { fillColor: [248, 250, 252] }
+    });
+
+    // Save PDF
+    doc.save(`smart-campus-tickets-${filter.toLowerCase()}-${new Date().getTime()}.pdf`);
+  };
+
   const filteredTickets = filter === 'ALL' 
     ? tickets 
     : tickets.filter(t => t.status?.toUpperCase() === filter);
@@ -102,15 +150,21 @@ const AdminTickets = () => {
             <h2>Support Management</h2>
             <p>Monitor and resolve system-wide support requests and maintenance tickets.</p>
           </div>
-          <div className="header-filters">
-            <Filter size={18} />
-            <select value={filter} onChange={(e) => setFilter(e.target.value)}>
-              <option value="ALL">All Status</option>
-              <option value="OPEN">Open</option>
-              <option value="IN_PROGRESS">In Progress</option>
-              <option value="RESOLVED">Resolved</option>
-              <option value="CLOSED">Closed</option>
-            </select>
+          <div className="header-actions">
+            <button className="export-report-btn" onClick={exportToPDF}>
+              <FileText size={18} />
+              <span>Export Report</span>
+            </button>
+            <div className="header-filters">
+              <Filter size={18} />
+              <select value={filter} onChange={(e) => setFilter(e.target.value)}>
+                <option value="ALL">All Status</option>
+                <option value="OPEN">Open</option>
+                <option value="IN_PROGRESS">In Progress</option>
+                <option value="RESOLVED">Resolved</option>
+                <option value="CLOSED">Closed</option>
+              </select>
+            </div>
           </div>
         </header>
 
@@ -397,17 +451,23 @@ const AdminTickets = () => {
         }
         .page-header { display: flex; justify-content: space-between; align-items: center; }
         .header-text h2 { font-size: 1.8rem; font-weight: 800; color: #1e293b; margin: 0; }
-        .header-text p { color: #64748b; margin: 5px 0 0 0; }
+        .header-text p { color: #64748b; font-size: 1rem; margin-top: 5px; }
         
-        .header-filters {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          background: white;
-          padding: 8px 15px;
-          border-radius: 12px;
-          border: 1px solid #e2e8f0;
+        .header-actions { display: flex; align-items: center; gap: 20px; }
+
+        .header-filters { 
+          display: flex; align-items: center; gap: 12px; background: white; 
+          padding: 10px 20px; border-radius: 16px; border: 1px solid #e2e8f0;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.03);
         }
+
+        .export-report-btn {
+          display: flex; align-items: center; gap: 10px; background: #6366f1; color: white;
+          padding: 12px 20px; border-radius: 16px; border: none; font-weight: 700;
+          cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+        }
+        .export-report-btn:hover { background: #4f46e5; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4); }
+        .export-report-btn:active { transform: translateY(0); }
         .header-filters select { border: none; outline: none; font-weight: 600; color: #475569; }
         
         .category-group { display: flex; align-items: center; gap: 4px; }
