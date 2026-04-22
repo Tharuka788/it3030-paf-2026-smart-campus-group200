@@ -54,18 +54,7 @@ const Sidebar = () => {
         ))}
       </nav>
 
-      <div className="sidebar-footer">
-        <button 
-          className="logout-btn"
-          onClick={() => {
-            localStorage.removeItem('isAuthenticated');
-            window.location.href = '/login';
-          }}
-        >
-          <LogOut size={22} />
-          <span>Logout</span>
-        </button>
-      </div>
+
 
       <style jsx="true">{`
         .sidebar {
@@ -136,27 +125,7 @@ const Sidebar = () => {
           color: #7c3aed;
         }
 
-        .sidebar-footer {
-          margin-top: auto;
-          padding-top: 20px;
-          border-top: 1px solid var(--glass-border);
-        }
 
-        .logout-btn {
-          width: 100%;
-          display: flex;
-          align-items: center;
-          gap: 15px;
-          padding: 12px 20px;
-          color: #ef4444;
-          font-weight: 500;
-          border-radius: 12px;
-          transition: all 0.3s;
-        }
-
-        .logout-btn:hover {
-          background: rgba(239, 68, 68, 0.1);
-        }
       `}</style>
     </motion.aside>
   );

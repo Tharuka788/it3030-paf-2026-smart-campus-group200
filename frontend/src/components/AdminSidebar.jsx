@@ -59,17 +59,6 @@ const AdminSidebar = () => {
            <Bell size={20} />
            <span>3 New Alerts</span>
         </div>
-        <button 
-          className="admin-logout-btn"
-          onClick={() => {
-            localStorage.removeItem('isAuthenticated');
-            localStorage.removeItem('userRole');
-            window.location.href = '/login';
-          }}
-        >
-          <LogOut size={22} />
-          <span>Exit Console</span>
-        </button>
       </div>
 
       <style jsx="true">{`
@@ -193,21 +182,7 @@ const AdminSidebar = () => {
           font-weight: 600;
         }
 
-        .admin-logout-btn {
-          width: 100%;
-          display: flex;
-          align-items: center;
-          gap: 15px;
-          padding: 14px 20px;
-          color: #ef4444;
-          font-weight: 600;
-          border-radius: 14px;
-          transition: all 0.3s;
-        }
 
-        .admin-logout-btn:hover {
-          background: rgba(239, 68, 68, 0.1);
-        }
       `}</style>
     </motion.aside>
   );
