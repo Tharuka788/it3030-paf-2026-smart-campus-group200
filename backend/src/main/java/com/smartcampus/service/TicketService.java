@@ -82,6 +82,8 @@ public class TicketService {
             ticket.setUpdatedAt(LocalDateTime.now());
             return ticketRepository.save(ticket);
         }).orElseThrow(() -> new RuntimeException("Ticket not found"));
+    }
+
     public void deleteTicket(String id) {
         ticketRepository.findById(id).ifPresent(ticket -> {
             // Delete associated files
