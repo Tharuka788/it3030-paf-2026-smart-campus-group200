@@ -8,7 +8,10 @@ import {
   Clock, 
   AlertCircle,
   User,
-  Filter
+  Filter,
+  Activity,
+  Phone,
+  Mail
 } from 'lucide-react';
 
 const AdminTickets = () => {
@@ -87,17 +90,17 @@ const AdminTickets = () => {
                 </div>
 
                 <h3 className="ticket-subject">{ticket.subject}</h3>
-                <p className="ticket-desc-excerpt">{ticket.description?.substring(0, 100)}{ticket.description?.length > 100 ? '...' : ''}</p>
+                <p className="ticket-desc-excerpt">{ticket.detailedDescription?.substring(0, 100)}{ticket.detailedDescription?.length > 100 ? '...' : ''}</p>
                 
                 <div className="ticket-meta">
                   <div className="meta-row">
                     <div className="meta-item">
                       <User size={14} />
-                      <span>{ticket.userName} ({ticket.department})</span>
+                      <span>{ticket.userName} ({ticket.departmentName})</span>
                     </div>
                     <div className="meta-item">
                       <Clock size={14} />
-                      <span>{new Date(ticket.createdAt).toLocaleDateString()}</span>
+                      <span>{ticket.createdAt ? new Date(ticket.createdAt).toLocaleDateString() : 'Pending'}</span>
                     </div>
                   </div>
                   <div className="meta-row">

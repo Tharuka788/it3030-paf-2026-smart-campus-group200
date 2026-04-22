@@ -159,7 +159,7 @@ const MyTickets = () => {
                         </div>
                         <div className="detail-item">
                           <Clock size={14} />
-                          <span>Updated {ticket.lastUpdate}</span>
+                          <span>Updated {new Date(ticket.updatedAt).toLocaleDateString()}</span>
                         </div>
                       </div>
 

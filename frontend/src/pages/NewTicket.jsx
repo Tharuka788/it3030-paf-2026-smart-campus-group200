@@ -41,15 +41,15 @@ const Section = ({ title, icon: Icon, children }) => (
 const NewTicket = () => {
   const [formData, setFormData] = useState({
     subject: '',
-    description: '',
+    detailedDescription: '',
     userName: localStorage.getItem('userName') || '',
-    department: '',
+    departmentName: '',
     contactNumber: '',
     email: localStorage.getItem('userEmail') || '',
     category: '',
     subcategory: '',
     priority: 'MEDIUM',
-    impact: 'Individual'
+    impact: 'INDIVIDUAL'
   });
 
   const [attachments, setAttachments] = useState([]);
@@ -65,7 +65,7 @@ const NewTicket = () => {
     'Facilities': ['Cleaning', 'Room Setup', 'Equipment', 'Events']
   };
 
-  const impacts = ['Individual', 'Department', 'Organization'];
+  const impacts = ['INDIVIDUAL', 'DEPARTMENT', 'ORGANIZATION'];
   const priorities = ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'];
 
   const handleChange = (e) => {
@@ -127,13 +127,24 @@ const NewTicket = () => {
     setError(null);
 
     try {
-      // In a real implementation with multi-files, we'd use FormData if the backend supported it,
-      // or upload files to Cloudinary/S3 first. For this overhaul, we'll send the structured data.
-      await ticketService.createTicket(formData);
+      const data = new FormData();
+      
+      // Append all text fields
+      Object.keys(formData).forEach(key => {
+        data.append(key, formData[key]);
+      });
+
+      // Append files
+      attachments.forEach(file => {
+        data.append('files', file);
+      });
+
+      await ticketService.createTicket(data);
       setSuccess(true);
       setTimeout(() => navigate('/tickets/my'), 2000);
     } catch (err) {
-      setError('Failed to create ticket. Please try again.');
+      const serverMessage = err.response?.data?.message || 'Failed to create ticket. Please try again.';
+      setError(serverMessage);
       console.error(err);
     } finally {
       setLoading(false);
@@ -199,11 +210,11 @@ const NewTicket = () => {
               <div className="input-group">
                 <label>Detailed Description *</label>
                 <textarea 
-                  name="description"
+                  name="detailedDescription"
                   rows="6"
                   required
                   placeholder="Provide exact details of the incident or request..."
-                  value={formData.description}
+                  value={formData.detailedDescription}
                   onChange={handleChange}
                 ></textarea>
               </div>
@@ -225,10 +236,10 @@ const NewTicket = () => {
                   <label><Building size={16} /> Department *</label>
                   <input 
                     type="text" 
-                    name="department"
+                    name="departmentName"
                     required
                     placeholder="e.g., Computer Science"
-                    value={formData.department}
+                    value={formData.departmentName}
                     onChange={handleChange}
                   />
                 </div>

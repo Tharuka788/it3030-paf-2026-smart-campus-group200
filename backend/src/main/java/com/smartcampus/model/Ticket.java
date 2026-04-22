@@ -1,12 +1,18 @@
 package com.smartcampus.model;
 
+import com.smartcampus.model.enums.Impact;
+import com.smartcampus.model.enums.Priority;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Document(collection = "tickets")
 @Data
@@ -15,17 +21,28 @@ import java.time.LocalDateTime;
 public class Ticket {
     @Id
     private String id;
-    private String userEmail;
-    private String userName;
+    
     private String subject;
-    private String category; // IT Support, Maintenance, etc.
-    private String subcategory; // Wi-Fi, Electrical, etc.
-    private String department;
+    private String detailedDescription;
+    
+    private String userName;
+    private String departmentName;
     private String contactNumber;
-    private String priority; // HIGH, MEDIUM, LOW, CRITICAL
-    private String impact; // Individual, Department, Organization
-    private String status; // OPEN, IN_PROGRESS, RESOLVED, CLOSED
-    private String description;
-    private LocalDateTime createdAt = LocalDateTime.now();
-    private LocalDateTime updatedAt = LocalDateTime.now();
+    private String email;
+    
+    private String category;
+    private String subcategory;
+    
+    private Priority priority;
+    private Impact impact;
+    
+    private String status = "Open";
+    
+    private List<String> attachmentPaths = new ArrayList<>();
+
+    @CreatedDate
+    private LocalDateTime createdAt;
+    
+    @LastModifiedDate
+    private LocalDateTime updatedAt;
 }
