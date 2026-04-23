@@ -146,7 +146,7 @@ const Login = () => {
             style={googleLoading ? { opacity: 0.7, cursor: 'not-allowed' } : {}}
           >
             {googleLoading ? (
-              <span>Signing in with Google......</span>
+              <span>Signing in with Google...</span>
             ) : (
               <>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
