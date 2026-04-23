@@ -8,7 +8,8 @@ import {
   Users, 
   LogOut,
   ShieldCheck,
-  Bell
+  Bell,
+  Settings
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
