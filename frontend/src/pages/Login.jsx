@@ -96,7 +96,7 @@ const Login = () => {
         <div className="logo-section">
           <GraduationCap size={54} className="logo-icon" />
           <h1 className="gradient-text" style={{ fontSize: '2.5rem' }}>Smart Campus</h1>
-          <p className="subtitle">Seamless Access to Resources</p>
+          <p className="subtitle"> Access to Resources</p>
         </div>
 
         <div className="auth-section">
