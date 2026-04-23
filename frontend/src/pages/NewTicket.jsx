@@ -142,7 +142,7 @@ const NewTicket = () => {
 
   if (success) {
     return (
-      <Layout>
+      <DynamicLayout>
         <div className="success-overlay">
           <motion.div 
             className="success-card glass-morphism"
@@ -154,7 +154,7 @@ const NewTicket = () => {
             <p>Your request has been successfully created. Redirecting to your tickets list...</p>
           </motion.div>
         </div>
-      </Layout>
+      </DynamicLayout>
     );
   }
 
