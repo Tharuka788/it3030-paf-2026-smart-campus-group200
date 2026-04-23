@@ -41,6 +41,7 @@ public class Ticket {
     private List<String> attachmentPaths = new ArrayList<>();
     
     private String adminComments;
+    private String assignedTo;
 
     @CreatedDate
     private LocalDateTime createdAt;
