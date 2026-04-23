@@ -4,6 +4,8 @@ import { motion } from 'framer-motion';
 import { Save, PlusCircle, Trash2, MapPin, Tag, Box, Info, ShieldAlert, ArrowLeft, Calendar } from 'lucide-react';
 import { facilityService } from '../services/api';
 
+import DynamicLayout from '../components/DynamicLayout';
+
 const ManageFacility = () => {
   const [searchParams] = useSearchParams();
   const editId = searchParams.get('id');
@@ -98,7 +100,8 @@ const ManageFacility = () => {
   };
 
   return (
-    <div className="manage-container">
+    <DynamicLayout>
+      <div className="manage-container">
       <button className="back-btn" onClick={() => navigate('/facilities')}>
         <ArrowLeft size={18} /> Back to Catalogue
       </button>
@@ -425,7 +428,8 @@ const ManageFacility = () => {
           .form-footer { flex-direction: column; }
         }
       `}</style>
-    </div>
+      </div>
+    </DynamicLayout>
   );
 };
 

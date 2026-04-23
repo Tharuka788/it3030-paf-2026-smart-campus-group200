@@ -97,11 +97,11 @@ function App() {
         />
         <Route 
           path="/facilities" 
-          element={<ProtectedRoute><Layout><FacilitiesCatalogue /></Layout></ProtectedRoute>} 
+          element={<ProtectedRoute><FacilitiesCatalogue /></ProtectedRoute>} 
         />
         <Route 
           path="/facilities/manage" 
-          element={<ProtectedRoute><Layout><ManageFacility /></Layout></ProtectedRoute>} 
+          element={<ProtectedRoute><ManageFacility /></ProtectedRoute>} 
         />
         <Route 
           path="/bookings/new" 

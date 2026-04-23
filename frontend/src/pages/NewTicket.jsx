@@ -2,7 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import DynamicLayout from '../components/DynamicLayout';
 import { motion } from 'framer-motion';
-import { Send, AlertCircle, MessageSquare, ChevronLeft } from 'lucide-react';
+import { 
+  Send, AlertCircle, MessageSquare, ChevronLeft, FileText, 
+  User, Building, Phone, Mail, Tag, Layers, AlertOctagon, 
+  Activity, Paperclip, X, CheckCircle2 
+} from 'lucide-react';
+import { AnimatePresence } from 'framer-motion';
 import { ticketService } from '../services/api';
 
 const Section = ({ title, icon: Icon, children }) => (
