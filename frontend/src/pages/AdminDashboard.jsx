@@ -12,6 +12,24 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { facilityService, bookingService } from '../services/api';
+import LoadingSpinner from '../components/LoadingSpinner';
+import { 
+  BarChart, 
+  Bar, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  ResponsiveContainer, 
+  PieChart, 
+  Pie, 
+  Cell,
+  LineChart,
+  Line,
+  AreaChart,
+  Area,
+  LabelList
+} from 'recharts';
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -22,6 +40,7 @@ const AdminDashboard = () => {
     pendingApprovals: 0
   });
   const [recentBookings, setRecentBookings] = useState([]);
+  const [facilities, setFacilities] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -44,6 +63,7 @@ const AdminDashboard = () => {
           new Date(b.updatedAt || b.createdAt) - new Date(a.updatedAt || a.createdAt)
         ).slice(0, 5);
         setRecentBookings(sorted);
+        setFacilities(facilitiesRes.data);
 
       } catch (err) {
         console.error('Failed to fetch admin stats:', err);
@@ -53,6 +73,27 @@ const AdminDashboard = () => {
     };
     fetchAdminStats();
   }, []);
+
+  const processAnalytics = () => {
+    // Status Distribution
+    const statusData = [
+      { name: 'Approved', value: stats.activeBookings, color: '#10b981' },
+      { name: 'Pending', value: stats.pendingApprovals, color: '#f59e0b' },
+      { name: 'Rejected', value: recentBookings.filter(b => b.status === 'REJECTED').length, color: '#ef4444' },
+    ].filter(d => d.value > 0);
+
+    // Facility Status/Health Breakdown
+    const facilityStatusData = [
+      { name: 'Available', value: facilities.filter(f => f.status === 'ACTIVE' || f.status === 'IN_STOCK').length, color: '#10b981' },
+      { name: 'Maintenance', value: facilities.filter(f => f.status === 'MAINTENANCE').length, color: '#6366f1' },
+      { name: 'Out of Stock', value: facilities.filter(f => f.status === 'OUT_OF_STOCK').length, color: '#f59e0b' },
+      { name: 'Unavailable', value: facilities.filter(f => f.status === 'OUT_OF_SERVICE').length, color: '#ef4444' },
+    ].filter(d => d.value > 0);
+
+    return { statusData, facilityStatusData };
+  };
+
+  const { statusData, facilityStatusData } = processAnalytics();
 
   const statCards = [
     { name: 'Total Users', value: stats.totalUsers, icon: <Users size={24} />, color: '#6366f1' },
@@ -98,6 +139,95 @@ const AdminDashboard = () => {
           ))}
         </section>
 
+        <section className="analytics-section">
+          <div className="section-header">
+            <h2 className="section-title">Booking Analytics</h2>
+            <p>System performance and usage trends.</p>
+          </div>
+          
+          <div className="analytics-grid">
+            <motion.div 
+              className="chart-card glass-morphism"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.3 }}
+            >
+              <div className="chart-header">
+                <h4>Booking Distribution</h4>
+                <p>Status breakdown of all requests</p>
+              </div>
+              <div className="chart-body" style={{ height: '250px' }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={statusData}
+                      innerRadius={60}
+                      outerRadius={80}
+                      paddingAngle={5}
+                      dataKey="value"
+                    >
+                      {statusData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+              <div className="chart-legend">
+                {statusData.map(item => (
+                  <div key={item.name} className="legend-item">
+                    <span className="dot" style={{ backgroundColor: item.color }}></span>
+                    <span className="label">{item.name}</span>
+                    <span className="val">{item.value}</span>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+
+            <motion.div 
+              className="chart-card glass-morphism"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.4 }}
+            >
+              <div className="chart-header">
+                <h4>Facility Health</h4>
+                <p>Status breakdown of campus resources</p>
+              </div>
+              <div className="chart-body" style={{ height: '280px' }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={facilityStatusData} layout="vertical" margin={{ left: 20, right: 30 }}>
+                    <XAxis type="number" hide />
+                    <YAxis 
+                      dataKey="name" 
+                      type="category" 
+                      axisLine={false} 
+                      tickLine={false}
+                      tick={{ fill: '#475569', fontSize: 12, fontWeight: 600 }}
+                      width={100}
+                    />
+                    <Tooltip 
+                      cursor={{ fill: 'rgba(0,0,0,0.02)' }}
+                      contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }}
+                    />
+                    <Bar 
+                      dataKey="value" 
+                      radius={[0, 10, 10, 0]}
+                      barSize={30}
+                    >
+                      {facilityStatusData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                      <LabelList dataKey="value" position="right" fill="#64748b" fontSize={12} fontWeight={700} offset={10} />
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </motion.div>
+          </div>
+        </section>
+
         <div className="dashboard-grid">
           <section className="main-panel glass-morphism">
             <div className="panel-header">
@@ -112,7 +242,9 @@ const AdminDashboard = () => {
             
             <div className="bookings-table-container">
               {loading ? (
-                <div className="table-loader">Fetching latest records...</div>
+                <div className="table-loader">
+                  <LoadingSpinner />
+                </div>
               ) : recentBookings.length === 0 ? (
                 <div className="empty-state">
                   <Activity size={48} />
@@ -413,6 +545,73 @@ const AdminDashboard = () => {
           color: #6366f1;
           background: #f5f3ff;
           transform: translateY(-2px);
+        }
+
+        .analytics-section {
+          display: flex;
+          flex-direction: column;
+          gap: 20px;
+        }
+
+        .analytics-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 25px;
+        }
+
+        .chart-card {
+          padding: 25px;
+          border-radius: 24px;
+          display: flex;
+          flex-direction: column;
+          gap: 20px;
+        }
+
+        .chart-header h4 {
+          font-size: 1.1rem;
+          font-weight: 700;
+          color: #1e293b;
+          margin-bottom: 4px;
+        }
+
+        .chart-header p {
+          font-size: 0.85rem;
+          color: #64748b;
+        }
+
+        .chart-legend {
+          display: flex;
+          justify-content: space-around;
+          margin-top: 10px;
+        }
+
+        .legend-item {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 5px;
+        }
+
+        .legend-item .dot {
+          width: 8px;
+          height: 8px;
+          border-radius: 50%;
+        }
+
+        .legend-item .label {
+          font-size: 0.75rem;
+          color: #94a3b8;
+          font-weight: 600;
+        }
+
+        .legend-item .val {
+          font-size: 0.95rem;
+          font-weight: 700;
+          color: #1e293b;
+        }
+
+        @media (max-width: 1200px) {
+          .analytics-grid { grid-template-columns: 1fr; }
         }
 
         @media (max-width: 1000px) {

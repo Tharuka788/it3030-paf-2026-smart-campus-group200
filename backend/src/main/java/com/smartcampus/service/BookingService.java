@@ -17,15 +17,26 @@ public class BookingService {
 
     private final BookingRepository bookingRepository;
     private final FacilityRepository facilityRepository;
+    private final NotificationService notificationService;
 
     private void populateResourceName(Booking booking) {
-        if (booking.getResourceName() == null || booking.getResourceName().isEmpty()) {
+        if (booking.getResourceId() != null) {
             facilityRepository.findById(booking.getResourceId())
-                    .ifPresent(f -> booking.setResourceName(f.getName()));
+                    .ifPresent(f -> {
+                        if (booking.getResourceName() == null || booking.getResourceName().isEmpty()) {
+                            booking.setResourceName(f.getName());
+                        }
+                        if (booking.getLocation() == null || booking.getLocation().isEmpty()) {
+                            booking.setLocation(f.getLocation());
+                        }
+                    });
         }
     }
 
     public Booking createBooking(Booking booking) {
+        if (booking.getResourceId() == null) {
+            throw new IllegalArgumentException("Resource ID is required for booking");
+        }
         // Validate overlaps
         List<Booking> existingBookings = bookingRepository.findByResourceIdAndStatusIn(
                 booking.getResourceId(), Arrays.asList("PENDING", "APPROVED"));
@@ -33,6 +44,10 @@ public class BookingService {
         for (Booking existing : existingBookings) {
             LocalDateTime existingStart = existing.getStartTime();
             LocalDateTime existingEnd = existing.getEndTime();
+            
+            if (existingStart == null || existingEnd == null || booking.getStartTime() == null || booking.getEndTime() == null) {
+                continue; // Skip invalid bookings
+            }
             
             // 30 min buffer
             LocalDateTime bufferStart = existingStart.minusMinutes(30);
@@ -56,6 +71,7 @@ public class BookingService {
             }
         }
 
+        populateResourceName(booking);
         booking.setCreatedAt(LocalDateTime.now());
         booking.setUpdatedAt(LocalDateTime.now());
         booking.setStatus("PENDING");
@@ -80,11 +96,26 @@ public class BookingService {
         return booking;
     }
 
-    public Booking updateBookingStatus(String id, String status) {
+    public Booking updateBookingStatus(String id, String status, String reason) {
         return bookingRepository.findById(id).map(booking -> {
             booking.setStatus(status);
+            if (reason != null) {
+                booking.setRejectionReason(reason);
+            }
             booking.setUpdatedAt(LocalDateTime.now());
-            return bookingRepository.save(booking);
+            Booking updated = bookingRepository.save(booking);
+
+            // Create notification
+            String title = "Booking " + (status.equals("APPROVED") ? "Approved" : "Rejected");
+            String message = String.format("Your booking for %s has been %s.", 
+                booking.getResourceName() != null ? booking.getResourceName() : "a facility",
+                status.toLowerCase());
+            if (status.equals("REJECTED") && reason != null) {
+                message += " Reason: " + reason;
+            }
+            notificationService.createNotification(booking.getUserEmail(), title, message, "BOOKING");
+
+            return updated;
         }).orElseThrow(() -> new RuntimeException("Booking not found with id: " + id));
     }
 
@@ -93,6 +124,9 @@ public class BookingService {
     }
 
     public List<Booking> getBookingsByResource(String resourceId) {
+        if (resourceId == null || resourceId.isEmpty() || resourceId.equals("null") || resourceId.equals("undefined")) {
+            return Arrays.asList();
+        }
         return bookingRepository.findByResourceIdAndStatusIn(resourceId, Arrays.asList("PENDING", "APPROVED"));
     }
 }

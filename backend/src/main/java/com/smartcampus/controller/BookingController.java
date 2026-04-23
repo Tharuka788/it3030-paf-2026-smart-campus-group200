@@ -32,6 +32,7 @@ public class BookingController {
         booking.setPurpose(bookingRequest.getPurpose());
         booking.setExpectedAttendees(bookingRequest.getExpectedAttendees());
         booking.setSelectedSeats(bookingRequest.getSelectedSeats());
+        booking.setLocation(bookingRequest.getLocation());
         return new ResponseEntity<>(bookingService.createBooking(booking), HttpStatus.CREATED);
     }
 
@@ -53,8 +54,11 @@ public class BookingController {
     }
 
     @PatchMapping("/{id}/status")
-    public Booking updateBookingStatus(@PathVariable String id, @RequestParam String status) {
-        return bookingService.updateBookingStatus(id, status);
+    public Booking updateBookingStatus(
+            @PathVariable String id, 
+            @RequestParam String status,
+            @RequestParam(required = false) String reason) {
+        return bookingService.updateBookingStatus(id, status, reason);
     }
 
     @DeleteMapping("/{id}")

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import Layout from '../components/Layout';
+import DynamicLayout from '../components/DynamicLayout';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Monitor, 
@@ -129,6 +129,7 @@ const LabBooking = () => {
       purpose: formData.purpose,
       expectedAttendees: selectedSeats.length,
       selectedSeats: selectedSeats,
+      location: facility.location
     };
 
     try {
@@ -143,8 +144,8 @@ const LabBooking = () => {
     }
   };
 
-  if (loading) return <Layout><div className="loader">Loading lab details...</div></Layout>;
-  if (!facility) return <Layout><div className="error">Facility not found.</div></Layout>;
+  if (loading) return <DynamicLayout><div className="loader">Loading lab details...</div></DynamicLayout>;
+  if (!facility) return <DynamicLayout><div className="error">Facility not found.</div></DynamicLayout>;
 
   // Render a column of PCs
   const renderPCColumn = (start, end) => {
@@ -173,7 +174,7 @@ const LabBooking = () => {
   };
 
   return (
-    <Layout>
+    <DynamicLayout>
       <div className="lab-booking-page">
         <header className="page-header">
            <div className="header-titles">
@@ -635,7 +636,7 @@ const LabBooking = () => {
           font-weight: 600;
         }
       `}</style>
-    </Layout>
+    </DynamicLayout>
   );
 };
 

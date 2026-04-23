@@ -1,24 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Layout from '../components/Layout';
-import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Send, 
-  AlertCircle, 
-  ChevronLeft, 
-  User, 
-  Building, 
-  Phone, 
-  Mail, 
-  Tag, 
-  Layers, 
-  AlertOctagon, 
-  Activity, 
-  Paperclip,
-  CheckCircle2,
-  X,
-  FileText
-} from 'lucide-react';
+import DynamicLayout from '../components/DynamicLayout';
+import { motion } from 'framer-motion';
+import { Send, AlertCircle, MessageSquare, ChevronLeft } from 'lucide-react';
 import { ticketService } from '../services/api';
 
 const Section = ({ title, icon: Icon, children }) => (
@@ -170,8 +154,8 @@ const NewTicket = () => {
   }
 
   return (
-    <Layout>
-      <div className="new-ticket-overhaul">
+    <DynamicLayout>
+      <div className="new-ticket-page">
         <button className="back-btn" onClick={() => navigate(-1)}>
           <ChevronLeft size={20} /> Back to Dashboard
         </button>
@@ -554,7 +538,7 @@ const NewTicket = () => {
           .form-row { grid-template-columns: 1fr; }
         }
       `}</style>
-    </Layout>
+    </DynamicLayout>
   );
 };
 

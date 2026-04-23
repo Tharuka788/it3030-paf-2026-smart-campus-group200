@@ -17,6 +17,7 @@ import AdminFacilities from './pages/AdminFacilities';
 import AdminBookings from './pages/AdminBookings';
 import AdminTickets from './pages/AdminTickets';
 import AdminUsers from './pages/AdminUsers';
+import TechnicianDashboard from './pages/TechnicianDashboard';
 import './index.css';
 
 // Protected Route component to check auth status on every navigation
@@ -29,7 +30,33 @@ const ProtectedRoute = ({ children }) => {
 const AdminProtectedRoute = ({ children }) => {
   const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
   const userRole = localStorage.getItem('userRole');
-  return (isAuthenticated && userRole === 'ROLE_ADMIN') ? children : <Navigate to="/dashboard" replace />;
+  return (isAuthenticated && userRole === 'ROLE_ADMIN') ? children : <RoleBasedRedirect />;
+};
+
+// Technician Protected Route component
+const TechnicianProtectedRoute = ({ children }) => {
+  const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
+  const userRole = localStorage.getItem('userRole');
+  return (isAuthenticated && userRole === 'ROLE_TECHNICIAN') ? children : <RoleBasedRedirect />;
+};
+
+// Staff Protected Route component (Admin or Technician)
+const StaffProtectedRoute = ({ children }) => {
+  const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
+  const userRole = localStorage.getItem('userRole');
+  const isStaff = userRole === 'ROLE_ADMIN' || userRole === 'ROLE_TECHNICIAN';
+  return (isAuthenticated && isStaff) ? children : <RoleBasedRedirect />;
+};
+
+// Helper for root/fallback redirection
+const RoleBasedRedirect = () => {
+  const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
+  const userRole = localStorage.getItem('userRole');
+  
+  if (!isAuthenticated) return <Navigate to="/login" replace />;
+  if (userRole === 'ROLE_ADMIN') return <Navigate to="/admin/dashboard" replace />;
+  if (userRole === 'ROLE_TECHNICIAN') return <Navigate to="/technician/dashboard" replace />;
+  return <Navigate to="/dashboard" replace />;
 };
 
 function App() {
@@ -58,11 +85,15 @@ function App() {
         />
         <Route 
           path="/admin/tickets" 
-          element={<AdminProtectedRoute><AdminTickets /></AdminProtectedRoute>} 
+          element={<StaffProtectedRoute><AdminTickets /></StaffProtectedRoute>} 
         />
         <Route 
           path="/admin/users" 
           element={<AdminProtectedRoute><AdminUsers /></AdminProtectedRoute>} 
+        />
+        <Route 
+          path="/technician/dashboard" 
+          element={<TechnicianProtectedRoute><TechnicianDashboard /></TechnicianProtectedRoute>} 
         />
         <Route 
           path="/facilities" 
@@ -98,8 +129,8 @@ function App() {
         />
 
         {/* Fallbacks */}
-        <Route path="/" element={<Navigate to="/dashboard" replace />} />
-        <Route path="*" element={<Navigate to="/dashboard" replace />} />
+        <Route path="/" element={<RoleBasedRedirect />} />
+        <Route path="*" element={<RoleBasedRedirect />} />
       </Routes>
     </Router>
   );

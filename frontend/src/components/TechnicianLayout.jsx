@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import AdminSidebar from './AdminSidebar';
+import TechnicianSidebar from './TechnicianSidebar';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Bell, Settings, Command, LogOut, User, ChevronDown, RefreshCw } from 'lucide-react';
+import { Search, Bell, Settings, Command, LogOut, User, ChevronDown, Wrench } from 'lucide-react';
 
-const AdminLayout = ({ children }) => {
+const TechnicianLayout = ({ children }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const handleLogout = () => {
@@ -15,19 +15,16 @@ const AdminLayout = ({ children }) => {
   };
 
   return (
-    <div className="admin-layout-container">
-      <AdminSidebar />
-      <main className="admin-main-content">
-        <header className="admin-header glass-morphism">
+    <div className="tech-layout-container">
+      <TechnicianSidebar />
+      <main className="tech-main-content">
+        <header className="tech-header glass-morphism">
           <div className="header-search">
-            <Command size={18} className="search-icon" />
-            <input type="text" placeholder="Search system records... (Ctrl + K)" />
+            <Wrench size={18} className="search-icon" />
+            <input type="text" placeholder="Search maintenance logs..." />
           </div>
           
           <div className="header-actions">
-            <button className="action-circle-btn" onClick={() => window.location.reload()} title="Refresh">
-              <RefreshCw size={20} />
-            </button>
             <button className="action-circle-btn">
               <Search size={20} />
             </button>
@@ -35,47 +32,44 @@ const AdminLayout = ({ children }) => {
               <Bell size={20} />
               <span className="notification-dot"></span>
             </button>
-            <button className="action-circle-btn">
-              <Settings size={20} />
-            </button>
             
-            <div className="admin-profile-wrapper">
+            <div className="profile-wrapper">
               <div 
-                className={`admin-profile-section ${isDropdownOpen ? 'active' : ''}`}
+                className={`profile-section ${isDropdownOpen ? 'active' : ''}`}
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
               >
-                <div className="admin-text">
-                  <span className="admin-name">{localStorage.getItem('userName')}</span>
-                  <span className="admin-role">System Admin</span>
+                <div className="profile-text">
+                  <span className="profile-name">{localStorage.getItem('userName')}</span>
+                  <span className="profile-role">Technician</span>
                 </div>
-                <img src={localStorage.getItem('userPhoto') || `https://ui-avatars.com/api/?name=${localStorage.getItem('userName') || 'Admin'}&background=6366f1&color=fff`} alt="Admin" className="admin-avatar" />
-                <ChevronDown size={16} className={`admin-chevron ${isDropdownOpen ? 'rotate' : ''}`} />
+                <img src={localStorage.getItem('userPhoto') || `https://ui-avatars.com/api/?name=${localStorage.getItem('userName') || 'Tech'}&background=10b981&color=fff`} alt="Tech" className="profile-avatar" />
+                <ChevronDown size={16} className={`chevron ${isDropdownOpen ? 'rotate' : ''}`} />
               </div>
 
               <AnimatePresence>
                 {isDropdownOpen && (
                   <motion.div 
-                    className="admin-dropdown glass-morphism"
+                    className="profile-dropdown glass-morphism"
                     initial={{ opacity: 0, y: 10, scale: 0.95 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: 10, scale: 0.95 }}
                     transition={{ duration: 0.2 }}
                   >
-                    <div className="admin-dropdown-header">
-                      <p className="admin-dropdown-name">{localStorage.getItem('userName')}</p>
-                      <p className="admin-dropdown-role">Root Administrator</p>
+                    <div className="dropdown-header">
+                      <p className="dropdown-name">{localStorage.getItem('userName')}</p>
+                      <p className="dropdown-role">Campus Technician</p>
                     </div>
-                    <div className="admin-dropdown-divider"></div>
-                    <button className="admin-dropdown-item" onClick={() => window.location.href = '/profile'}>
+                    <div className="dropdown-divider"></div>
+                    <button className="dropdown-item" onClick={() => window.location.href = '/profile'}>
                       <User size={18} />
-                      <span>Admin Profile</span>
+                      <span>My Profile</span>
                     </button>
-                    <button className="admin-dropdown-item" onClick={() => window.location.href = '/admin/settings'}>
+                    <button className="dropdown-item" onClick={() => window.location.href = '/technician/settings'}>
                       <Settings size={18} />
-                      <span>System Settings</span>
+                      <span>Tech Settings</span>
                     </button>
-                    <div className="admin-dropdown-divider"></div>
-                    <button className="admin-dropdown-item logout" onClick={handleLogout}>
+                    <div className="dropdown-divider"></div>
+                    <button className="dropdown-item logout" onClick={handleLogout}>
                       <LogOut size={18} />
                       <span>Sign Out</span>
                     </button>
@@ -86,7 +80,7 @@ const AdminLayout = ({ children }) => {
           </div>
         </header>
 
-        <section className="admin-content-area">
+        <section className="tech-content-area">
           <AnimatePresence mode="wait">
             <motion.div
               key={window.location.pathname}
@@ -94,7 +88,7 @@ const AdminLayout = ({ children }) => {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.3 }}
-              className="admin-page-wrapper"
+              className="tech-page-wrapper"
             >
               {children}
             </motion.div>
@@ -103,15 +97,15 @@ const AdminLayout = ({ children }) => {
       </main>
 
       <style jsx="true">{`
-        .admin-layout-container {
+        .tech-layout-container {
           min-height: 100vh;
           display: flex;
-          background: #f1f5f9;
+          background: #f8fafc;
           padding: 20px;
           gap: 20px;
         }
 
-        .admin-main-content {
+        .tech-main-content {
           flex: 1;
           margin-left: 280px; 
           display: flex;
@@ -119,7 +113,7 @@ const AdminLayout = ({ children }) => {
           gap: 25px;
         }
 
-        .admin-header {
+        .tech-header {
           padding: 15px 30px;
           display: flex;
           justify-content: space-between;
@@ -137,7 +131,7 @@ const AdminLayout = ({ children }) => {
           display: flex;
           align-items: center;
           gap: 12px;
-          background: #f8fafc;
+          background: #f1f5f9;
           padding: 10px 20px;
           border-radius: 12px;
           width: 350px;
@@ -170,7 +164,7 @@ const AdminLayout = ({ children }) => {
           display: flex;
           align-items: center;
           justify-content: center;
-          background: #f8fafc;
+          background: #f1f5f9;
           color: #64748b;
           border: 1px solid #e2e8f0;
           position: relative;
@@ -189,17 +183,17 @@ const AdminLayout = ({ children }) => {
           right: 10px;
           width: 8px;
           height: 8px;
-          background: #ef4444;
+          background: #10b981;
           border-radius: 50%;
           border: 2px solid white;
         }
 
-        .admin-profile-wrapper {
+        .profile-wrapper {
           position: relative;
           z-index: 1001;
         }
 
-        .admin-profile-section {
+        .profile-section {
           display: flex;
           align-items: center;
           gap: 15px;
@@ -211,29 +205,29 @@ const AdminLayout = ({ children }) => {
           border-radius: 12px;
         }
 
-        .admin-profile-section:hover, .admin-profile-section.active {
-          background: #f8fafc;
+        .profile-section:hover, .profile-section.active {
+          background: #f1f5f9;
         }
 
-        .admin-text {
+        .profile-text {
           display: flex;
           flex-direction: column;
           text-align: right;
         }
 
-        .admin-name {
+        .profile-name {
           font-size: 0.95rem;
           font-weight: 700;
           color: #1e293b;
         }
 
-        .admin-role {
+        .profile-role {
           font-size: 0.75rem;
-          color: #64748b;
-          font-weight: 500;
+          color: #10b981;
+          font-weight: 600;
         }
 
-        .admin-avatar {
+        .profile-avatar {
           width: 42px;
           height: 42px;
           border-radius: 12px;
@@ -241,16 +235,16 @@ const AdminLayout = ({ children }) => {
           box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
 
-        .admin-chevron {
+        .chevron {
           color: #94a3b8;
           transition: transform 0.3s;
         }
 
-        .admin-chevron.rotate {
+        .chevron.rotate {
           transform: rotate(180deg);
         }
 
-        .admin-dropdown {
+        .profile-dropdown {
           position: absolute;
           top: calc(100% + 15px);
           right: 0;
@@ -263,31 +257,31 @@ const AdminLayout = ({ children }) => {
           z-index: 10000;
         }
 
-        .admin-dropdown-header {
+        .dropdown-header {
           padding: 8px 12px 12px;
         }
 
-        .admin-dropdown-name {
+        .dropdown-name {
           font-weight: 700;
           color: #0f172a;
           font-size: 1rem;
         }
 
-        .admin-dropdown-role {
+        .dropdown-role {
           font-size: 0.75rem;
-          color: #6366f1;
+          color: #10b981;
           font-weight: 600;
           text-transform: uppercase;
           letter-spacing: 0.5px;
         }
 
-        .admin-dropdown-divider {
+        .dropdown-divider {
           height: 1px;
           background: #f1f5f9;
           margin: 10px 0;
         }
 
-        .admin-dropdown-item {
+        .dropdown-item {
           width: 100%;
           display: flex;
           align-items: center;
@@ -300,27 +294,27 @@ const AdminLayout = ({ children }) => {
           transition: all 0.2s;
         }
 
-        .admin-dropdown-item:hover {
-          background: #f8fafc;
-          color: #6366f1;
+        .dropdown-item:hover {
+          background: #f1f5f9;
+          color: #10b981;
           transform: translateX(4px);
         }
 
-        .admin-dropdown-item.logout {
+        .dropdown-item.logout {
           color: #ef4444;
           margin-top: 5px;
         }
 
-        .admin-dropdown-item.logout:hover {
+        .dropdown-item.logout:hover {
           background: #fef2f2;
           color: #ef4444;
         }
 
-        .admin-content-area {
+        .tech-content-area {
           flex: 1;
         }
 
-        .admin-page-wrapper {
+        .tech-page-wrapper {
           min-height: calc(100vh - 150px);
         }
       `}</style>
@@ -328,4 +322,4 @@ const AdminLayout = ({ children }) => {
   );
 };
 
-export default AdminLayout;
+export default TechnicianLayout;

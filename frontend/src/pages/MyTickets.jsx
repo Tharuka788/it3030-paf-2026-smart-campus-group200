@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Layout from '../components/Layout';
+import DynamicLayout from '../components/DynamicLayout';
 import { motion } from 'framer-motion';
 import { 
   Ticket, 
@@ -73,7 +73,7 @@ const MyTickets = () => {
   };
 
   return (
-    <Layout>
+    <DynamicLayout>
       <div className="tickets-container">
         <header className="page-header">
           <div className="header-titles">
@@ -715,7 +715,7 @@ const MyTickets = () => {
         .file-name-text { font-size: 0.85rem; font-weight: 600; color: #1e293b; }
         .view-action-btn { font-size: 0.75rem; font-weight: 700; color: #6366f1; text-decoration: none; display: flex; align-items: center; gap: 4px; margin-top: 2px; }
       `}</style>
-    </Layout>
+    </DynamicLayout>
   );
 };
 

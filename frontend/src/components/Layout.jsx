@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import Sidebar from './Sidebar';
+import NotificationPanel from './NotificationPanel';
 import { motion, AnimatePresence } from 'framer-motion';
-import { LogOut, User, Settings, ChevronDown } from 'lucide-react';
+import { LogOut, User, Settings, ChevronDown, Bell, RefreshCw } from 'lucide-react';
 
 const Layout = ({ children }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -24,15 +25,23 @@ const Layout = ({ children }) => {
              <p className="header-date">{new Date().toDateString()}</p>
            </div>
            <div className="header-right">
-             <div className="profile-dropdown-container">
-               <div 
-                 className={`profile-pill glass-morphism ${isDropdownOpen ? 'active' : ''}`}
-                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-               >
-                 <img src={localStorage.getItem('userPhoto') || `https://ui-avatars.com/api/?name=${localStorage.getItem('userName') || 'Student'}&background=6366f1&color=fff`} alt="Profile" />
-                 <span>{localStorage.getItem('userName') || 'Student'}</span>
-                 <ChevronDown size={18} className={`chevron-icon ${isDropdownOpen ? 'rotate' : ''}`} />
-               </div>
+              <button 
+                className="header-action-btn glass-morphism" 
+                onClick={() => window.location.reload()}
+                title="Refresh Page"
+              >
+                <RefreshCw size={20} />
+              </button>
+              <NotificationPanel />
+              <div className="profile-dropdown-container">
+                <div 
+                  className={`profile-pill glass-morphism ${isDropdownOpen ? 'active' : ''}`}
+                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                >
+                  <img src={localStorage.getItem('userPhoto') || `https://ui-avatars.com/api/?name=${localStorage.getItem('userName') || 'Student'}&background=6366f1&color=fff`} alt="Profile" />
+                  <span>{localStorage.getItem('userName') || 'Student'}</span>
+                  <ChevronDown size={18} className={`chevron-icon ${isDropdownOpen ? 'rotate' : ''}`} />
+                </div>
 
                <AnimatePresence>
                  {isDropdownOpen && (
@@ -45,7 +54,7 @@ const Layout = ({ children }) => {
                    >
                      <div className="dropdown-header">
                        <p className="user-name">{localStorage.getItem('userName') || 'Student'}</p>
-                       <p className="user-role">{localStorage.getItem('userRole') === 'ROLE_ADMIN' ? 'Administrator' : 'Student'}</p>
+                       <p className="user-role">{localStorage.getItem('userRole') === 'ROLE_ADMIN' ? 'Administrator' : localStorage.getItem('userRole') === 'ROLE_TECHNICIAN' ? 'Technician' : 'Student'}</p>
                      </div>
                      <div className="dropdown-divider"></div>
                      <button className="dropdown-item" onClick={() => window.location.href = '/profile'}>
@@ -113,6 +122,32 @@ const Layout = ({ children }) => {
           position: sticky;
           top: 0;
           z-index: 50;
+        }
+
+        .header-right {
+          display: flex;
+          align-items: center;
+          gap: 15px;
+        }
+
+        .header-action-btn {
+          width: 42px;
+          height: 42px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border-radius: 12px;
+          color: #64748b;
+          transition: all 0.3s;
+          background: white;
+          border: 1px solid var(--glass-border);
+          cursor: pointer;
+        }
+
+        .header-action-btn:hover {
+          background: #f1f5f9;
+          color: #6366f1;
+          transform: rotate(180deg);
         }
 
         .header-title {

@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import AdminLayout from '../components/AdminLayout';
-import { ticketService, IMAGE_BASE_URL } from '../services/api';
-import { motion, AnimatePresence } from 'framer-motion';
-import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable';
+import DynamicLayout from '../components/DynamicLayout';
+import { ticketService } from '../services/api';
+import { motion } from 'framer-motion';
 import { 
   Ticket, 
   CheckCircle, 
@@ -143,7 +141,7 @@ const AdminTickets = () => {
     : tickets.filter(t => t.status?.toUpperCase() === filter);
 
   return (
-    <AdminLayout>
+    <DynamicLayout>
       <div className="admin-tickets-page">
         <header className="page-header">
           <div className="header-text">
@@ -663,7 +661,7 @@ const AdminTickets = () => {
         .spin { animation: spin 1s linear infinite; }
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
       `}</style>
-    </AdminLayout>
+    </DynamicLayout>
   );
 };
 

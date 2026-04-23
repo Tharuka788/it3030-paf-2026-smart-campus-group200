@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Layout from '../components/Layout';
+import DynamicLayout from '../components/DynamicLayout';
 import { motion } from 'framer-motion';
 import { 
   Calendar, 
@@ -10,9 +10,12 @@ import {
   Users,
   FileText,
   CheckCircle,
-  CalendarDays
+  CalendarDays,
+  AlertTriangle,
+  MapPin
 } from 'lucide-react';
 import { bookingService } from '../services/api';
+import LoadingSpinner from '../components/LoadingSpinner';
 
 const MyBookings = () => {
   const [bookings, setBookings] = useState([]);
@@ -82,7 +85,7 @@ const MyBookings = () => {
   };
 
   return (
-    <Layout>
+    <DynamicLayout>
       <div className="bookings-container">
         <header className="page-header">
            <div className="header-titles">
@@ -143,7 +146,7 @@ const MyBookings = () => {
 
           <div className="bookings-list">
              {loading ? (
-               <div className="loading-spinner">Loading your bookings...</div>
+               <LoadingSpinner />
              ) : filteredBookings.length === 0 ? (
                <div className="empty-state glass-morphism">
                  <h3>No bookings found</h3>
@@ -176,6 +179,10 @@ const MyBookings = () => {
                             <span>{new Date(booking.startTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} - {new Date(booking.endTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
                          </div>
                          <div className="info-row">
+                            <MapPin size={16} className="info-icon" /> 
+                                                         <span className="location-info">{booking.location || 'Location Pending'}</span>
+                         </div>
+                         <div className="info-row">
                             <Users size={16} className="info-icon" />
                             <span>{booking.expectedAttendees || 0} Attendees</span>
                          </div>
@@ -183,6 +190,20 @@ const MyBookings = () => {
                             <FileText size={16} className="info-icon" />
                             <span>{booking.purpose}</span>
                          </div>
+
+                         {booking.status === 'REJECTED' && booking.rejectionReason && (
+                           <motion.div 
+                             className="rejection-reason-box"
+                             initial={{ opacity: 0, height: 0 }}
+                             animate={{ opacity: 1, height: 'auto' }}
+                           >
+                              <div className="reason-header">
+                                <AlertTriangle size={14} />
+                                <span>Reason for Rejection:</span>
+                              </div>
+                              <p>{booking.rejectionReason}</p>
+                           </motion.div>
+                         )}
                       </div>
 
                       {booking.status === 'PENDING' && (
@@ -434,6 +455,32 @@ const MyBookings = () => {
           margin-top: 2px;
         }
 
+        .rejection-reason-box {
+          margin-top: 15px;
+          padding: 12px;
+          background: #fff1f2;
+          border-radius: 12px;
+          border: 1px solid #fee2e2;
+        }
+
+        .reason-header {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          color: #ef4444;
+          font-weight: 700;
+          font-size: 0.8rem;
+          margin-bottom: 6px;
+          text-transform: uppercase;
+        }
+
+        .rejection-reason-box p {
+          color: #b91c1c;
+          font-size: 0.85rem;
+          line-height: 1.4;
+          margin: 0;
+        }
+
         .cancel-booking-btn {
           margin-top: auto;
           background: transparent;
@@ -484,7 +531,7 @@ const MyBookings = () => {
           }
         }
       `}</style>
-    </Layout>
+    </DynamicLayout>
   );
 };
 

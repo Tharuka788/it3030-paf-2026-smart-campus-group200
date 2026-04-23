@@ -1,18 +1,21 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import DynamicLayout from '../components/DynamicLayout';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Search, Filter, Plus, Edit2, Trash2, MapPin, Users, 
   Tag, Box, Calendar, Monitor, LayoutGrid, List, 
-  Mic, GraduationCap, Laptop, Camera, ChevronRight 
+  Mic, GraduationCap, Laptop, Camera, ChevronRight,
+  Video, ChevronLeft, ArrowRight
 } from 'lucide-react';
 import { facilityService } from '../services/api';
+import LoadingSpinner from '../components/LoadingSpinner';
 
 const FacilitiesCatalogue = () => {
   const [facilities, setFacilities] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [viewMode, setViewMode] = useState('overview'); // 'overview' or 'list'
   const [filters, setFilters] = useState({ type: '', minCapacity: '', location: '' });
+  const [selectedCategory, setSelectedCategory] = useState(null);
   const navigate = useNavigate();
   const userRole = localStorage.getItem('userRole');
 
@@ -35,7 +38,6 @@ const FacilitiesCatalogue = () => {
   const handleSearch = (e) => {
     e.preventDefault();
     fetchFacilities();
-    if (viewMode === 'overview') setViewMode('list');
   };
 
   const handleDelete = async (id) => {
@@ -49,50 +51,52 @@ const FacilitiesCatalogue = () => {
     }
   };
 
-  // Grouping logic for Overview
-  const categories = useMemo(() => {
-    const groups = {
-      LECTURE_HALL: { 
-        title: 'Lecture Halls', 
-        icon: <GraduationCap size={32} />, 
-        color: '#6366f1', 
-        count: 0, 
-        available: 0 
-      },
-      LAB: { 
-        title: 'PC Labs', 
-        icon: <Laptop size={32} />, 
-        color: '#0ea5e9', 
-        count: 0, 
-        available: 0 
-      },
-      EQUIPMENT: { 
-        title: 'Equipment', 
-        icon: <Camera size={32} />, 
-        color: '#f59e0b', 
-        count: 0, 
-        available: 0 
-      },
-      ROOM: { 
-        title: 'Meeting Rooms', 
-        icon: <Users size={32} />, 
-        color: '#10b981', 
-        count: 0, 
-        available: 0 
-      }
-    };
+  const categories = [
+    { 
+      id: 'auditorium', 
+      title: 'Main Auditorium', 
+      icon: <Mic size={32} />, 
+      color: '#3b82f6',
+      countSuffix: 'Available',
+      filter: (f) => f.type === 'LECTURE_HALL' && f.name.includes('Auditorium')
+    },
+    { 
+      id: 'lecture_halls', 
+      title: 'Lecture Halls', 
+      icon: <GraduationCap size={32} />, 
+      color: '#10b981',
+      countSuffix: 'Halls Available',
+      filter: (f) => f.type === 'LECTURE_HALL' && !f.name.includes('Auditorium')
+    },
+    { 
+      id: 'pc_labs', 
+      title: 'PC Labs', 
+      icon: <Monitor size={32} />, 
+      color: '#6366f1',
+      countSuffix: 'Workstations Online',
+      filter: (f) => f.type === 'LAB'
+    },
+    { 
+      id: 'equipment', 
+      title: 'Equipment', 
+      icon: <Video size={32} />, 
+      color: '#f59e0b',
+      countSuffix: 'Items Ready',
+      filter: (f) => f.type === 'EQUIPMENT'
+    }
+  ];
 
-    facilities.forEach(fac => {
-      if (groups[fac.type]) {
-        groups[fac.type].count++;
-        if (['ACTIVE', 'IN_STOCK'].includes(fac.status)) {
-          groups[fac.type].available++;
-        }
-      }
-    });
+  const filteredFacilities = selectedCategory 
+    ? facilities.filter(categories.find(c => c.id === selectedCategory).filter)
+    : facilities;
 
-    return Object.entries(groups).map(([type, data]) => ({ type, ...data }));
-  }, [facilities]);
+  const getCategoryCount = (category) => {
+    const items = facilities.filter(category.filter);
+    if (category.id === 'pc_labs' || category.id === 'equipment') {
+      return items.reduce((sum, item) => sum + (item.capacity || 0), 0);
+    }
+    return items.length;
+  };
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -105,26 +109,25 @@ const FacilitiesCatalogue = () => {
   };
 
   return (
-    <div className="catalogue-container">
-      <div className="catalogue-header">
-        <div>
-          <h1 className="gradient-text">Facilities Overview</h1>
-          <p className="text-muted">Manage and monitor campus resources.</p>
-        </div>
-        <div className="header-actions">
-          <div className="view-toggle glass-morphism">
-            <button 
-              className={viewMode === 'overview' ? 'active' : ''} 
-              onClick={() => setViewMode('overview')}
-            >
-              <LayoutGrid size={18} />
-            </button>
-            <button 
-              className={viewMode === 'list' ? 'active' : ''} 
-              onClick={() => setViewMode('list')}
-            >
-              <List size={18} />
-            </button>
+    <DynamicLayout>
+      <div className="catalogue-container">
+        <div className="catalogue-header">
+          <div>
+            {selectedCategory ? (
+              <button className="back-link" onClick={() => setSelectedCategory(null)}>
+                <ChevronLeft size={20} /> Back to Overview
+              </button>
+            ) : null}
+            <h1 className="gradient-text">
+              {selectedCategory 
+                ? categories.find(c => c.id === selectedCategory).title 
+                : 'Facilities Overview'}
+            </h1>
+            <p className="text-muted">
+              {selectedCategory 
+                ? `Explore available ${categories.find(c => c.id === selectedCategory).title.toLowerCase()} resources.`
+                : 'Manage and monitor campus resources.'}
+            </p>
           </div>
           {userRole === 'ROLE_ADMIN' && (
             <button className="add-btn" onClick={() => navigate('/admin/facilities')}>
@@ -133,444 +136,204 @@ const FacilitiesCatalogue = () => {
             </button>
           )}
         </div>
+
+        {!selectedCategory ? (
+          <div className="category-grid">
+            {categories.map((cat, idx) => (
+              <motion.div 
+                key={cat.id}
+                className="category-card glass-morphism"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: idx * 0.1 }}
+                onClick={() => setSelectedCategory(cat.id)}
+              >
+                <div className="category-icon-wrapper" style={{ backgroundColor: `${cat.color}15`, color: cat.color }}>
+                  {cat.icon}
+                </div>
+                <div className="category-info">
+                  <h2>{cat.title}</h2>
+                  <div className="category-stat">
+                    <span className="dot" style={{ backgroundColor: cat.color }}></span>
+                    {getCategoryCount(cat)} {cat.countSuffix}
+                  </div>
+                </div>
+                <div className="category-arrow">
+                  <ArrowRight size={20} />
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        ) : (
+          <>
+            <form className="search-bar glass-morphism" onSubmit={handleSearch}>
+              <div className="search-input-group">
+                <Search size={20} className="icon" />
+                <input 
+                  type="text" 
+                  placeholder="Search by location..." 
+                  value={filters.location}
+                  onChange={(e) => setFilters({...filters, location: e.target.value})}
+                />
+              </div>
+              <input 
+                type="number" 
+                placeholder="Min Capacity" 
+                value={filters.minCapacity}
+                onChange={(e) => setFilters({...filters, minCapacity: e.target.value})}
+              />
+              <button type="submit" className="filter-btn">
+                <Filter size={18} /> Filter
+              </button>
+            </form>
+
+            {loading ? (
+              <LoadingSpinner />
+            ) : (
+              <motion.div 
+                className="facilities-grid"
+                variants={containerVariants}
+                initial="hidden"
+                animate="visible"
+              >
+                {filteredFacilities.length === 0 ? (
+                  <div className="empty-state">No facilities found in this category.</div>
+                ) : (
+                  filteredFacilities.map((fac) => (
+                    <motion.div key={fac.id} variants={cardVariants} className="facility-card glass-morphism">
+                      <div className="card-header">
+                        <h3>{fac.name}</h3>
+                        <span className={`status-badge ${['ACTIVE', 'IN_STOCK'].includes(fac.status) ? 'active' : 'inactive'}`}>
+                          {fac.status.replaceAll('_', ' ')}
+                        </span>
+                      </div>
+                      <div className="card-body">
+                        <p><Tag size={16} /> {fac.type.replace('_', ' ')}</p>
+                        {fac.type !== 'EQUIPMENT' && <p><MapPin size={16} /> {fac.location || 'Main Campus'}</p>}
+                        {fac.type === 'EQUIPMENT' ? (
+                          <p><Box size={16} /> Quantity: {fac.capacity || 'N/A'}</p>
+                        ) : (
+                          <p><Users size={16} /> Capacity: {fac.capacity || 'N/A'}</p>
+                        )}
+                      </div>
+                      <div className="card-footer">
+                        {(() => {
+                          const type = fac.type?.toUpperCase().replace(/[\s_]/g, '');
+                          const isLectureHall = type === 'LECTUREHALL';
+                          const isLab = type === 'LAB';
+                          
+                          if (isLectureHall) {
+                            return (
+                              <button 
+                                onClick={() => navigate(`/bookings/hall?id=${fac.id}`)} 
+                                className="action-btn book"
+                              >
+                                <Calendar size={16} /> Book
+                              </button>
+                            );
+                          } else if (isLab) {
+                            return (
+                              <button 
+                                onClick={() => navigate(`/bookings/lab?id=${fac.id}`)} 
+                                className="action-btn book-lab"
+                              >
+                                <Monitor size={16} /> Book
+                              </button>
+                            );
+                          } else {
+                            return (
+                              <button 
+                                onClick={() => navigate(`/bookings/new?resourceId=${fac.id}`)} 
+                                className="action-btn book-generic"
+                              >
+                                <Calendar size={16} /> Book
+                              </button>
+                            );
+                          }
+                        })()}
+                        {userRole === 'ROLE_ADMIN' && (
+                          <div className="admin-actions">
+                            <button onClick={() => navigate(`/admin/facilities?id=${fac.id}`)} className="icon-btn edit">
+                              <Edit2 size={16} />
+                            </button>
+                            <button onClick={() => handleDelete(fac.id)} className="icon-btn delete">
+                              <Trash2 size={16} />
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </motion.div>
+                  ))
+                )}
+              </motion.div>
+            )}
+          </>
+        )}
       </div>
 
-      <form className="search-bar glass-morphism" onSubmit={handleSearch}>
-        <div className="search-input-group">
-          <Search size={20} className="icon" />
-          <input 
-            type="text" 
-            placeholder="Search facilities..." 
-            value={filters.location}
-            onChange={(e) => setFilters({...filters, location: e.target.value})}
-          />
-        </div>
-        <select 
-          value={filters.type}
-          onChange={(e) => {
-            setFilters({...filters, type: e.target.value});
-            if (e.target.value) setViewMode('list');
-          }}
-        >
-          <option value="">All Types</option>
-          <option value="ROOM">Meeting Rooms</option>
-          <option value="LECTURE_HALL">Lecture Halls</option>
-          <option value="LAB">Laboratories</option>
-          <option value="EQUIPMENT">Equipment</option>
-        </select>
-        <button type="submit" className="filter-btn">
-          <Filter size={18} /> Filter
-        </button>
-      </form>
-
-      {loading ? (
-        <div className="loading-state">
-          <div className="spinner"></div>
-          <p>Fetching resources...</p>
-        </div>
-      ) : (
-        <AnimatePresence mode="wait">
-          {viewMode === 'overview' ? (
-            <motion.div 
-              key="overview"
-              className="categories-grid"
-              variants={containerVariants}
-              initial="hidden"
-              animate="visible"
-              exit={{ opacity: 0, y: -20 }}
-            >
-              {categories.map((cat) => (
-                <motion.div 
-                  key={cat.type} 
-                  variants={cardVariants} 
-                  className="category-card glass-morphism"
-                  onClick={() => {
-                    setFilters({...filters, type: cat.type});
-                    setViewMode('list');
-                  }}
-                >
-                  <div className="cat-icon-wrapper" style={{ background: `${cat.color}15`, color: cat.color }}>
-                    {cat.icon}
-                  </div>
-                  <div className="cat-info">
-                    <h3>{cat.title}</h3>
-                    <p className="status-indicator">
-                      <span className="dot" style={{ background: cat.available > 0 ? '#10b981' : '#ef4444' }}></span>
-                      {cat.available} {cat.type === 'EQUIPMENT' ? 'Items Ready' : 'Available'}
-                    </p>
-                  </div>
-                  <div className="cat-arrow">
-                    <ChevronRight size={24} />
-                  </div>
-                </motion.div>
-              ))}
-            </motion.div>
-          ) : (
-            <motion.div 
-              key="list"
-              className="facilities-grid"
-              variants={containerVariants}
-              initial="hidden"
-              animate="visible"
-              exit={{ opacity: 0, y: 20 }}
-            >
-              {facilities.length === 0 ? (
-                <div className="empty-state">
-                  <Box size={48} />
-                  <p>No facilities found matching your criteria.</p>
-                  <button onClick={() => setFilters({ type: '', minCapacity: '', location: '' })}>Clear Filters</button>
-                </div>
-              ) : (
-                facilities.map((fac) => (
-                  <motion.div key={fac.id} variants={cardVariants} className="facility-card glass-morphism">
-                    <div className="card-header">
-                      <div>
-                        <h3>{fac.name}</h3>
-                        <span className="location-tag"><MapPin size={12} /> {fac.location || 'Main Campus'}</span>
-                      </div>
-                      <span className={`status-badge ${['ACTIVE', 'IN_STOCK'].includes(fac.status) ? 'active' : 'inactive'}`}>
-                        {fac.status.replaceAll('_', ' ')}
-                      </span>
-                    </div>
-                    <div className="card-body">
-                      <div className="info-item">
-                        <Tag size={16} />
-                        <span>{fac.type.replace('_', ' ')}</span>
-                      </div>
-                      <div className="info-item">
-                        {fac.type === 'EQUIPMENT' ? <Box size={16} /> : <Users size={16} />}
-                        <span>{fac.type === 'EQUIPMENT' ? `Qty: ${fac.capacity || 0}` : `Capacity: ${fac.capacity || 0}`}</span>
-                      </div>
-                    </div>
-                    <div className="card-footer">
-                      <button 
-                        className="btn-book"
-                        onClick={() => navigate(`/bookings/new?resourceId=${fac.id}`)}
-                      >
-                        Book Now
-                      </button>
-                      {userRole === 'ROLE_ADMIN' && (
-                        <div className="admin-actions">
-                          <button onClick={() => navigate(`/admin/facilities?id=${fac.id}`)} className="icon-btn edit">
-                            <Edit2 size={16} />
-                          </button>
-                          <button onClick={() => handleDelete(fac.id)} className="icon-btn delete">
-                            <Trash2 size={16} />
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  </motion.div>
-                ))
-              )}
-            </motion.div>
-          )}
-        </AnimatePresence>
-      )}
-
       <style jsx="true">{`
-        .catalogue-container {
-          padding: 20px 0 60px 0;
+        .catalogue-container { padding: 20px 0 60px 0; }
+        .catalogue-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .catalogue-header h1 { font-size: 2.5rem; font-weight: 800; margin-bottom: 5px; }
+        
+        .back-link {
+          display: flex; align-items: center; gap: 5px; color: #6366f1; font-weight: 600;
+          background: none; border: none; padding: 0; margin-bottom: 10px; cursor: pointer; transition: transform 0.2s;
         }
+        .back-link:hover { transform: translateX(-5px); }
 
-        .catalogue-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 30px;
+        .category-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 30px; }
+        .category-card {
+          padding: 40px; border-radius: 24px; background: white; display: flex; align-items: center; gap: 30px;
+          cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: 1px solid #f1f5f9;
         }
+        .category-card:hover { transform: translateY(-8px); box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08); border-color: #e2e8f0; }
 
-        .catalogue-header h1 {
-          font-size: 2.5rem;
-          font-weight: 800;
-          margin-bottom: 5px;
-          letter-spacing: -0.02em;
+        .category-icon-wrapper {
+          width: 80px; height: 80px; border-radius: 20px; display: flex; align-items: center; justify-content: center;
         }
+        .category-card:hover .category-icon-wrapper { transform: scale(1.1) rotate(-5deg); }
 
-        .header-actions {
-          display: flex;
-          align-items: center;
-          gap: 15px;
-        }
+        .category-info h2 { font-size: 1.5rem; font-weight: 700; color: #1e293b; margin-bottom: 8px; }
+        .category-stat { display: flex; align-items: center; gap: 8px; font-size: 0.95rem; color: #64748b; font-weight: 600; }
+        .dot { width: 8px; height: 8px; border-radius: 50%; }
 
-        .view-toggle {
-          display: flex;
-          padding: 5px;
-          background: rgba(255, 255, 255, 0.5);
-          border-radius: 12px;
-        }
+        .category-arrow { margin-left: auto; color: #cbd5e1; transition: all 0.3s; }
+        .category-card:hover .category-arrow { transform: translateX(5px); color: #6366f1; }
 
-        .view-toggle button {
-          padding: 8px 12px;
-          border-radius: 8px;
-          color: #64748b;
-          transition: all 0.3s;
-        }
+        .search-bar { display: grid; grid-template-columns: 2fr 1fr auto; gap: 15px; padding: 12px; margin-bottom: 40px; }
+        .search-input-group { display: flex; align-items: center; gap: 12px; background: white; padding: 10px 15px; border-radius: 12px; border: 1px solid #e2e8f0; }
+        .search-input-group input { border: none; outline: none; width: 100%; font-weight: 500; }
 
-        .view-toggle button.active {
-          background: white;
-          color: #4f46e5;
-          box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-        }
+        .facilities-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 25px; }
+        .facility-card { padding: 24px; display: flex; flex-direction: column; background: white; border-radius: 20px; border: 1px solid #f1f5f9; }
+        .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
+        .card-header h3 { font-size: 1.2rem; font-weight: 700; color: #1e293b; }
+
+        .status-badge { padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; }
+        .status-badge.active { background: #dcfce7; color: #16a34a; }
+        .status-badge.inactive { background: #fee2e2; color: #ef4444; }
+
+        .card-body { flex: 1; display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+        .card-body p { display: flex; align-items: center; gap: 10px; color: #64748b; font-size: 0.95rem; }
+
+        .card-footer { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding-top: 20px; border-top: 1px solid #f1f5f9; }
+        .action-btn { flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 10px; border-radius: 12px; font-weight: 600; transition: all 0.2s; }
+        .action-btn.book { background: #6366f1; color: white; }
+        .action-btn.book-lab { background: #0ea5e9; color: white; }
+        .action-btn.book-generic { background: #10b981; color: white; }
+        
+        .admin-actions { display: flex; gap: 8px; }
+        .icon-btn { padding: 8px; border-radius: 8px; border: 1px solid #e2e8f0; background: white; color: #64748b; transition: all 0.2s; }
+        .icon-btn:hover { background: #f8fafc; color: #6366f1; border-color: #6366f1; }
+        .icon-btn.delete:hover { color: #ef4444; border-color: #ef4444; }
 
         .add-btn {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          background: #4f46e5;
-          color: white;
-          padding: 10px 20px;
-          border-radius: 12px;
-          font-weight: 600;
-          box-shadow: 0 8px 16px -4px rgba(79, 70, 229, 0.3);
-          transition: all 0.3s;
-        }
-
-        .add-btn:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 12px 20px -4px rgba(79, 70, 229, 0.4);
-        }
-
-        .search-bar {
-          display: grid;
-          grid-template-columns: 2fr 1fr auto;
-          gap: 15px;
-          padding: 12px;
-          margin-bottom: 40px;
-          background: rgba(255, 255, 255, 0.7);
-        }
-
-        .search-input-group {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          background: white;
-          padding: 10px 15px;
-          border-radius: 12px;
-          border: 1px solid #e2e8f0;
-        }
-
-        .search-input-group input {
-          border: none;
-          outline: none;
-          width: 100%;
-          font-weight: 500;
-          color: #1e293b;
-        }
-
-        .search-bar select {
-          padding: 10px 15px;
-          border-radius: 12px;
-          border: 1px solid #e2e8f0;
-          background: white;
-          font-weight: 500;
-          outline: none;
-        }
-
-        .filter-btn {
-          background: #1e293b;
-          color: white;
-          padding: 0 25px;
-          border-radius: 12px;
-          font-weight: 600;
-          display: flex;
-          align-items: center;
-          gap: 8px;
-        }
-
-        /* Categories Grid */
-        .categories-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-          gap: 25px;
-        }
-
-        .category-card {
-          display: flex;
-          align-items: center;
-          padding: 30px;
-          cursor: pointer;
-          background: rgba(255, 255, 255, 0.8);
-          border: 1px solid rgba(255, 255, 255, 0.3);
-        }
-
-        .category-card:hover {
-          transform: translateY(-5px);
-          background: white;
-          box-shadow: 0 20px 40px -12px rgba(0,0,0,0.1);
-        }
-
-        .cat-icon-wrapper {
-          width: 70px;
-          height: 70px;
-          border-radius: 18px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          margin-right: 20px;
-        }
-
-        .cat-info h3 {
-          font-size: 1.4rem;
-          font-weight: 700;
-          margin-bottom: 6px;
-          color: #1e293b;
-        }
-
-        .status-indicator {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          font-weight: 600;
-          color: #10b981;
-          font-size: 0.95rem;
-        }
-
-        .dot {
-          width: 8px;
-          height: 8px;
-          border-radius: 50%;
-        }
-
-        .cat-arrow {
-          margin-left: auto;
-          color: #cbd5e1;
-          transition: transform 0.3s;
-        }
-
-        .category-card:hover .cat-arrow {
-          transform: translateX(5px);
-          color: #4f46e5;
-        }
-
-        /* Facilities Grid */
-        .facilities-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-          gap: 25px;
-        }
-
-        .facility-card {
-          padding: 24px;
-          display: flex;
-          flex-direction: column;
-          background: rgba(255, 255, 255, 0.9);
-          border-radius: 20px;
-          box-shadow: var(--box-shadow);
-        }
-
-        .card-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: flex-start;
-          margin-bottom: 20px;
-        }
-
-        .card-header h3 {
-          font-size: 1.2rem;
-          font-weight: 700;
-          color: #1e293b;
-          margin-bottom: 4px;
-        }
-
-        .location-tag {
-          font-size: 0.85rem;
-          color: #64748b;
-          display: flex;
-          align-items: center;
-          gap: 4px;
-        }
-
-        .status-badge {
-          font-size: 0.7rem;
-          padding: 4px 10px;
-          border-radius: 20px;
-          font-weight: 700;
-          text-transform: uppercase;
-          letter-spacing: 0.05em;
-        }
-
-        .status-badge.active { background: #dcfce7; color: #059669; }
-        .status-badge.inactive { background: #fee2e2; color: #dc2626; }
-
-        .card-body {
-          margin-bottom: 25px;
-          display: flex;
-          flex-direction: column;
-          gap: 12px;
-        }
-
-        .info-item {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          color: #475569;
-          font-weight: 500;
-        }
-
-        .card-footer {
-          display: flex;
-          gap: 10px;
-          margin-top: auto;
-        }
-
-        .btn-book {
-          flex: 1;
-          background: #4f46e5;
-          color: white;
-          padding: 10px;
-          border-radius: 10px;
-          font-weight: 600;
-          transition: all 0.3s;
-        }
-
-        .btn-book:hover {
-          background: #4338ca;
-        }
-
-        .admin-actions {
-          display: flex;
-          gap: 8px;
-        }
-
-        .icon-btn {
-          width: 40px;
-          height: 40px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          border-radius: 10px;
-          transition: all 0.3s;
-        }
-
-        .icon-btn.edit { background: #f1f5f9; color: #6366f1; }
-        .icon-btn.edit:hover { background: #e2e8f0; }
-        .icon-btn.delete { background: #fff1f2; color: #ef4444; }
-        .icon-btn.delete:hover { background: #fecaca; }
-
-        .empty-state {
-          grid-column: 1 / -1;
-          padding: 80px;
-          text-align: center;
-          color: #64748b;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 20px;
-        }
-
-        .loading-state {
-          padding: 100px;
-          text-align: center;
-        }
-
-        @media (max-width: 768px) {
-          .catalogue-header { flex-direction: column; align-items: flex-start; gap: 20px; }
-          .search-bar { grid-template-columns: 1fr; }
-          .categories-grid { grid-template-columns: 1fr; }
+          display: flex; align-items: center; gap: 8px; background: #6366f1; color: white;
+          padding: 10px 20px; border-radius: 12px; font-weight: 600; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
         }
       `}</style>
-    </div>
+    </DynamicLayout>
   );
 };
 

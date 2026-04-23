@@ -22,41 +22,12 @@ import java.util.UUID;
 public class TicketService {
 
     private final TicketRepository ticketRepository;
-    private final String UPLOAD_DIR = "uploads/";
+    private final NotificationService notificationService;
 
-    public Ticket saveTicketWithFiles(TicketRequestDTO dto, MultipartFile[] files) throws IOException {
-        List<String> filePaths = new ArrayList<>();
-        
-        if (files != null && files.length > 0) {
-            Path uploadPath = Paths.get(UPLOAD_DIR);
-            if (!Files.exists(uploadPath)) {
-                Files.createDirectories(uploadPath);
-            }
-
-            for (MultipartFile file : files) {
-                if (!file.isEmpty()) {
-                    String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
-                    Path filePath = uploadPath.resolve(fileName);
-                    Files.copy(file.getInputStream(), filePath);
-                    filePaths.add(filePath.toString());
-                }
-            }
-        }
-
-        Ticket ticket = new Ticket();
-        ticket.setSubject(dto.getSubject());
-        ticket.setDetailedDescription(dto.getDetailedDescription());
-        ticket.setUserName(dto.getUserName());
-        ticket.setDepartmentName(dto.getDepartmentName());
-        ticket.setContactNumber(dto.getContactNumber());
-        ticket.setEmail(dto.getEmail());
-        ticket.setCategory(dto.getCategory());
-        ticket.setSubcategory(dto.getSubcategory());
-        ticket.setPriority(dto.getPriority());
-        ticket.setImpact(dto.getImpact());
-        ticket.setAttachmentPaths(filePaths);
-        ticket.setStatus("Open");
-
+    public Ticket createTicket(Ticket ticket) {
+        ticket.setCreatedAt(LocalDateTime.now());
+        ticket.setUpdatedAt(LocalDateTime.now());
+        ticket.setStatus("OPEN");
         return ticketRepository.save(ticket);
     }
 
@@ -80,7 +51,15 @@ public class TicketService {
             }
             // Updating manual time if auditing somehow fails, but auditing should handle it
             ticket.setUpdatedAt(LocalDateTime.now());
-            return ticketRepository.save(ticket);
+            Ticket updated = ticketRepository.save(ticket);
+            
+            // Create notification
+            String title = "Ticket Update: " + status;
+            String message = String.format("Your ticket regarding '%s' has been updated to %s.", 
+                ticket.getSubject(), status.toLowerCase());
+            notificationService.createNotification(ticket.getUserEmail(), title, message, "TICKET");
+            
+            return updated;
         }).orElseThrow(() -> new RuntimeException("Ticket not found"));
     }
 

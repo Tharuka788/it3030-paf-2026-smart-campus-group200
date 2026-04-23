@@ -15,7 +15,11 @@ export const bookingService = {
   getAllBookings: () => api.get('/v1/bookings'),
   getBookingsByUser: (email) => api.get(`/v1/bookings/user/${email}`),
   getBookingsByResource: (resourceId) => api.get(`/v1/bookings/resource/${resourceId}`),
-  updateStatus: (id, status) => api.patch(`/v1/bookings/${id}/status?status=${status}`),
+  updateStatus: (id, status, reason) => {
+    let url = `/v1/bookings/${id}/status?status=${status}`;
+    if (reason) url += `&reason=${encodeURIComponent(reason)}`;
+    return api.patch(url);
+  },
   deleteBooking: (id) => api.delete(`/v1/bookings/${id}`),
 };
 
@@ -43,6 +47,13 @@ export const ticketService = {
   updateStatus: (id, status, adminComments) => 
     api.patch(`/v1/tickets/${id}/status?status=${status}${adminComments ? `&adminComments=${encodeURIComponent(adminComments)}` : ''}`),
   deleteTicket: (id) => api.delete(`/v1/tickets/${id}`),
+};
+
+export const notificationService = {
+  getNotifications: (email) => api.get(`/notifications/user/${email}`),
+  getUnreadCount: (email) => api.get(`/notifications/user/${email}/unread-count`),
+  markAsRead: (id) => api.patch(`/notifications/${id}/read`),
+  markAllAsRead: (email) => api.patch(`/notifications/user/${email}/read-all`),
 };
 
 export default api;

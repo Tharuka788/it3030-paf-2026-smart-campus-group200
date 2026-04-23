@@ -41,6 +41,8 @@ const Login = () => {
     
     if (dbUser.role === 'ROLE_ADMIN') {
       navigate('/admin/dashboard');
+    } else if (dbUser.role === 'ROLE_TECHNICIAN') {
+      navigate('/technician/dashboard');
     } else {
       navigate('/dashboard');
     }

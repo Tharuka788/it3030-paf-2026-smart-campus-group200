@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Layout from '../components/Layout';
+import DynamicLayout from '../components/DynamicLayout';
 import { 
   CheckCircle, 
   Clock, 
@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { bookingService } from '../services/api';
+import LoadingSpinner from '../components/LoadingSpinner';
 
 const Dashboard = () => {
   const [bookings, setBookings] = useState([]);
@@ -61,7 +62,7 @@ const Dashboard = () => {
   ];
 
   return (
-    <Layout>
+    <DynamicLayout>
       <div className="dashboard-content">
         <section className="stats-grid">
           {stats.map((stat, index) => (
@@ -93,7 +94,7 @@ const Dashboard = () => {
 
            <div className="activity-list glass-morphism">
               {loading ? (
-                <div style={{ padding: '40px', textAlign: 'center', color: 'var(--text-muted)' }}>Loading your activity...</div>
+                <LoadingSpinner />
               ) : bookings.length === 0 ? (
                 <div style={{ padding: '40px', textAlign: 'center', color: 'var(--text-muted)' }}>No recent bookings found.</div>
               ) : (
@@ -280,7 +281,7 @@ const Dashboard = () => {
           z-index: 1000;
         }
       `}</style>
-    </Layout>
+    </DynamicLayout>
   );
 };
 
