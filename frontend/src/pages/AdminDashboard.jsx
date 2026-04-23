@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { facilityService, bookingService } from '../services/api';
+import LoadingSpinner from '../components/LoadingSpinner';
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -112,7 +113,9 @@ const AdminDashboard = () => {
             
             <div className="bookings-table-container">
               {loading ? (
-                <div className="table-loader">Fetching latest records...</div>
+                <div className="table-loader">
+                  <LoadingSpinner />
+                </div>
               ) : recentBookings.length === 0 ? (
                 <div className="empty-state">
                   <Activity size={48} />

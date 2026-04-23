@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { facilityService, ticketService } from '../services/api';
+import LoadingSpinner from '../components/LoadingSpinner';
 
 const TechnicianDashboard = () => {
   const navigate = useNavigate();
@@ -110,7 +111,7 @@ const TechnicianDashboard = () => {
             
             <div className="tasks-container">
               {loading ? (
-                <div className="loader">Updating task list...</div>
+                <LoadingSpinner />
               ) : activeTasks.length === 0 ? (
                 <div className="empty-state">
                   <h4>Clear Workspace!</h4>
