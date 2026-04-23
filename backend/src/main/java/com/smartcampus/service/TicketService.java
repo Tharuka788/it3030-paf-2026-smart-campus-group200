@@ -89,13 +89,14 @@ public class TicketService {
             }
             ticket.setUpdatedAt(LocalDateTime.now());
             Ticket updated = ticketRepository.save(ticket);
-            
+
             // Create notification
             String title = "Ticket Update: " + status;
-            String message = String.format("Your ticket regarding '%s' has been updated to %s.", 
-                ticket.getSubject(), status.toLowerCase());
-            notificationService.createNotification(ticket.getEmail(), "TICKET_STATUS_CHANGED", title, message, ticket.getId(), "TICKET");
-            
+            String message = String.format("Your ticket regarding '%s' has been updated to %s.",
+                    ticket.getSubject(), status.toLowerCase());
+            notificationService.createNotification(ticket.getEmail(), "TICKET_STATUS_CHANGED", title, message,
+                    ticket.getId(), "TICKET");
+
             return updated;
         }).orElseThrow(() -> new RuntimeException("Ticket not found"));
     }
