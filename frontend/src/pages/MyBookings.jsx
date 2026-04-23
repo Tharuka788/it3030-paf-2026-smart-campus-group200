@@ -14,6 +14,7 @@ import {
   AlertTriangle
 } from 'lucide-react';
 import { bookingService } from '../services/api';
+import LoadingSpinner from '../components/LoadingSpinner';
 
 const MyBookings = () => {
   const [bookings, setBookings] = useState([]);
@@ -144,7 +145,7 @@ const MyBookings = () => {
 
           <div className="bookings-list">
              {loading ? (
-               <div className="loading-spinner">Loading your bookings...</div>
+               <LoadingSpinner />
              ) : filteredBookings.length === 0 ? (
                <div className="empty-state glass-morphism">
                  <h3>No bookings found</h3>

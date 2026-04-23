@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { bookingService } from '../services/api';
+import LoadingSpinner from '../components/LoadingSpinner';
 
 const Dashboard = () => {
   const [bookings, setBookings] = useState([]);
@@ -93,7 +94,7 @@ const Dashboard = () => {
 
            <div className="activity-list glass-morphism">
               {loading ? (
-                <div style={{ padding: '40px', textAlign: 'center', color: 'var(--text-muted)' }}>Loading your activity...</div>
+                <LoadingSpinner />
               ) : bookings.length === 0 ? (
                 <div style={{ padding: '40px', textAlign: 'center', color: 'var(--text-muted)' }}>No recent bookings found.</div>
               ) : (

@@ -21,6 +21,7 @@ import {
   ArrowRight
 } from 'lucide-react';
 import { facilityService } from '../services/api';
+import LoadingSpinner from '../components/LoadingSpinner';
 
 const FacilitiesCatalogue = () => {
   const [facilities, setFacilities] = useState([]);
@@ -207,7 +208,7 @@ const FacilitiesCatalogue = () => {
             </form>
 
             {loading ? (
-              <div className="loading-state">Loading facilities...</div>
+              <LoadingSpinner />
             ) : (
               <motion.div 
                 className="facilities-grid"

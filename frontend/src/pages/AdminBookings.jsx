@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import AdminLayout from '../components/AdminLayout';
 import { bookingService } from '../services/api';
 import { motion } from 'framer-motion';
+import LoadingSpinner from '../components/LoadingSpinner';
 import { 
   CalendarClock, 
   CheckCircle, 
@@ -70,7 +71,7 @@ const AdminBookings = () => {
         </header>
 
         {loading ? (
-          <div className="admin-loader">Loading bookings...</div>
+          <LoadingSpinner />
         ) : (
           <div className="admin-bookings-grid">
             {filteredBookings.map((booking) => (
