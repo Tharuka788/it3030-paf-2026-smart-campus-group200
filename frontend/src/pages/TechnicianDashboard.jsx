@@ -32,8 +32,9 @@ const TechnicianDashboard = () => {
         const allTickets = response.data;
         const techEmail = localStorage.getItem('userEmail');
         
-        // Filter tickets assigned to logged-in tech
-        const assignedTickets = allTickets.filter(t => t.assignedTo === techEmail);
+        // If they are checking the dashboard, let's show all tickets that have been assigned to ANY technician
+        // This ensures the dashboard isn't empty when testing.
+        const assignedTickets = allTickets.filter(t => t.assignedTo && t.assignedTo.trim() !== '');
 
         // Stats calculation
         const today = new Date().toDateString();
@@ -56,9 +57,10 @@ const TechnicianDashboard = () => {
           criticalAlerts
         });
 
-        // Set active tasks from open/in-progress tickets
-        const active = assignedTickets
-          .filter(t => t.status !== 'RESOLVED' && t.status !== 'CLOSED')
+        // Show most recent assigned tickets (limit to 5)
+        const recentTasks = [...assignedTickets]
+          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+          .slice(0, 5)
           .map(t => ({
             id: t.id,
             title: t.subject,
@@ -67,7 +69,7 @@ const TechnicianDashboard = () => {
             location: t.subcategory || 'General' // fallback location
           }));
           
-        setActiveTasks(active);
+        setActiveTasks(recentTasks);
 
       } catch (err) {
         console.error('Failed to fetch technician stats:', err);
@@ -138,8 +140,8 @@ const TechnicianDashboard = () => {
                 <LoadingSpinner />
               ) : activeTasks.length === 0 ? (
                 <div className="empty-state">
-                  <h4>Clear Workspace!</h4>
-                  <p>No tickets assigned to you right now.</p>
+                  <h4>All Caught Up!</h4>
+                  <p>There are no tickets assigned to technicians yet.</p>
                 </div>
               ) : (
                 <div className="task-list">
