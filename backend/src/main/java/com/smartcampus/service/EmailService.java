@@ -125,7 +125,7 @@ public class EmailService {
                 ticket,
                 "#17a2b8" // Info Blue color
         );
-        sendHtmlEmail(ticket.getUserEmail(), subject, htmlContent);
+        sendHtmlEmail(ticket.getEmail(), subject, htmlContent);
     }
 
     @Async
@@ -143,13 +143,13 @@ public class EmailService {
                 ticket,
                 color
         );
-        sendHtmlEmail(ticket.getUserEmail(), subject, htmlContent);
+        sendHtmlEmail(ticket.getEmail(), subject, htmlContent);
     }
 
     private String buildTicketEmailTemplate(String header, String message, Ticket ticket, String color) {
         String subject = ticket.getSubject() != null ? ticket.getSubject() : "N/A";
         String category = ticket.getCategory() != null ? ticket.getCategory() : "N/A";
-        String priority = ticket.getPriority() != null ? ticket.getPriority() : "N/A";
+        String priority = ticket.getPriority() != null ? ticket.getPriority().toString() : "N/A";
         String status = ticket.getStatus() != null ? ticket.getStatus() : "N/A";
 
         return "<!DOCTYPE html>" +

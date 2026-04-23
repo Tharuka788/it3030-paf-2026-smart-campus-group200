@@ -50,20 +50,13 @@ export const ticketService = {
 };
 
 export const notificationService = {
-  getNotifications: (email) => api.get(`/notifications/user/${email}`),
-  getUnreadCount: (email) => api.get(`/notifications/user/${email}/unread-count`),
-  markAsRead: (id) => api.patch(`/notifications/${id}/read`),
-  markAllAsRead: (email) => api.patch(`/notifications/user/${email}/read-all`),
-};
-
-export const notificationService = {
-  getNotifications: (userId) => api.get('/notifications', { params: { userId } }),
-  getUnreadCount: (userId) => api.get('/notifications/unread-count', { params: { userId } }),
-  getUnreadNotifications: (userId) => api.get('/notifications/unread', { params: { userId } }),
-  markAsRead: (notificationId) => api.patch(`/notifications/${notificationId}/read`),
-  markAllAsRead: (userId) => api.patch('/notifications/read-all', null, { params: { userId } }),
-  deleteNotification: (notificationId) => api.delete(`/notifications/${notificationId}`),
-  deleteAllNotifications: (userId) => api.delete('/notifications', { params: { userId } }),
+  getNotifications: (userId) => api.get('/v1/notifications', { params: { userId } }),
+  getUnreadCount: (userId) => api.get('/v1/notifications/unread-count', { params: { userId } }),
+  getUnreadNotifications: (userId) => api.get('/v1/notifications/unread', { params: { userId } }),
+  markAsRead: (notificationId) => api.patch(`/v1/notifications/${notificationId}/read`),
+  markAllAsRead: (userId) => api.patch('/v1/notifications/read-all', null, { params: { userId } }),
+  deleteNotification: (notificationId) => api.delete(`/v1/notifications/${notificationId}`),
+  deleteAllNotifications: (userId) => api.delete('/v1/notifications', { params: { userId } }),
 };
 
 export default api;

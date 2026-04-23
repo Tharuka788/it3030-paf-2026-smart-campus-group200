@@ -94,7 +94,7 @@ public class TicketService {
             String title = "Ticket Update: " + status;
             String message = String.format("Your ticket regarding '%s' has been updated to %s.", 
                 ticket.getSubject(), status.toLowerCase());
-            notificationService.createNotification(ticket.getEmail(), title, message, "TICKET");
+            notificationService.createNotification(ticket.getEmail(), "TICKET_STATUS_CHANGED", title, message, ticket.getId(), "TICKET");
             
             return updated;
         }).orElseThrow(() -> new RuntimeException("Ticket not found"));
