@@ -53,7 +53,7 @@ const StaffProtectedRoute = ({ children }) => {
 const RoleBasedRedirect = () => {
   const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
   const userRole = localStorage.getItem('userRole');
-  
+
   if (!isAuthenticated) return <Navigate to="/login" replace />;
   if (userRole === 'ROLE_ADMIN') return <Navigate to="/admin/dashboard" replace />;
   if (userRole === 'ROLE_TECHNICIAN') return <Navigate to="/technician/dashboard" replace />;
@@ -66,71 +66,71 @@ function App() {
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        
+
         {/* Authenticated Routes */}
-        <Route 
-          path="/dashboard" 
-          element={<ProtectedRoute><Dashboard /></ProtectedRoute>} 
+        <Route
+          path="/dashboard"
+          element={<ProtectedRoute><Dashboard /></ProtectedRoute>}
         />
         {/* <Route 
           path="/technician/dashboard" 
           element={<TechnicianProtectedRoute><TechnicianDashboard /></TechnicianProtectedRoute>} 
         /> */}
-        <Route 
-          path="/admin/dashboard" 
-          element={<AdminProtectedRoute><AdminDashboard /></AdminProtectedRoute>} 
+        <Route
+          path="/admin/dashboard"
+          element={<AdminProtectedRoute><AdminDashboard /></AdminProtectedRoute>}
         />
-        <Route 
-          path="/admin/facilities" 
-          element={<AdminProtectedRoute><AdminFacilities /></AdminProtectedRoute>} 
+        <Route
+          path="/admin/facilities"
+          element={<AdminProtectedRoute><AdminFacilities /></AdminProtectedRoute>}
         />
-        <Route 
-          path="/admin/bookings" 
-          element={<AdminProtectedRoute><AdminBookings /></AdminProtectedRoute>} 
+        <Route
+          path="/admin/bookings"
+          element={<AdminProtectedRoute><AdminBookings /></AdminProtectedRoute>}
         />
-        <Route 
-          path="/admin/tickets" 
-          element={<StaffProtectedRoute><AdminTickets /></StaffProtectedRoute>} 
+        <Route
+          path="/admin/tickets"
+          element={<StaffProtectedRoute><AdminTickets /></StaffProtectedRoute>}
         />
-        <Route 
-          path="/admin/users" 
-          element={<AdminProtectedRoute><AdminUsers /></AdminProtectedRoute>} 
+        <Route
+          path="/admin/users"
+          element={<AdminProtectedRoute><AdminUsers /></AdminProtectedRoute>}
         />
-        <Route 
-          path="/technician/dashboard" 
-          element={<TechnicianProtectedRoute><TechnicianDashboard /></TechnicianProtectedRoute>} 
+        <Route
+          path="/technician/dashboard"
+          element={<TechnicianProtectedRoute><TechnicianDashboard /></TechnicianProtectedRoute>}
         />
-        <Route 
-          path="/facilities" 
-          element={<ProtectedRoute><FacilitiesCatalogue /></ProtectedRoute>} 
+        <Route
+          path="/facilities"
+          element={<ProtectedRoute><FacilitiesCatalogue /></ProtectedRoute>}
         />
-        <Route 
-          path="/facilities/manage" 
-          element={<ProtectedRoute><ManageFacility /></ProtectedRoute>} 
+        <Route
+          path="/facilities/manage"
+          element={<ProtectedRoute><ManageFacility /></ProtectedRoute>}
         />
-        <Route 
-          path="/bookings/new" 
-          element={<ProtectedRoute><NewBooking /></ProtectedRoute>} 
+        <Route
+          path="/bookings/new"
+          element={<ProtectedRoute><NewBooking /></ProtectedRoute>}
         />
-        <Route 
-          path="/bookings/my" 
-          element={<ProtectedRoute><MyBookings /></ProtectedRoute>} 
+        <Route
+          path="/bookings/my"
+          element={<ProtectedRoute><MyBookings /></ProtectedRoute>}
         />
-        <Route 
-          path="/bookings/hall" 
-          element={<ProtectedRoute><HallBooking /></ProtectedRoute>} 
+        <Route
+          path="/bookings/hall"
+          element={<ProtectedRoute><HallBooking /></ProtectedRoute>}
         />
-        <Route 
-          path="/bookings/lab" 
-          element={<ProtectedRoute><LabBooking /></ProtectedRoute>} 
+        <Route
+          path="/bookings/lab"
+          element={<ProtectedRoute><LabBooking /></ProtectedRoute>}
         />
-        <Route 
-          path="/tickets/my" 
-          element={<ProtectedRoute><MyTickets /></ProtectedRoute>} 
+        <Route
+          path="/tickets/my"
+          element={<ProtectedRoute><MyTickets /></ProtectedRoute>}
         />
-        <Route 
-          path="/tickets/new" 
-          element={<ProtectedRoute><NewTicket /></ProtectedRoute>} 
+        <Route
+          path="/tickets/new"
+          element={<ProtectedRoute><NewTicket /></ProtectedRoute>}
         />
 
         {/* Fallbacks */}

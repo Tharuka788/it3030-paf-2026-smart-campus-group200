@@ -20,7 +20,7 @@ public class NotificationService {
 
     @Async
     public void createNotification(String userId, String notificationType, String title, String message,
-                                   String relatedResourceId, String relatedResourceType) {
+            String relatedResourceId, String relatedResourceType) {
         try {
             Notification notification = new Notification();
             notification.setUserId(userId);
@@ -31,7 +31,7 @@ public class NotificationService {
             notification.setRelatedResourceType(relatedResourceType);
             notification.setRead(false);
             notification.setCreatedAt(LocalDateTime.now());
-            
+
             notificationRepository.save(notification);
             log.info("Notification created for user: {} with type: {}", userId, notificationType);
         } catch (Exception e) {
@@ -60,7 +60,8 @@ public class NotificationService {
     }
 
     public void markAllAsRead(String userId) {
-        List<Notification> unreadNotifications = notificationRepository.findByUserIdAndReadFalseOrderByCreatedAtDesc(userId);
+        List<Notification> unreadNotifications = notificationRepository
+                .findByUserIdAndReadFalseOrderByCreatedAtDesc(userId);
         unreadNotifications.forEach(notification -> {
             notification.setRead(true);
             notification.setReadAt(LocalDateTime.now());

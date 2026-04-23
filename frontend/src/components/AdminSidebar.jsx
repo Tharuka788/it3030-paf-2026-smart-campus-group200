@@ -1,11 +1,11 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { 
-  LayoutDashboard, 
-  Building2, 
-  CalendarClock, 
-  Ticket, 
-  Users, 
+import {
+  LayoutDashboard,
+  Building2,
+  CalendarClock,
+  Ticket,
+  Users,
   LogOut,
   ShieldCheck,
   Bell,
@@ -24,7 +24,7 @@ const AdminSidebar = () => {
   ];
 
   return (
-    <motion.aside 
+    <motion.aside
       className="admin-sidebar"
       initial={{ x: -100, opacity: 0 }}
       animate={{ x: 0, opacity: 1 }}
@@ -43,9 +43,9 @@ const AdminSidebar = () => {
       <nav className="admin-sidebar-nav">
         <span className="nav-label">Management</span>
         {navItems.map((item) => (
-          <NavLink 
-            key={item.name} 
-            to={item.path} 
+          <NavLink
+            key={item.name}
+            to={item.path}
             className={({ isActive }) => `admin-nav-item ${isActive ? 'active' : ''}`}
           >
             <div className="icon-wrapper">{item.icon}</div>
@@ -56,8 +56,8 @@ const AdminSidebar = () => {
 
       <div className="admin-sidebar-footer">
         <div className="notifications-preview">
-           <Bell size={20} />
-           <span>3 New Alerts</span>
+          <Bell size={20} />
+          <span>3 New Alerts</span>
         </div>
       </div>
 

@@ -44,7 +44,7 @@ export const ticketService = {
   }),
   getAllTickets: () => api.get('/v1/tickets'),
   getTicketsByUser: (email) => api.get(`/v1/tickets/user/${email}`),
-  updateStatus: (id, status, adminComments) => 
+  updateStatus: (id, status, adminComments) =>
     api.patch(`/v1/tickets/${id}/status?status=${status}${adminComments ? `&adminComments=${encodeURIComponent(adminComments)}` : ''}`),
   deleteTicket: (id) => api.delete(`/v1/tickets/${id}`),
 };
