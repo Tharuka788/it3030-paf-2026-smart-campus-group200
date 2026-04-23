@@ -129,6 +129,7 @@ const LabBooking = () => {
       purpose: formData.purpose,
       expectedAttendees: selectedSeats.length,
       selectedSeats: selectedSeats,
+      location: facility.location
     };
 
     try {

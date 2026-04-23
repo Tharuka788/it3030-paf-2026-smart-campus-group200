@@ -20,9 +20,16 @@ public class BookingService {
     private final NotificationService notificationService;
 
     private void populateResourceName(Booking booking) {
-        if (booking.getResourceId() != null && (booking.getResourceName() == null || booking.getResourceName().isEmpty())) {
+        if (booking.getResourceId() != null) {
             facilityRepository.findById(booking.getResourceId())
-                    .ifPresent(f -> booking.setResourceName(f.getName()));
+                    .ifPresent(f -> {
+                        if (booking.getResourceName() == null || booking.getResourceName().isEmpty()) {
+                            booking.setResourceName(f.getName());
+                        }
+                        if (booking.getLocation() == null || booking.getLocation().isEmpty()) {
+                            booking.setLocation(f.getLocation());
+                        }
+                    });
         }
     }
 
@@ -64,6 +71,7 @@ public class BookingService {
             }
         }
 
+        populateResourceName(booking);
         booking.setCreatedAt(LocalDateTime.now());
         booking.setUpdatedAt(LocalDateTime.now());
         booking.setStatus("PENDING");

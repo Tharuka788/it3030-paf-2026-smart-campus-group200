@@ -11,7 +11,8 @@ import {
   FileText,
   CheckCircle,
   CalendarDays,
-  AlertTriangle
+  AlertTriangle,
+  MapPin
 } from 'lucide-react';
 import { bookingService } from '../services/api';
 import LoadingSpinner from '../components/LoadingSpinner';
@@ -176,6 +177,10 @@ const MyBookings = () => {
                          <div className="info-row">
                             <Clock size={16} className="info-icon" /> 
                             <span>{new Date(booking.startTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} - {new Date(booking.endTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                         </div>
+                         <div className="info-row">
+                            <MapPin size={16} className="info-icon" /> 
+                                                         <span className="location-info">{booking.location || 'Location Pending'}</span>
                          </div>
                          <div className="info-row">
                             <Users size={16} className="info-icon" />

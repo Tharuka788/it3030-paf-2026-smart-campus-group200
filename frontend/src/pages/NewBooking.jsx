@@ -22,6 +22,7 @@ const NewBooking = () => {
     userName: localStorage.getItem('userName') || 'Campus Student',
   });
 
+  const [facilities, setFacilities] = useState([]);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState(null);
@@ -29,6 +30,16 @@ const NewBooking = () => {
   const [fetchingAvailability, setFetchingAvailability] = useState(false);
 
   useEffect(() => {
+    const fetchFacilities = async () => {
+      try {
+        const { data } = await facilityService.getAllFacilities();
+        setFacilities(data);
+      } catch (err) {
+        console.error('Failed to fetch facilities:', err);
+      }
+    };
+    fetchFacilities();
+
     if (urlResourceId && !formData.resourceId) {
        setFormData(prev => ({ ...prev, resourceId: urlResourceId }));
     }
@@ -76,7 +87,18 @@ const NewBooking = () => {
   };
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    if (name === 'resourceId') {
+      const selected = facilities.find(f => f.id === value);
+      setFormData({ 
+        ...formData, 
+        resourceId: value,
+        resourceName: selected ? selected.name : '',
+        location: selected ? selected.location : ''
+      });
+    } else {
+      setFormData({ ...formData, [name]: value });
+    }
     if (error) setError(null);
   };
 
@@ -137,11 +159,11 @@ const NewBooking = () => {
                     required 
                   >
                     <option value="" disabled>Select a resource</option>
-                    <option value="Lecture Hall">Lecture Hall</option>
-                    <option value="Lab">Lab</option>
-                    <option value="Meeting Room">Meeting Room</option>
-                    <option value="Auditorium">Auditorium</option>
-                    <option value="Study Pod">Study Pod</option>
+                    {facilities.map(fac => (
+                      <option key={fac.id} value={fac.id}>
+                        {fac.name} ({fac.location || 'No Location'})
+                      </option>
+                    ))}
                   </select>
                 </div>
                 <div className="input-group">

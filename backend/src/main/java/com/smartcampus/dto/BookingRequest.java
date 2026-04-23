@@ -20,6 +20,8 @@ public class BookingRequest {
     private String resourceId;
 
     private String resourceName;
+    
+    private String location;
 
     @NotNull(message = "Start time is required")
     private LocalDateTime startTime;
