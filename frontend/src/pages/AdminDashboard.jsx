@@ -27,7 +27,8 @@ import {
   LineChart,
   Line,
   AreaChart,
-  Area
+  Area,
+  LabelList
 } from 'recharts';
 
 const AdminDashboard = () => {
@@ -39,6 +40,7 @@ const AdminDashboard = () => {
     pendingApprovals: 0
   });
   const [recentBookings, setRecentBookings] = useState([]);
+  const [facilities, setFacilities] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -61,6 +63,7 @@ const AdminDashboard = () => {
           new Date(b.updatedAt || b.createdAt) - new Date(a.updatedAt || a.createdAt)
         ).slice(0, 5);
         setRecentBookings(sorted);
+        setFacilities(facilitiesRes.data);
 
       } catch (err) {
         console.error('Failed to fetch admin stats:', err);
@@ -79,21 +82,18 @@ const AdminDashboard = () => {
       { name: 'Rejected', value: recentBookings.filter(b => b.status === 'REJECTED').length, color: '#ef4444' },
     ].filter(d => d.value > 0);
 
-    // Timeline Data (Mocking trend for better visualization if real data is sparse)
-    const timelineData = [
-      { name: 'Mon', bookings: 12 },
-      { name: 'Tue', bookings: 19 },
-      { name: 'Wed', bookings: 15 },
-      { name: 'Thu', bookings: 22 },
-      { name: 'Fri', bookings: 30 },
-      { name: 'Sat', bookings: 10 },
-      { name: 'Sun', bookings: 8 },
-    ];
+    // Facility Status/Health Breakdown
+    const facilityStatusData = [
+      { name: 'Available', value: facilities.filter(f => f.status === 'ACTIVE' || f.status === 'IN_STOCK').length, color: '#10b981' },
+      { name: 'Maintenance', value: facilities.filter(f => f.status === 'MAINTENANCE').length, color: '#6366f1' },
+      { name: 'Out of Stock', value: facilities.filter(f => f.status === 'OUT_OF_STOCK').length, color: '#f59e0b' },
+      { name: 'Unavailable', value: facilities.filter(f => f.status === 'OUT_OF_SERVICE').length, color: '#ef4444' },
+    ].filter(d => d.value > 0);
 
-    return { statusData, timelineData };
+    return { statusData, facilityStatusData };
   };
 
-  const { statusData, timelineData } = processAnalytics();
+  const { statusData, facilityStatusData } = processAnalytics();
 
   const statCards = [
     { name: 'Total Users', value: stats.totalUsers, icon: <Users size={24} />, color: '#6366f1' },
@@ -182,6 +182,47 @@ const AdminDashboard = () => {
                     <span className="val">{item.value}</span>
                   </div>
                 ))}
+              </div>
+            </motion.div>
+
+            <motion.div 
+              className="chart-card glass-morphism"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.4 }}
+            >
+              <div className="chart-header">
+                <h4>Facility Health</h4>
+                <p>Status breakdown of campus resources</p>
+              </div>
+              <div className="chart-body" style={{ height: '280px' }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={facilityStatusData} layout="vertical" margin={{ left: 20, right: 30 }}>
+                    <XAxis type="number" hide />
+                    <YAxis 
+                      dataKey="name" 
+                      type="category" 
+                      axisLine={false} 
+                      tickLine={false}
+                      tick={{ fill: '#475569', fontSize: 12, fontWeight: 600 }}
+                      width={100}
+                    />
+                    <Tooltip 
+                      cursor={{ fill: 'rgba(0,0,0,0.02)' }}
+                      contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }}
+                    />
+                    <Bar 
+                      dataKey="value" 
+                      radius={[0, 10, 10, 0]}
+                      barSize={30}
+                    >
+                      {facilityStatusData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                      <LabelList dataKey="value" position="right" fill="#64748b" fontSize={12} fontWeight={700} offset={10} />
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
               </div>
             </motion.div>
           </div>
@@ -514,12 +555,11 @@ const AdminDashboard = () => {
 
         .analytics-grid {
           display: grid;
-          grid-template-columns: 1fr;
+          grid-template-columns: 1fr 1fr;
           gap: 25px;
         }
 
         .chart-card {
-          max-width: 450px;
           padding: 25px;
           border-radius: 24px;
           display: flex;
