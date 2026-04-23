@@ -13,6 +13,22 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { facilityService, bookingService } from '../services/api';
 import LoadingSpinner from '../components/LoadingSpinner';
+import { 
+  BarChart, 
+  Bar, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  ResponsiveContainer, 
+  PieChart, 
+  Pie, 
+  Cell,
+  LineChart,
+  Line,
+  AreaChart,
+  Area
+} from 'recharts';
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -54,6 +70,30 @@ const AdminDashboard = () => {
     };
     fetchAdminStats();
   }, []);
+
+  const processAnalytics = () => {
+    // Status Distribution
+    const statusData = [
+      { name: 'Approved', value: stats.activeBookings, color: '#10b981' },
+      { name: 'Pending', value: stats.pendingApprovals, color: '#f59e0b' },
+      { name: 'Rejected', value: recentBookings.filter(b => b.status === 'REJECTED').length, color: '#ef4444' },
+    ].filter(d => d.value > 0);
+
+    // Timeline Data (Mocking trend for better visualization if real data is sparse)
+    const timelineData = [
+      { name: 'Mon', bookings: 12 },
+      { name: 'Tue', bookings: 19 },
+      { name: 'Wed', bookings: 15 },
+      { name: 'Thu', bookings: 22 },
+      { name: 'Fri', bookings: 30 },
+      { name: 'Sat', bookings: 10 },
+      { name: 'Sun', bookings: 8 },
+    ];
+
+    return { statusData, timelineData };
+  };
+
+  const { statusData, timelineData } = processAnalytics();
 
   const statCards = [
     { name: 'Total Users', value: stats.totalUsers, icon: <Users size={24} />, color: '#6366f1' },
@@ -97,6 +137,54 @@ const AdminDashboard = () => {
               </div>
             </motion.div>
           ))}
+        </section>
+
+        <section className="analytics-section">
+          <div className="section-header">
+            <h2 className="section-title">Booking Analytics</h2>
+            <p>System performance and usage trends.</p>
+          </div>
+          
+          <div className="analytics-grid">
+            <motion.div 
+              className="chart-card glass-morphism"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.3 }}
+            >
+              <div className="chart-header">
+                <h4>Booking Distribution</h4>
+                <p>Status breakdown of all requests</p>
+              </div>
+              <div className="chart-body" style={{ height: '250px' }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={statusData}
+                      innerRadius={60}
+                      outerRadius={80}
+                      paddingAngle={5}
+                      dataKey="value"
+                    >
+                      {statusData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+              <div className="chart-legend">
+                {statusData.map(item => (
+                  <div key={item.name} className="legend-item">
+                    <span className="dot" style={{ backgroundColor: item.color }}></span>
+                    <span className="label">{item.name}</span>
+                    <span className="val">{item.value}</span>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          </div>
         </section>
 
         <div className="dashboard-grid">
@@ -416,6 +504,74 @@ const AdminDashboard = () => {
           color: #6366f1;
           background: #f5f3ff;
           transform: translateY(-2px);
+        }
+
+        .analytics-section {
+          display: flex;
+          flex-direction: column;
+          gap: 20px;
+        }
+
+        .analytics-grid {
+          display: grid;
+          grid-template-columns: 1fr;
+          gap: 25px;
+        }
+
+        .chart-card {
+          max-width: 450px;
+          padding: 25px;
+          border-radius: 24px;
+          display: flex;
+          flex-direction: column;
+          gap: 20px;
+        }
+
+        .chart-header h4 {
+          font-size: 1.1rem;
+          font-weight: 700;
+          color: #1e293b;
+          margin-bottom: 4px;
+        }
+
+        .chart-header p {
+          font-size: 0.85rem;
+          color: #64748b;
+        }
+
+        .chart-legend {
+          display: flex;
+          justify-content: space-around;
+          margin-top: 10px;
+        }
+
+        .legend-item {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 5px;
+        }
+
+        .legend-item .dot {
+          width: 8px;
+          height: 8px;
+          border-radius: 50%;
+        }
+
+        .legend-item .label {
+          font-size: 0.75rem;
+          color: #94a3b8;
+          font-weight: 600;
+        }
+
+        .legend-item .val {
+          font-size: 0.95rem;
+          font-weight: 700;
+          color: #1e293b;
+        }
+
+        @media (max-width: 1200px) {
+          .analytics-grid { grid-template-columns: 1fr; }
         }
 
         @media (max-width: 1000px) {
