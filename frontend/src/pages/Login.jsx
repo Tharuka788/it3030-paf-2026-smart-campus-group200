@@ -115,7 +115,7 @@ const Login = () => {
               />
             </div>
             <div className="input-group">
-              <label><Lock size={16} /> Password222</label>
+              <label><Lock size={16} /> Password</label>
               <input 
                 type="password" 
                 placeholder="••••••••" 
