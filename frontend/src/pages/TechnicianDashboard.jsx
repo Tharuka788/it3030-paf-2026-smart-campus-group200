@@ -8,7 +8,8 @@ import {
   Clock,
   ArrowUpRight,
   Activity,
-  ClipboardList
+  ClipboardList,
+  Check
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { facilityService, ticketService } from '../services/api';
@@ -20,45 +21,76 @@ const TechnicianDashboard = () => {
     pendingTickets: 0,
     inProgress: 0,
     completedToday: 0,
-    criticalAlerts: 0
+    criticalAlerts: 0,
+    maintenanceFacilities: 0,
+    totalFacilities: 0
   });
   const [activeTasks, setActiveTasks] = useState([]);
+  const [maintenanceResources, setMaintenanceResources] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [toast, setToast] = useState(null);
+
+  const showToast = (message, type = 'success') => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 3000);
+  };
+
+  const fetchTechStats = async () => {
+    try {
+      // Fetch facilities to calculate health
+      const { data: facilities } = await facilityService.getAllFacilities();
+      const inMaintenance = facilities.filter(f => f.status === 'MAINTENANCE');
+      setMaintenanceResources(inMaintenance);
+
+      setStats({
+        pendingTickets: 8,
+        inProgress: 3,
+        completedToday: 5,
+        criticalAlerts: 2,
+        maintenanceFacilities: inMaintenance.length,
+        totalFacilities: facilities.length
+      });
+
+      // Mock active tasks
+      setActiveTasks([
+        { id: '1', title: 'AC Repair - Lab 01', priority: 'CRITICAL', status: 'IN_PROGRESS', location: 'Computing Block' },
+        { id: '2', title: 'Projector Maintenance', priority: 'HIGH', status: 'PENDING', location: 'Hall A' },
+        { id: '3', title: 'Network Socket Fix', priority: 'MEDIUM', status: 'PENDING', location: 'Library' },
+        { id: '4', title: 'Light Replacement', priority: 'LOW', status: 'COMPLETED', location: 'Cafeteria' },
+      ]);
+
+    } catch (error) {
+      console.error('Failed to update facility stats:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchTechStats = async () => {
-      try {
-        // Mocking or fetching real data if ticketService exists
-        // For now, let's assume we have some data or use mock
-        setStats({
-          pendingTickets: 8,
-          inProgress: 3,
-          completedToday: 5,
-          criticalAlerts: 2
-        });
-
-        // Mock active tasks
-        setActiveTasks([
-          { id: '1', title: 'AC Repair - Lab 01', priority: 'CRITICAL', status: 'IN_PROGRESS', location: 'Computing Block' },
-          { id: '2', title: 'Projector Maintenance', priority: 'HIGH', status: 'PENDING', location: 'Hall A' },
-          { id: '3', title: 'Network Socket Fix', priority: 'MEDIUM', status: 'PENDING', location: 'Library' },
-          { id: '4', title: 'Light Replacement', priority: 'LOW', status: 'COMPLETED', location: 'Cafeteria' },
-        ]);
-
-      } catch (err) {
-        console.error('Failed to fetch technician stats:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchTechStats();
   }, []);
 
+  const handleRestore = async (facility) => {
+    try {
+      setLoading(true);
+      await facilityService.updateFacility(facility.id, {
+        status: 'ACTIVE'
+      });
+      showToast('Facility restored to active status!');
+      fetchTechStats();
+    } catch (err) {
+      console.error('Failed to restore facility:', err);
+      showToast('Error: Could not restore facility.', 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const statCards = [
-    { name: 'Pending Tickets', value: stats.pendingTickets, icon: <Clock size={24} />, color: '#f59e0b' },
-    { name: 'In Progress', value: stats.inProgress, icon: <Activity size={24} />, color: '#6366f1' },
-    { name: 'Completed Today', value: stats.completedToday, icon: <CheckCircle size={24} />, color: '#10b981' },
-    { name: 'Critical Alerts', value: stats.criticalAlerts, icon: <AlertTriangle size={24} />, color: '#ef4444' },
+    { name: 'Active Tasks', value: stats.inProgress + stats.pendingTickets, icon: <Clock size={24} />, color: '#6366f1' },
+    { name: 'Operational Health', value: `${stats.totalFacilities - stats.maintenanceFacilities}/${stats.totalFacilities}`, icon: <Activity size={24} />, color: '#10b981' },
+    { name: 'In Maintenance', value: stats.maintenanceFacilities, icon: <AlertTriangle size={24} />, color: '#f59e0b' },
+    { name: 'Critical Alerts', value: stats.criticalAlerts, icon: <Wrench size={24} />, color: '#ef4444' },
   ];
 
   return (
@@ -141,6 +173,43 @@ const TechnicianDashboard = () => {
             </div>
           </section>
 
+          <section className="main-panel glass-morphism secondary">
+            <div className="panel-header">
+              <div className="panel-title">
+                <AlertTriangle size={20} color="#f59e0b" />
+                <h3>Quick Restore Queue</h3>
+              </div>
+              <span className="badge-count">{maintenanceResources.length} Resources Offline</span>
+            </div>
+
+            <div className="maintenance-list">
+              {maintenanceResources.length === 0 ? (
+                <div className="empty-state mini">
+                  <CheckCircle size={32} color="#10b981" />
+                  <p>All facilities are currently operational.</p>
+                </div>
+              ) : (
+                maintenanceResources.map((fac) => (
+                  <div key={fac.id} className="maintenance-item">
+                    <div className="fac-info">
+                      <div className="status-dot maintenance"></div>
+                      <div>
+                        <h4>{fac.name}</h4>
+                        <p>{fac.location || 'Main Campus'}</p>
+                      </div>
+                    </div>
+                    <button 
+                      className="restore-btn"
+                      onClick={() => handleRestore(fac)}
+                    >
+                      <CheckCircle size={14} /> Mark as Active
+                    </button>
+                  </div>
+                ))
+              )}
+            </div>
+          </section>
+
           <aside className="side-panel glass-morphism">
              <h3>Maintenance Tools</h3>
              <div className="tool-list">
@@ -156,6 +225,19 @@ const TechnicianDashboard = () => {
              </div>
           </aside>
         </div>
+
+        {/* Floating Toast Notification */}
+        {toast && (
+          <motion.div 
+            className={`toast-notification ${toast.type}`}
+            initial={{ opacity: 0, y: 50, x: '-50%' }}
+            animate={{ opacity: 1, y: 0, x: '-50%' }}
+            exit={{ opacity: 0, y: 50, x: '-50%' }}
+          >
+            {toast.type === 'success' ? <CheckCircle size={18} /> : <AlertTriangle size={18} />}
+            <span>{toast.message}</span>
+          </motion.div>
+        )}
       </div>
 
       <style jsx="true">{`
@@ -238,6 +320,7 @@ const TechnicianDashboard = () => {
           display: grid;
           grid-template-columns: 1fr 300px;
           gap: 30px;
+          align-items: start;
         }
 
         .main-panel, .side-panel {
@@ -374,6 +457,123 @@ const TechnicianDashboard = () => {
           border-color: #10b981;
           color: #10b981;
           background: #f0fdf4;
+        }
+
+        .main-panel.secondary {
+          margin-top: 30px;
+          border-left: 4px solid #f59e0b;
+        }
+
+        .badge-count {
+          padding: 4px 12px;
+          background: #fffbeb;
+          color: #d97706;
+          border-radius: 50px;
+          font-size: 0.75rem;
+          font-weight: 700;
+        }
+
+        .maintenance-list {
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+        }
+
+        .maintenance-item {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 14px 20px;
+          background: white;
+          border-radius: 16px;
+          border: 1px solid #f1f5f9;
+        }
+
+        .fac-info {
+          display: flex;
+          align-items: center;
+          gap: 15px;
+        }
+
+        .status-dot.maintenance {
+          width: 8px;
+          height: 8px;
+          background: #f59e0b;
+          border-radius: 50%;
+          box-shadow: 0 0 0 4px #fffbeb;
+        }
+
+        .fac-info h4 {
+          font-size: 0.95rem;
+          font-weight: 600;
+          color: #1e293b;
+          margin: 0;
+        }
+
+        .fac-info p {
+          font-size: 0.75rem;
+          color: #64748b;
+          margin: 0;
+        }
+
+        .restore-btn {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding: 8px 14px;
+          background: #f0fdf4;
+          color: #16a34a;
+          border: 1px solid #dcfce7;
+          border-radius: 10px;
+          font-size: 0.8rem;
+          font-weight: 700;
+          transition: all 0.2s;
+        }
+
+        .restore-btn:hover {
+          background: #16a34a;
+          color: white;
+          transform: translateY(-2px);
+        }
+
+        .empty-state.mini {
+          padding: 30px;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 15px;
+        }
+
+        .empty-state.mini p {
+          font-size: 0.9rem;
+          font-weight: 600;
+          color: #64748b;
+        }
+
+        .toast-notification {
+          position: fixed;
+          bottom: 30px;
+          left: 50%;
+          transform: translateX(-50%);
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          padding: 12px 24px;
+          border-radius: 50px;
+          background: #1e293b;
+          color: white;
+          box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+          z-index: 1000;
+          font-weight: 600;
+          font-size: 0.9rem;
+        }
+
+        .toast-notification.success {
+          border-left: 4px solid #10b981;
+        }
+
+        .toast-notification.error {
+          border-left: 4px solid #ef4444;
         }
       `}</style>
     </TechnicianLayout>

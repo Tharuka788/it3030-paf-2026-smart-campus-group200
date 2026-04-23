@@ -6,7 +6,7 @@ import {
   Search, Filter, Plus, Edit2, Trash2, MapPin, Users, 
   Tag, Box, Calendar, Monitor, LayoutGrid, List, 
   Mic, GraduationCap, Laptop, Camera, ChevronRight,
-  Video, ChevronLeft, ArrowRight
+  Video, ChevronLeft, ArrowRight, Wrench, AlertTriangle, CheckCircle, Check
 } from 'lucide-react';
 import { facilityService } from '../services/api';
 import LoadingSpinner from '../components/LoadingSpinner';
@@ -14,6 +14,12 @@ import LoadingSpinner from '../components/LoadingSpinner';
 const FacilitiesCatalogue = () => {
   const [facilities, setFacilities] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [toast, setToast] = useState(null);
+
+  const showToast = (message, type = 'success') => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 3000);
+  };
   const [filters, setFilters] = useState({ type: '', minCapacity: '', location: '' });
   const [selectedCategory, setSelectedCategory] = useState(null);
   const navigate = useNavigate();
@@ -38,6 +44,23 @@ const FacilitiesCatalogue = () => {
   const handleSearch = (e) => {
     e.preventDefault();
     fetchFacilities();
+  };
+
+  const handleStatusToggle = async (fac) => {
+    const newStatus = fac.status === 'MAINTENANCE' ? 'ACTIVE' : 'MAINTENANCE';
+    try {
+      setLoading(true);
+      await facilityService.updateFacility(fac.id, {
+        status: newStatus
+      });
+      showToast(`Facility is now ${newStatus.toLowerCase()}!`);
+      fetchFacilities();
+    } catch (error) {
+      console.error('Failed to update facility status:', error);
+      showToast('Error: Status update failed.', 'error');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleDelete = async (id) => {
@@ -217,49 +240,73 @@ const FacilitiesCatalogue = () => {
                       </div>
                       <div className="card-footer">
                         <div className="footer-main-actions">
-                          {(() => {
-                            const type = fac.type?.toUpperCase().replace(/[\s_]/g, '');
-                            const isLectureHall = type === 'LECTUREHALL';
-                            const isLab = type === 'LAB';
-                            
-                            if (isLectureHall) {
-                              return (
-                                <button 
-                                  onClick={() => navigate(`/bookings/hall?id=${fac.id}`)} 
-                                  className="action-btn book"
-                                >
-                                  <Calendar size={16} /> Book Hall
-                                </button>
-                              );
-                            } else if (isLab) {
-                              return (
-                                <button 
-                                  onClick={() => navigate(`/bookings/lab?id=${fac.id}`)} 
-                                  className="action-btn book-lab"
-                                >
-                                  <Monitor size={16} /> Book Lab
-                                </button>
-                              );
-                            } else {
-                              return (
-                                <button 
-                                  onClick={() => navigate(`/bookings/new?resourceId=${fac.id}`)} 
-                                  className="action-btn book-generic"
-                                >
-                                  <Calendar size={16} /> Book Now
-                                </button>
-                              );
-                            }
-                          })()}
+                          {fac.status === 'MAINTENANCE' ? (
+                            <div className="maintenance-warning">
+                              <AlertTriangle size={18} />
+                              <span>Under Maintenance</span>
+                            </div>
+                          ) : (
+                            (() => {
+                              const type = fac.type?.toUpperCase().replace(/[\s_]/g, '');
+                              const isLectureHall = type === 'LECTUREHALL';
+                              const isLab = type === 'LAB';
+                              
+                              if (isLectureHall) {
+                                return (
+                                  <button 
+                                    onClick={() => navigate(`/bookings/hall?id=${fac.id}`)} 
+                                    className="action-btn book"
+                                  >
+                                    <Calendar size={16} /> Book Hall
+                                  </button>
+                                );
+                              } else if (isLab) {
+                                return (
+                                  <button 
+                                    onClick={() => navigate(`/bookings/lab?id=${fac.id}`)} 
+                                    className="action-btn book-lab"
+                                  >
+                                    <Monitor size={16} /> Book Lab
+                                  </button>
+                                );
+                              } else {
+                                return (
+                                  <button 
+                                    onClick={() => navigate(`/bookings/new?resourceId=${fac.id}`)} 
+                                    className="action-btn book-generic"
+                                  >
+                                    <Calendar size={16} /> Book Now
+                                  </button>
+                                );
+                              }
+                            })()
+                          )}
                         </div>
-                        {userRole === 'ROLE_ADMIN' && (
+                        
+                        {(userRole === 'ROLE_ADMIN' || userRole === 'ROLE_TECHNICIAN') && (
                           <div className="admin-actions">
-                            <button onClick={() => navigate(`/admin/facilities?id=${fac.id}`)} className="icon-btn edit">
-                              <Edit2 size={16} /> Edit
-                            </button>
-                            <button onClick={() => handleDelete(fac.id)} className="icon-btn delete">
-                              <Trash2 size={16} /> Delete
-                            </button>
+                            {userRole === 'ROLE_TECHNICIAN' && (
+                              <button 
+                                onClick={() => handleStatusToggle(fac)} 
+                                className={`icon-btn ${fac.status === 'MAINTENANCE' ? 'restore' : 'maintenance'}`}
+                              >
+                                {fac.status === 'MAINTENANCE' ? (
+                                  <><CheckCircle size={16} /> Set Active</>
+                                ) : (
+                                  <><Wrench size={16} /> Maintenance</>
+                                )}
+                              </button>
+                            )}
+                            {userRole === 'ROLE_ADMIN' && (
+                              <>
+                                <button onClick={() => navigate(`/admin/facilities?id=${fac.id}`)} className="icon-btn edit">
+                                  <Edit2 size={16} /> Edit
+                                </button>
+                                <button onClick={() => handleDelete(fac.id)} className="icon-btn delete">
+                                  <Trash2 size={16} /> Delete
+                                </button>
+                              </>
+                            )}
                           </div>
                         )}
                       </div>
@@ -269,6 +316,19 @@ const FacilitiesCatalogue = () => {
               </motion.div>
             )}
           </>
+        )}
+
+        {/* Floating Toast Notification */}
+        {toast && (
+          <motion.div 
+            className={`toast-notification ${toast.type}`}
+            initial={{ opacity: 0, y: 50, x: '-50%' }}
+            animate={{ opacity: 1, y: 0, x: '-50%' }}
+            exit={{ opacity: 0, y: 50, x: '-50%' }}
+          >
+            <CheckCircle size={18} />
+            <span>{toast.message}</span>
+          </motion.div>
         )}
       </div>
 
@@ -373,6 +433,23 @@ const FacilitiesCatalogue = () => {
         }
         .icon-btn:hover { background: #fff; color: #6366f1; border-color: #6366f1; }
         .icon-btn.delete:hover { color: #ef4444; border-color: #ef4444; }
+        .icon-btn.maintenance:hover { color: #f59e0b; border-color: #f59e0b; }
+        .icon-btn.restore:hover { color: #10b981; border-color: #10b981; }
+
+        .maintenance-warning {
+          flex: 1;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 10px;
+          padding: 14px;
+          background: #fffbeb;
+          color: #d97706;
+          border-radius: 14px;
+          font-weight: 700;
+          font-size: 0.95rem;
+          border: 1px dashed #f59e0b;
+        }
 
         .add-btn {
           display: flex; align-items: center; gap: 10px; background: #6366f1; color: white;
@@ -380,6 +457,32 @@ const FacilitiesCatalogue = () => {
           box-shadow: 0 8px 20px rgba(99, 102, 241, 0.25); transition: all 0.3s;
         }
         .add-btn:hover { transform: translateY(-3px); box-shadow: 0 12px 25px rgba(99, 102, 241, 0.35); }
+
+        .toast-notification {
+          position: fixed;
+          bottom: 30px;
+          left: 50%;
+          transform: translateX(-50%);
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          padding: 12px 24px;
+          border-radius: 50px;
+          background: #1e293b;
+          color: white;
+          box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+          z-index: 1000;
+          font-weight: 600;
+          font-size: 0.9rem;
+        }
+
+        .toast-notification.success {
+          border-left: 4px solid #10b981;
+        }
+
+        .toast-notification.error {
+          border-left: 4px solid #ef4444;
+        }
 
         .empty-state {
           padding: 60px; text-align: center; background: white; border-radius: 24px;
