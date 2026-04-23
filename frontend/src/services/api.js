@@ -44,4 +44,11 @@ export const ticketService = {
   updateStatus: (id, status) => api.patch(`/tickets/${id}/status?status=${status}`),
 };
 
+export const notificationService = {
+  getNotifications: (email) => api.get(`/notifications/user/${email}`),
+  getUnreadCount: (email) => api.get(`/notifications/user/${email}/unread-count`),
+  markAsRead: (id) => api.patch(`/notifications/${id}/read`),
+  markAllAsRead: (email) => api.patch(`/notifications/user/${email}/read-all`),
+};
+
 export default api;

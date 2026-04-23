@@ -14,6 +14,7 @@ import java.util.Optional;
 public class TicketService {
 
     private final TicketRepository ticketRepository;
+    private final NotificationService notificationService;
 
     public Ticket createTicket(Ticket ticket) {
         ticket.setCreatedAt(LocalDateTime.now());
@@ -38,7 +39,15 @@ public class TicketService {
         return ticketRepository.findById(id).map(ticket -> {
             ticket.setStatus(status);
             ticket.setUpdatedAt(LocalDateTime.now());
-            return ticketRepository.save(ticket);
+            Ticket updated = ticketRepository.save(ticket);
+            
+            // Create notification
+            String title = "Ticket Update: " + status;
+            String message = String.format("Your ticket regarding '%s' has been updated to %s.", 
+                ticket.getSubject(), status.toLowerCase());
+            notificationService.createNotification(ticket.getUserEmail(), title, message, "TICKET");
+            
+            return updated;
         }).orElseThrow(() -> new RuntimeException("Ticket not found"));
     }
 }

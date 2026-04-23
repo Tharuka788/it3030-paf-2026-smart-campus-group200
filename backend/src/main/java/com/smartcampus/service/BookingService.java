@@ -17,6 +17,7 @@ public class BookingService {
 
     private final BookingRepository bookingRepository;
     private final FacilityRepository facilityRepository;
+    private final NotificationService notificationService;
 
     private void populateResourceName(Booking booking) {
         if (booking.getResourceId() != null && (booking.getResourceName() == null || booking.getResourceName().isEmpty())) {
@@ -94,7 +95,19 @@ public class BookingService {
                 booking.setRejectionReason(reason);
             }
             booking.setUpdatedAt(LocalDateTime.now());
-            return bookingRepository.save(booking);
+            Booking updated = bookingRepository.save(booking);
+
+            // Create notification
+            String title = "Booking " + (status.equals("APPROVED") ? "Approved" : "Rejected");
+            String message = String.format("Your booking for %s has been %s.", 
+                booking.getResourceName() != null ? booking.getResourceName() : "a facility",
+                status.toLowerCase());
+            if (status.equals("REJECTED") && reason != null) {
+                message += " Reason: " + reason;
+            }
+            notificationService.createNotification(booking.getUserEmail(), title, message, "BOOKING");
+
+            return updated;
         }).orElseThrow(() -> new RuntimeException("Booking not found with id: " + id));
     }
 

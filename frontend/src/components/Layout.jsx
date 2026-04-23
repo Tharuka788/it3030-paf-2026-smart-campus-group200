@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import Sidebar from './Sidebar';
+import NotificationPanel from './NotificationPanel';
 import { motion, AnimatePresence } from 'framer-motion';
-import { LogOut, User, Settings, ChevronDown } from 'lucide-react';
+import { LogOut, User, Settings, ChevronDown, Bell } from 'lucide-react';
 
 const Layout = ({ children }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -24,6 +25,7 @@ const Layout = ({ children }) => {
              <p className="header-date">{new Date().toDateString()}</p>
            </div>
            <div className="header-right">
+             <NotificationPanel />
              <div className="profile-dropdown-container">
                <div 
                  className={`profile-pill glass-morphism ${isDropdownOpen ? 'active' : ''}`}
@@ -113,6 +115,12 @@ const Layout = ({ children }) => {
           position: sticky;
           top: 0;
           z-index: 50;
+        }
+
+        .header-right {
+          display: flex;
+          align-items: center;
+          gap: 20px;
         }
 
         .header-title {
