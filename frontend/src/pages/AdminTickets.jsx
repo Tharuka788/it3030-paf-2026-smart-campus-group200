@@ -52,10 +52,10 @@ const AdminTickets = () => {
     fetchAllTickets();
   }, []);
 
-  const handleStatusUpdate = async (id, status, commentToUse, assignedToToUse, notesForTech, notesFromTech) => {
+  const handleStatusUpdate = async (id, status, commentToUse, techFeedbackToUse, assignedToToUse, notesForTech, notesFromTech) => {
     setUpdating(true);
     try {
-      const response = await ticketService.updateStatus(id, status, commentToUse, assignedToToUse, notesForTech, notesFromTech);
+      const response = await ticketService.updateStatus(id, status, commentToUse, techFeedbackToUse, assignedToToUse, notesForTech, notesFromTech);
       const updatedTicket = response.data;
       
       await fetchAllTickets();
@@ -241,7 +241,7 @@ const AdminTickets = () => {
                         <select 
                           className="status-select"
                           value={ticket.status} 
-                          onChange={(e) => handleStatusUpdate(ticket.id, e.target.value, ticket.adminComments, ticket.assignedTo, ticket.notesForTechnician, ticket.notesFromTechnician)}
+                          onChange={(e) => handleStatusUpdate(ticket.id, e.target.value, ticket.adminComments, ticket.technicianFeedback, ticket.assignedTo, ticket.notesForTechnician, ticket.notesFromTechnician)}
                         >
                           <option value="OPEN">Open</option>
                           <option value="IN_PROGRESS">In Progress</option>
@@ -407,7 +407,16 @@ const AdminTickets = () => {
                         />
                       </div>
 
-                      <div className="status-control-wrapper">
+                      {selectedTicket.technicianFeedback && (
+                        <div className="admin-comment-input-group mt-15 read-only-note">
+                          <label>Technician Feedback to User</label>
+                          <div className="note-content" style={{ padding: '12px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '12px', fontSize: '0.9rem', color: '#475569' }}>
+                            {selectedTicket.technicianFeedback}
+                          </div>
+                        </div>
+                      )}
+
+                      <div className="status-control-wrapper mt-15">
                         <label>Modify Ticket Status</label>
                         <select 
                           className="modal-status-select-large"
@@ -456,7 +465,7 @@ const AdminTickets = () => {
 
                       <button 
                         className={`save-update-btn ${updating ? 'updating' : ''}`}
-                        onClick={() => handleStatusUpdate(selectedTicket.id, modalStatus, adminComment, modalAssignedTo, modalNotesForTech, selectedTicket.notesFromTechnician)}
+                        onClick={() => handleStatusUpdate(selectedTicket.id, modalStatus, adminComment, selectedTicket.technicianFeedback, modalAssignedTo, modalNotesForTech, selectedTicket.notesFromTechnician)}
                         disabled={updating}
                       >
                         {updating ? (

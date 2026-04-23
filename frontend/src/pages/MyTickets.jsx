@@ -188,6 +188,13 @@ const MyTickets = () => {
                           <p>{ticket.adminComments.length > 60 ? `${ticket.adminComments.substring(0, 60)}...` : ticket.adminComments}</p>
                         </div>
                       )}
+                      
+                      {ticket.technicianFeedback && !ticket.adminComments && (
+                        <div className="card-admin-note-preview" style={{ borderLeftColor: '#f59e0b', background: '#fffbeb' }}>
+                          <MessageSquare size={12} style={{ color: '#f59e0b' }} />
+                          <p style={{ color: '#92400e' }}>{ticket.technicianFeedback.length > 60 ? `${ticket.technicianFeedback.substring(0, 60)}...` : ticket.technicianFeedback}</p>
+                        </div>
+                      )}
 
                       <div className="ticket-footer">
                         <button 
@@ -271,7 +278,7 @@ const MyTickets = () => {
 
                   {/* Right Side: Admin Response & Meta */}
                   <div className="modal-side-column">
-                    {selectedTicket.adminComments ? (
+                    {selectedTicket.adminComments && (
                       <section className="detail-section admin-response-highlight">
                         <div className="section-label">OFFICIAL SUPPORT & RESOLUTION FEEDBACK</div>
                         <div className="admin-msg-content">
@@ -281,14 +288,23 @@ const MyTickets = () => {
                           </div>
                           <p className="msg-text">{selectedTicket.adminComments}</p>
                         </div>
-                        <div className="status-meta">
-                          <label>Current Status:</label>
-                          <span className={`status-pill status-${selectedTicket.status?.toLowerCase()}`}>
-                            {selectedTicket.status?.replace('_', ' ')}
-                          </span>
+                      </section>
+                    )}
+
+                    {selectedTicket.technicianFeedback && (
+                      <section className="detail-section admin-response-highlight" style={{ background: '#fffbeb', borderColor: '#fde68a' }}>
+                        <div className="section-label" style={{ color: '#d97706' }}>TECHNICIAN RESOLUTION NOTES</div>
+                        <div className="admin-msg-content" style={{ background: 'white', borderColor: '#fef3c7' }}>
+                          <div className="msg-header" style={{ color: '#d97706' }}>
+                            <MessageSquare size={18} />
+                            <span>Service Feedback</span>
+                          </div>
+                          <p className="msg-text" style={{ color: '#92400e' }}>{selectedTicket.technicianFeedback}</p>
                         </div>
                       </section>
-                    ) : (
+                    )}
+
+                    {(!selectedTicket.adminComments && !selectedTicket.technicianFeedback) && (
                       <section className="detail-section highlight-box pending-box">
                         <div className="section-label">TICKET STATUS</div>
                         <div className="pending-content">
@@ -297,6 +313,15 @@ const MyTickets = () => {
                         </div>
                       </section>
                     )}
+
+                    <section className="detail-section highlight-box" style={{ padding: '15px 24px' }}>
+                      <div className="status-meta">
+                        <label>Current Status:</label>
+                        <span className={`status-pill status-${selectedTicket.status?.toLowerCase()}`}>
+                          {selectedTicket.status?.replace('_', ' ')}
+                        </span>
+                      </div>
+                    </section>
 
                     <section className="detail-section">
                       <div className="section-label">SUBMISSION DETAILS</div>

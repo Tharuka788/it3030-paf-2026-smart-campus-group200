@@ -81,11 +81,14 @@ public class TicketService {
         return ticketRepository.findById(id);
     }
 
-    public Ticket updateTicketStatus(String id, String status, String adminComments, String assignedTo, String notesForTechnician, String notesFromTechnician) {
+    public Ticket updateTicketStatus(String id, String status, String adminComments, String technicianFeedback, String assignedTo, String notesForTechnician, String notesFromTechnician) {
         return ticketRepository.findById(id).map(ticket -> {
             ticket.setStatus(status);
             if (adminComments != null) {
                 ticket.setAdminComments(adminComments);
+            }
+            if (technicianFeedback != null) {
+                ticket.setTechnicianFeedback(technicianFeedback);
             }
             if (assignedTo != null) {
                 ticket.setAssignedTo(assignedTo);

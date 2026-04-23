@@ -30,7 +30,7 @@ const TechnicianTickets = () => {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('ALL');
   const [selectedTicket, setSelectedTicket] = useState(null);
-  const [adminComment, setAdminComment] = useState('');
+  const [modalTechFeedback, setModalTechFeedback] = useState('');
   const [modalStatus, setModalStatus] = useState('');
   const [modalNotesFromTech, setModalNotesFromTech] = useState('');
   const [updating, setUpdating] = useState(false);
@@ -51,10 +51,10 @@ const TechnicianTickets = () => {
     fetchAllTickets();
   }, []);
 
-  const handleStatusUpdate = async (id, status, commentToUse, assignedToToUse, notesForTech, notesFromTech) => {
+  const handleStatusUpdate = async (id, status, commentToUse, techFeedbackToUse, assignedToToUse, notesForTech, notesFromTech) => {
     setUpdating(true);
     try {
-      const response = await ticketService.updateStatus(id, status, commentToUse, assignedToToUse, notesForTech, notesFromTech);
+      const response = await ticketService.updateStatus(id, status, commentToUse, techFeedbackToUse, assignedToToUse, notesForTech, notesFromTech);
       const updatedTicket = response.data;
       
       await fetchAllTickets();
@@ -73,11 +73,11 @@ const TechnicianTickets = () => {
 
   useEffect(() => {
     if (selectedTicket) {
-      setAdminComment(selectedTicket.adminComments || '');
+      setModalTechFeedback(selectedTicket.technicianFeedback || '');
       setModalStatus(selectedTicket.status || 'OPEN');
       setModalNotesFromTech(selectedTicket.notesFromTechnician || '');
     } else {
-      setAdminComment('');
+      setModalTechFeedback('');
       setModalStatus('');
       setModalNotesFromTech('');
     }
@@ -242,7 +242,7 @@ const TechnicianTickets = () => {
                         <select 
                           className="status-select"
                           value={ticket.status} 
-                          onChange={(e) => handleStatusUpdate(ticket.id, e.target.value, ticket.adminComments, ticket.assignedTo, ticket.notesForTechnician, ticket.notesFromTechnician)}
+                          onChange={(e) => handleStatusUpdate(ticket.id, e.target.value, ticket.adminComments, ticket.technicianFeedback, ticket.assignedTo, ticket.notesForTechnician, ticket.notesFromTechnician)}
                         >
                           <option value="OPEN">Open</option>
                           <option value="IN_PROGRESS">In Progress</option>
@@ -392,13 +392,22 @@ const TechnicianTickets = () => {
                         <label>Technician Feedback / Resolution Notes</label>
                         <textarea 
                           placeholder="Type a message to the user here..."
-                          value={adminComment}
-                          onChange={(e) => setAdminComment(e.target.value)}
+                          value={modalTechFeedback}
+                          onChange={(e) => setModalTechFeedback(e.target.value)}
                           className="admin-comment-textarea"
                         />
                       </div>
 
-                      <div className="status-control-wrapper">
+                      {selectedTicket.adminComments && (
+                        <div className="admin-comment-input-group mt-15 read-only-note">
+                          <label>Official Admin Message to User</label>
+                          <div className="note-content" style={{ padding: '12px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '12px', fontSize: '0.9rem', color: '#475569' }}>
+                            {selectedTicket.adminComments}
+                          </div>
+                        </div>
+                      )}
+
+                      <div className="status-control-wrapper mt-15">
                         <label>Modify Ticket Status</label>
                         <select 
                           className="modal-status-select-large"
@@ -434,7 +443,7 @@ const TechnicianTickets = () => {
 
                       <button 
                         className={`save-update-btn ${updating ? 'updating' : ''}`}
-                        onClick={() => handleStatusUpdate(selectedTicket.id, modalStatus, adminComment, selectedTicket.assignedTo, selectedTicket.notesForTechnician, modalNotesFromTech)}
+                        onClick={() => handleStatusUpdate(selectedTicket.id, modalStatus, selectedTicket.adminComments, modalTechFeedback, selectedTicket.assignedTo, selectedTicket.notesForTechnician, modalNotesFromTech)}
                         disabled={updating}
                       >
                         {updating ? (
