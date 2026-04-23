@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import Layout from '../components/Layout';
+import DynamicLayout from '../components/DynamicLayout';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Calendar, Clock, MapPin, FileText, Send, AlertCircle, Info } from 'lucide-react';
 import { bookingService, facilityService } from '../services/api';
@@ -113,7 +113,7 @@ const NewBooking = () => {
   };
 
   return (
-    <Layout>
+    <DynamicLayout>
       <div className="new-booking-container">
         <motion.div 
           className="form-card glass-morphism animate-fade-in"
@@ -519,7 +519,7 @@ const NewBooking = () => {
           .input-row { flex-direction: column; }
         }
       `}</style>
-    </Layout>
+    </DynamicLayout>
   );
 };
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import AdminLayout from '../components/AdminLayout';
+import DynamicLayout from '../components/DynamicLayout';
 import { ticketService } from '../services/api';
 import { motion } from 'framer-motion';
 import { 
@@ -46,7 +46,7 @@ const AdminTickets = () => {
     : tickets.filter(t => t.status === filter);
 
   return (
-    <AdminLayout>
+    <DynamicLayout>
       <div className="admin-tickets-page">
         <header className="page-header">
           <div className="header-text">
@@ -177,7 +177,7 @@ const AdminTickets = () => {
           outline: none;
         }
       `}</style>
-    </AdminLayout>
+    </DynamicLayout>
   );
 };
 

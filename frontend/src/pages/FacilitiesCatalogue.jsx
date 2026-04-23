@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Layout from '../components/Layout';
+import DynamicLayout from '../components/DynamicLayout';
 import { motion } from 'framer-motion';
 import { Search, Filter, Plus, Edit2, Trash2, MapPin, Users, Tag, Box, Calendar, Monitor } from 'lucide-react';
 import { facilityService } from '../services/api';
@@ -57,7 +57,7 @@ const FacilitiesCatalogue = () => {
   };
 
   return (
-    <Layout>
+    <DynamicLayout>
       <div className="catalogue-container">
         <div className="catalogue-header">
           <div>
@@ -445,7 +445,7 @@ const FacilitiesCatalogue = () => {
           }
         }
       `}</style>
-    </Layout>
+    </DynamicLayout>
   );
 };
 

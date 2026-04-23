@@ -95,7 +95,8 @@ public class SecurityConfig {
                 return userRepository.save(newUser);
             });
 
-            Set<SimpleGrantedAuthority> authorities = Collections.singleton(new SimpleGrantedAuthority(user.getRole()));
+            String role = user.getRole() != null ? user.getRole() : "ROLE_USER";
+            Set<SimpleGrantedAuthority> authorities = Collections.singleton(new SimpleGrantedAuthority(role));
 
             return new DefaultOAuth2User(authorities, attributes, "email");
         };

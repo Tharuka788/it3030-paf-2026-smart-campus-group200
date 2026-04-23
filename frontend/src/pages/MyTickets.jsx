@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Layout from '../components/Layout';
+import DynamicLayout from '../components/DynamicLayout';
 import { motion } from 'framer-motion';
 import { 
   Ticket, 
@@ -62,7 +62,7 @@ const MyTickets = () => {
   };
 
   return (
-    <Layout>
+    <DynamicLayout>
       <div className="tickets-container">
         <header className="page-header">
           <div className="header-titles">
@@ -388,7 +388,7 @@ const MyTickets = () => {
           .section-header { flex-direction: column; align-items: flex-start; gap: 15px; }
         }
       `}</style>
-    </Layout>
+    </DynamicLayout>
   );
 };
 

@@ -19,13 +19,16 @@ public class BookingService {
     private final FacilityRepository facilityRepository;
 
     private void populateResourceName(Booking booking) {
-        if (booking.getResourceName() == null || booking.getResourceName().isEmpty()) {
+        if (booking.getResourceId() != null && (booking.getResourceName() == null || booking.getResourceName().isEmpty())) {
             facilityRepository.findById(booking.getResourceId())
                     .ifPresent(f -> booking.setResourceName(f.getName()));
         }
     }
 
     public Booking createBooking(Booking booking) {
+        if (booking.getResourceId() == null) {
+            throw new IllegalArgumentException("Resource ID is required for booking");
+        }
         // Validate overlaps
         List<Booking> existingBookings = bookingRepository.findByResourceIdAndStatusIn(
                 booking.getResourceId(), Arrays.asList("PENDING", "APPROVED"));
@@ -33,6 +36,10 @@ public class BookingService {
         for (Booking existing : existingBookings) {
             LocalDateTime existingStart = existing.getStartTime();
             LocalDateTime existingEnd = existing.getEndTime();
+            
+            if (existingStart == null || existingEnd == null || booking.getStartTime() == null || booking.getEndTime() == null) {
+                continue; // Skip invalid bookings
+            }
             
             // 30 min buffer
             LocalDateTime bufferStart = existingStart.minusMinutes(30);
@@ -93,6 +100,9 @@ public class BookingService {
     }
 
     public List<Booking> getBookingsByResource(String resourceId) {
+        if (resourceId == null || resourceId.isEmpty() || resourceId.equals("null") || resourceId.equals("undefined")) {
+            return Arrays.asList();
+        }
         return bookingRepository.findByResourceIdAndStatusIn(resourceId, Arrays.asList("PENDING", "APPROVED"));
     }
 }

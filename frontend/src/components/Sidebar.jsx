@@ -22,6 +22,8 @@ const Sidebar = () => {
     ...(userRole === 'ROLE_ADMIN' ? [
       { name: 'Admin Console', icon: <ShieldCheck size={22} />, path: '/admin/dashboard' },
       { name: 'Manage Facilities', icon: <Settings size={22} />, path: '/facilities/manage' }
+    ] : userRole === 'ROLE_TECHNICIAN' ? [
+      { name: 'Tech Portal', icon: <ShieldCheck size={22} />, path: '/technician/dashboard' }
     ] : []),
     { name: 'My Bookings', icon: <Calendar size={22} />, path: '/bookings/my' },
     { name: 'My Tickets', icon: <Ticket size={22} />, path: '/tickets/my' },

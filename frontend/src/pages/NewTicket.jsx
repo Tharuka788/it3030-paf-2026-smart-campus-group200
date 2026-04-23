@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Layout from '../components/Layout';
+import DynamicLayout from '../components/DynamicLayout';
 import { motion } from 'framer-motion';
 import { Send, AlertCircle, MessageSquare, ChevronLeft } from 'lucide-react';
 import { ticketService } from '../services/api';
@@ -38,7 +38,7 @@ const NewTicket = () => {
   };
 
   return (
-    <Layout>
+    <DynamicLayout>
       <div className="new-ticket-page">
         <button className="back-btn" onClick={() => navigate(-1)}>
           <ChevronLeft size={20} /> Back to Tickets
@@ -182,7 +182,7 @@ const NewTicket = () => {
 
         .error-message { background: #fee2e2; color: #ef4444; padding: 12px; border-radius: 10px; font-weight: 600; }
       `}</style>
-    </Layout>
+    </DynamicLayout>
   );
 };
 

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Layout from '../components/Layout';
+import DynamicLayout from '../components/DynamicLayout';
 import { motion } from 'framer-motion';
 import { 
   Calendar, 
@@ -82,7 +82,7 @@ const MyBookings = () => {
   };
 
   return (
-    <Layout>
+    <DynamicLayout>
       <div className="bookings-container">
         <header className="page-header">
            <div className="header-titles">
@@ -484,7 +484,7 @@ const MyBookings = () => {
           }
         }
       `}</style>
-    </Layout>
+    </DynamicLayout>
   );
 };
 

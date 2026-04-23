@@ -45,7 +45,7 @@ const Layout = ({ children }) => {
                    >
                      <div className="dropdown-header">
                        <p className="user-name">{localStorage.getItem('userName') || 'Student'}</p>
-                       <p className="user-role">{localStorage.getItem('userRole') === 'ROLE_ADMIN' ? 'Administrator' : 'Student'}</p>
+                       <p className="user-role">{localStorage.getItem('userRole') === 'ROLE_ADMIN' ? 'Administrator' : localStorage.getItem('userRole') === 'ROLE_TECHNICIAN' ? 'Technician' : 'Student'}</p>
                      </div>
                      <div className="dropdown-divider"></div>
                      <button className="dropdown-item" onClick={() => window.location.href = '/profile'}>

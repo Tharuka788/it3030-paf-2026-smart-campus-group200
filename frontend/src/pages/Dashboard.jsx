@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Layout from '../components/Layout';
+import DynamicLayout from '../components/DynamicLayout';
 import { 
   CheckCircle, 
   Clock, 
@@ -61,7 +61,7 @@ const Dashboard = () => {
   ];
 
   return (
-    <Layout>
+    <DynamicLayout>
       <div className="dashboard-content">
         <section className="stats-grid">
           {stats.map((stat, index) => (
@@ -280,7 +280,7 @@ const Dashboard = () => {
           z-index: 1000;
         }
       `}</style>
-    </Layout>
+    </DynamicLayout>
   );
 };
 

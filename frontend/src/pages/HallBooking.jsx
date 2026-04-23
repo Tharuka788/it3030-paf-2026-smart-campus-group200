@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import Layout from '../components/Layout';
+import DynamicLayout from '../components/DynamicLayout';
 import { motion, AnimatePresence } from 'framer-motion'; // eslint-disable-line no-unused-vars
 import { 
   Users, 
@@ -165,11 +165,11 @@ const HallBooking = () => {
     }
   };
 
-  if (loading) return <Layout><div className="loader">Loading facility details...</div></Layout>;
-  if (!facility) return <Layout><div className="error">Facility not found.</div></Layout>;
+  if (loading) return <DynamicLayout><div className="loader">Loading facility details...</div></DynamicLayout>;
+  if (!facility) return <DynamicLayout><div className="error">Facility not found.</div></DynamicLayout>;
 
   return (
-    <Layout>
+    <DynamicLayout>
       <div className="hall-booking-page">
         <div className="booking-header">
           <div className="header-left">
@@ -835,7 +835,7 @@ const HallBooking = () => {
           }
         `}</style>
       </div>
-    </Layout>
+    </DynamicLayout>
   );
 };
 
