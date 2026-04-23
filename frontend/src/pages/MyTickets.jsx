@@ -278,35 +278,33 @@ const MyTickets = () => {
 
                   {/* Right Side: Admin Response & Meta */}
                   <div className="modal-side-column">
-                    {selectedTicket.adminComments && (
+                    {(selectedTicket.adminComments || selectedTicket.technicianFeedback) ? (
                       <section className="detail-section admin-response-highlight">
-                        <div className="section-label">OFFICIAL SUPPORT & RESOLUTION FEEDBACK</div>
-                        <div className="admin-msg-content">
-                          <div className="msg-header">
-                            <MessageSquare size={18} />
-                            <span>Support Team Feedback</span>
+                        <div className="section-label">OFFICIAL SUPPORT FEEDBACK</div>
+                        
+                        {selectedTicket.adminComments && (
+                          <div className="admin-msg-content mb-20">
+                            <div className="msg-header">
+                              <MessageSquare size={18} />
+                              <span>Admin Feedback</span>
+                            </div>
+                            <p className="msg-text">{selectedTicket.adminComments}</p>
                           </div>
-                          <p className="msg-text">{selectedTicket.adminComments}</p>
-                        </div>
-                      </section>
-                    )}
+                        )}
 
-                    {selectedTicket.technicianFeedback && (
-                      <section className="detail-section admin-response-highlight" style={{ background: '#fffbeb', borderColor: '#fde68a' }}>
-                        <div className="section-label" style={{ color: '#d97706' }}>TECHNICIAN RESOLUTION NOTES</div>
-                        <div className="admin-msg-content" style={{ background: 'white', borderColor: '#fef3c7' }}>
-                          <div className="msg-header" style={{ color: '#d97706' }}>
-                            <MessageSquare size={18} />
-                            <span>Service Feedback</span>
+                        {selectedTicket.technicianFeedback && (
+                          <div className="admin-msg-content" style={{ background: '#fffbeb', borderColor: '#fef3c7' }}>
+                            <div className="msg-header" style={{ color: '#d97706' }}>
+                              <MessageSquare size={18} />
+                              <span>Technician Feedback</span>
+                            </div>
+                            <p className="msg-text" style={{ color: '#92400e' }}>{selectedTicket.technicianFeedback}</p>
                           </div>
-                          <p className="msg-text" style={{ color: '#92400e' }}>{selectedTicket.technicianFeedback}</p>
-                        </div>
+                        )}
                       </section>
-                    )}
-
-                    {(!selectedTicket.adminComments && !selectedTicket.technicianFeedback) && (
+                    ) : (
                       <section className="detail-section highlight-box pending-box">
-                        <div className="section-label">TICKET STATUS</div>
+                        <div className="section-label">OFFICIAL SUPPORT FEEDBACK</div>
                         <div className="pending-content">
                           <Clock size={32} />
                           <p>Your request is currently {selectedTicket.status?.replace('_', ' ')}. A technician or administrator will provide feedback shortly.</p>
