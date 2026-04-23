@@ -2,13 +2,31 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import DynamicLayout from '../components/DynamicLayout';
 import { motion } from 'framer-motion';
-import { Search, Filter, Plus, Edit2, Trash2, MapPin, Users, Tag, Box, Calendar, Monitor } from 'lucide-react';
+import { 
+  Search, 
+  Filter, 
+  Plus, 
+  Edit2, 
+  Trash2, 
+  MapPin, 
+  Users, 
+  Tag, 
+  Box, 
+  Calendar, 
+  Monitor, 
+  Mic, 
+  GraduationCap, 
+  Video,
+  ChevronLeft,
+  ArrowRight
+} from 'lucide-react';
 import { facilityService } from '../services/api';
 
 const FacilitiesCatalogue = () => {
   const [facilities, setFacilities] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState({ type: '', minCapacity: '', location: '' });
+  const [selectedCategory, setSelectedCategory] = useState(null);
   const navigate = useNavigate();
   const userRole = localStorage.getItem('userRole');
 
@@ -56,13 +74,76 @@ const FacilitiesCatalogue = () => {
     visible: { opacity: 1, y: 0 }
   };
 
+  const categories = [
+    { 
+      id: 'auditorium', 
+      title: 'Main Auditorium', 
+      icon: <Mic size={32} />, 
+      color: '#3b82f6',
+      countSuffix: 'Available',
+      filter: (f) => f.type === 'LECTURE_HALL' && f.name.includes('Auditorium')
+    },
+    { 
+      id: 'lecture_halls', 
+      title: 'Lecture Halls', 
+      icon: <GraduationCap size={32} />, 
+      color: '#10b981',
+      countSuffix: 'Halls Available',
+      filter: (f) => f.type === 'LECTURE_HALL' && !f.name.includes('Auditorium')
+    },
+    { 
+      id: 'pc_labs', 
+      title: 'PC Labs', 
+      icon: <Monitor size={32} />, 
+      color: '#6366f1',
+      countSuffix: 'Workstations Online',
+      filter: (f) => f.type === 'LAB'
+    },
+    { 
+      id: 'equipment', 
+      title: 'Equipment', 
+      icon: <Video size={32} />, 
+      color: '#f59e0b',
+      countSuffix: 'Items Ready',
+      filter: (f) => f.type === 'EQUIPMENT'
+    }
+  ];
+
+  const filteredFacilities = selectedCategory 
+    ? facilities.filter(categories.find(c => c.id === selectedCategory).filter)
+    : facilities;
+
+  const getCategoryCount = (category) => {
+    const items = facilities.filter(category.filter);
+    if (category.id === 'pc_labs') {
+      return items.reduce((sum, item) => sum + (item.capacity || 0), 0);
+    }
+    if (category.id === 'equipment') {
+      return items.reduce((sum, item) => sum + (item.capacity || 0), 0);
+    }
+    return items.length;
+  };
+
   return (
     <DynamicLayout>
       <div className="catalogue-container">
         <div className="catalogue-header">
           <div>
-            <h1 className="charcoal-text">Facilities & Assets</h1>
-            <p className="charcoal-muted">Browse and manage available resources.</p>
+            {selectedCategory ? (
+              <button className="back-link" onClick={() => setSelectedCategory(null)}>
+                <ChevronLeft size={20} /> Back to Overview
+              </button>
+            ) : null}
+            <h1 className="charcoal-text">
+              {selectedCategory 
+                ? categories.find(c => c.id === selectedCategory).title 
+                : 'Facilities Overview'}
+            </h1>
+            <p className="charcoal-muted">
+              {selectedCategory 
+                ? `Explore available ${categories.find(c => c.id === selectedCategory).title.toLowerCase()} resources.`
+                : 'Manage and monitor campus resources.'}
+            </p>
           </div>
           {userRole === 'ROLE_ADMIN' && (
             <button 
@@ -75,116 +156,137 @@ const FacilitiesCatalogue = () => {
           )}
         </div>
 
-        <form className="search-bar glass-morphism" onSubmit={handleSearch}>
-          <div className="search-input-group">
-            <Search size={20} className="icon" />
-            <input 
-              type="text" 
-              placeholder="Search by location..." 
-              value={filters.location}
-              onChange={(e) => setFilters({...filters, location: e.target.value})}
-            />
+        {!selectedCategory ? (
+          <div className="category-grid">
+            {categories.map((cat, idx) => (
+              <motion.div 
+                key={cat.id}
+                className="category-card glass-morphism"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: idx * 0.1 }}
+                onClick={() => setSelectedCategory(cat.id)}
+              >
+                <div className="category-icon-wrapper" style={{ backgroundColor: `${cat.color}15`, color: cat.color }}>
+                  {cat.icon}
+                </div>
+                <div className="category-info">
+                  <h2>{cat.title}</h2>
+                  <div className="category-stat">
+                    <span className="dot" style={{ backgroundColor: cat.color }}></span>
+                    {getCategoryCount(cat)} {cat.countSuffix}
+                  </div>
+                </div>
+                <div className="category-arrow">
+                  <ArrowRight size={20} />
+                </div>
+              </motion.div>
+            ))}
           </div>
-          <select 
-              value={filters.type}
-              onChange={(e) => setFilters({...filters, type: e.target.value})}
-          >
-            <option value="">All Types</option>
-            <option value="ROOM">Room</option>
-            <option value="LECTURE_HALL">Lecture Hall</option>
-            <option value="LAB">Laboratory</option>
-            <option value="EQUIPMENT">Equipment</option>
-          </select>
-          <input 
-            type="number" 
-            placeholder="Min Capacity" 
-            value={filters.minCapacity}
-            onChange={(e) => setFilters({...filters, minCapacity: e.target.value})}
-          />
-          <button type="submit" className="filter-btn">
-            <Filter size={18} /> Filter
-          </button>
-        </form>
-
-        {loading ? (
-          <div className="loading-state">Loading facilities...</div>
         ) : (
-          <motion.div 
-            className="facilities-grid"
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
-          >
-            {facilities.length === 0 ? (
-              <div className="empty-state">No facilities found. Try adjusting filters or adding a new one.</div>
+          <>
+            <form className="search-bar glass-morphism" onSubmit={handleSearch}>
+              <div className="search-input-group">
+                <Search size={20} className="icon" />
+                <input 
+                  type="text" 
+                  placeholder="Search by location..." 
+                  value={filters.location}
+                  onChange={(e) => setFilters({...filters, location: e.target.value})}
+                />
+              </div>
+              <input 
+                type="number" 
+                placeholder="Min Capacity" 
+                value={filters.minCapacity}
+                onChange={(e) => setFilters({...filters, minCapacity: e.target.value})}
+              />
+              <button type="submit" className="filter-btn">
+                <Filter size={18} /> Filter
+              </button>
+            </form>
+
+            {loading ? (
+              <div className="loading-state">Loading facilities...</div>
             ) : (
-              facilities.map((fac) => (
-                <motion.div key={fac.id} variants={cardVariants} className="facility-card glass-morphism">
-                  <div className="card-header">
-                    <h3>{fac.name}</h3>
-                    <span className={`status-badge ${['ACTIVE', 'IN_STOCK'].includes(fac.status) ? 'active' : 'inactive'}`}>
-                      {fac.status.replaceAll('_', ' ')}
-                    </span>
-                  </div>
-                  <div className="card-body">
-                    <p><Tag size={16} /> {fac.type.replace('_', ' ')}</p>
-                    {fac.type !== 'EQUIPMENT' && <p><MapPin size={16} /> {fac.location || 'N/A'}</p>}
-                    {fac.type === 'EQUIPMENT' ? (
-                      <p><Box size={16} /> Quantity: {fac.capacity || 'N/A'}</p>
-                    ) : (
-                      <p><Users size={16} /> Capacity: {fac.capacity || 'N/A'}</p>
-                    )}
-                  </div>
-                  <div className="card-footer">
-                    {(() => {
-                      const type = fac.type?.toUpperCase().replace(/[\s_]/g, '');
-                      const isLectureHall = type === 'LECTUREHALL';
-                      const isLab = type === 'LAB';
-                      
-                      if (isLectureHall) {
-                        return (
-                          <button 
-                            onClick={() => navigate(`/bookings/hall?id=${fac.id}`)} 
-                            className="action-btn book"
-                          >
-                            <Calendar size={16} /> Book
-                          </button>
-                        );
-                      } else if (isLab) {
-                        return (
-                          <button 
-                            onClick={() => navigate(`/bookings/lab?id=${fac.id}`)} 
-                            className="action-btn book-lab"
-                          >
-                            <Monitor size={16} /> Book
-                          </button>
-                        );
-                      } else {
-                        return (
-                          <button 
-                            onClick={() => navigate(`/bookings/new?resourceId=${fac.id}`)} 
-                            className="action-btn book-generic"
-                          >
-                            <Calendar size={16} /> Book
-                          </button>
-                        );
-                      }
-                    })()}
-                    {userRole === 'ROLE_ADMIN' && (
-                      <>
-                        <button onClick={() => navigate(`/admin/facilities?id=${fac.id}`)} className="action-btn edit">
-                          <Edit2 size={16} /> Edit
-                        </button>
-                        <button onClick={() => handleDelete(fac.id)} className="action-btn delete">
-                          <Trash2 size={16} /> Delete
-                        </button>
-                      </>
-                    )}
-                  </div>
-                </motion.div>
-              ))
+              <motion.div 
+                className="facilities-grid"
+                variants={containerVariants}
+                initial="hidden"
+                animate="visible"
+              >
+                {filteredFacilities.length === 0 ? (
+                  <div className="empty-state">No facilities found in this category.</div>
+                ) : (
+                  filteredFacilities.map((fac) => (
+                    <motion.div key={fac.id} variants={cardVariants} className="facility-card glass-morphism">
+                      <div className="card-header">
+                        <h3>{fac.name}</h3>
+                        <span className={`status-badge ${['ACTIVE', 'IN_STOCK'].includes(fac.status) ? 'active' : 'inactive'}`}>
+                          {fac.status.replaceAll('_', ' ')}
+                        </span>
+                      </div>
+                      <div className="card-body">
+                        <p><Tag size={16} /> {fac.type.replace('_', ' ')}</p>
+                        {fac.type !== 'EQUIPMENT' && <p><MapPin size={16} /> {fac.location || 'N/A'}</p>}
+                        {fac.type === 'EQUIPMENT' ? (
+                          <p><Box size={16} /> Quantity: {fac.capacity || 'N/A'}</p>
+                        ) : (
+                          <p><Users size={16} /> Capacity: {fac.capacity || 'N/A'}</p>
+                        )}
+                      </div>
+                      <div className="card-footer">
+                        {(() => {
+                          const type = fac.type?.toUpperCase().replace(/[\s_]/g, '');
+                          const isLectureHall = type === 'LECTUREHALL';
+                          const isLab = type === 'LAB';
+                          
+                          if (isLectureHall) {
+                            return (
+                              <button 
+                                onClick={() => navigate(`/bookings/hall?id=${fac.id}`)} 
+                                className="action-btn book"
+                              >
+                                <Calendar size={16} /> Book
+                              </button>
+                            );
+                          } else if (isLab) {
+                            return (
+                              <button 
+                                onClick={() => navigate(`/bookings/lab?id=${fac.id}`)} 
+                                className="action-btn book-lab"
+                              >
+                                <Monitor size={16} /> Book
+                              </button>
+                            );
+                          } else {
+                            return (
+                              <button 
+                                onClick={() => navigate(`/bookings/new?resourceId=${fac.id}`)} 
+                                className="action-btn book-generic"
+                              >
+                                <Calendar size={16} /> Book
+                              </button>
+                            );
+                          }
+                        })()}
+                        {userRole === 'ROLE_ADMIN' && (
+                          <>
+                            <button onClick={() => navigate(`/admin/facilities?id=${fac.id}`)} className="action-btn edit">
+                              <Edit2 size={16} /> Edit
+                            </button>
+                            <button onClick={() => handleDelete(fac.id)} className="action-btn delete">
+                              <Trash2 size={16} /> Delete
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    </motion.div>
+                  ))
+                )}
+              </motion.div>
             )}
-          </motion.div>
+          </>
         )}
       </div>
 
@@ -299,6 +401,97 @@ const FacilitiesCatalogue = () => {
         .filter-btn:hover {
           background: #e2e8f0;
           color: #1e293b;
+        }
+
+        .back-link {
+          display: flex;
+          align-items: center;
+          gap: 5px;
+          color: #6366f1;
+          font-weight: 600;
+          background: none;
+          border: none;
+          padding: 0;
+          margin-bottom: 10px;
+          cursor: pointer;
+          transition: transform 0.2s;
+        }
+
+        .back-link:hover {
+          transform: translateX(-5px);
+        }
+
+        .category-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+          gap: 30px;
+        }
+
+        .category-card {
+          padding: 40px;
+          border-radius: 24px;
+          background: white;
+          display: flex;
+          align-items: center;
+          gap: 30px;
+          cursor: pointer;
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          border: 1px solid #f1f5f9;
+          position: relative;
+          overflow: hidden;
+        }
+
+        .category-card:hover {
+          transform: translateY(-8px);
+          box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+          border-color: #e2e8f0;
+        }
+
+        .category-icon-wrapper {
+          width: 80px;
+          height: 80px;
+          border-radius: 20px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: transform 0.3s;
+        }
+
+        .category-card:hover .category-icon-wrapper {
+          transform: scale(1.1) rotate(-5deg);
+        }
+
+        .category-info h2 {
+          font-size: 1.5rem;
+          font-weight: 700;
+          color: #1e293b;
+          margin-bottom: 8px;
+        }
+
+        .category-stat {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-size: 0.95rem;
+          color: #64748b;
+          font-weight: 600;
+        }
+
+        .dot {
+          width: 8px;
+          height: 8px;
+          border-radius: 50%;
+        }
+
+        .category-arrow {
+          margin-left: auto;
+          color: #cbd5e1;
+          transition: transform 0.3s, color 0.3s;
+        }
+
+        .category-card:hover .category-arrow {
+          transform: translateX(5px);
+          color: #6366f1;
         }
 
         .facilities-grid {
