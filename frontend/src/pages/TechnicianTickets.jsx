@@ -386,10 +386,10 @@ const TechnicianTickets = () => {
                     )}
 
                     <section className="detail-section status-footer-section">
-                      <div className="section-label">ADMIN MANAGEMENT</div>
+                      <div className="section-label">TICKET MANAGEMENT</div>
                       
                       <div className="admin-comment-input-group">
-                        <label>Admin Feedback / Resolution Notes</label>
+                        <label>Technician Feedback / Resolution Notes</label>
                         <textarea 
                           placeholder="Type a message to the user here..."
                           value={adminComment}
