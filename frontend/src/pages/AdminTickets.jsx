@@ -54,12 +54,7 @@ const AdminTickets = () => {
   const handleStatusUpdate = async (id, status, commentToUse, assignedToToUse) => {
     setUpdating(true);
     try {
-      const response = await ticketService.updateStatus(
-        id, 
-        status, 
-        commentToUse !== undefined ? commentToUse : adminComment,
-        assignedToToUse !== undefined ? assignedToToUse : modalAssignedTo
-      );
+      const response = await ticketService.updateStatus(id, status, commentToUse, assignedToToUse);
       const updatedTicket = response.data;
       
       await fetchAllTickets();
@@ -243,7 +238,7 @@ const AdminTickets = () => {
                         <select 
                           className="status-select"
                           value={ticket.status} 
-                          onChange={(e) => handleStatusUpdate(ticket.id, e.target.value, undefined, undefined)}
+                          onChange={(e) => handleStatusUpdate(ticket.id, e.target.value, ticket.adminComments, ticket.assignedTo)}
                         >
                           <option value="OPEN">Open</option>
                           <option value="IN_PROGRESS">In Progress</option>
@@ -438,7 +433,7 @@ const AdminTickets = () => {
 
                       <button 
                         className={`save-update-btn ${updating ? 'updating' : ''}`}
-                        onClick={() => handleStatusUpdate(selectedTicket.id, modalStatus)}
+                        onClick={() => handleStatusUpdate(selectedTicket.id, modalStatus, adminComment, modalAssignedTo)}
                         disabled={updating}
                       >
                         {updating ? (
