@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Sidebar from './Sidebar';
+import NotificationPanel from './NotificationPanel';
 import { motion, AnimatePresence } from 'framer-motion';
 import { LogOut, User, Settings, ChevronDown } from 'lucide-react';
 
@@ -24,6 +25,7 @@ const Layout = ({ children }) => {
              <p className="header-date">{new Date().toDateString()}</p>
            </div>
            <div className="header-right">
+             <NotificationPanel userId={localStorage.getItem('userEmail')} />
              <div className="profile-dropdown-container">
                <div 
                  className={`profile-pill glass-morphism ${isDropdownOpen ? 'active' : ''}`}

@@ -1,0 +1,310 @@
+{
+	"info": {
+		"_postman_id": "smart-campus-user-notification-apis",
+		"name": "Smart Campus - User & Notification APIs",
+		"description": "Postman collection for testing User and Notification REST APIs of the Smart Campus application.\n\nBase URL: http://localhost:8080\n\n⚠️ NOTE: Notification endpoints require authentication. If you get 401/403 errors, you may need to disable Spring Security temporarily or configure session-based auth.\n\nUser endpoints are publicly accessible (permitAll).",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080",
+			"type": "string"
+		},
+		{
+			"key": "userId",
+			"value": "REPLACE_WITH_USER_ID",
+			"type": "string"
+		},
+		{
+			"key": "userEmail",
+			"value": "testuser@example.com",
+			"type": "string"
+		},
+		{
+			"key": "notificationId",
+			"value": "REPLACE_WITH_NOTIFICATION_ID",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "👤 User APIs",
+			"description": "All User-related endpoints under /api/v1/users",
+			"item": [
+				{
+					"name": "Register New User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"testuser@example.com\",\n    \"fullName\": \"Test User\",\n    \"password\": \"password123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/users/register",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "users", "register"]
+						},
+						"description": "Register a new user with email, fullName, and password.\n\nThe password will be BCrypt-encoded on the server.\nRole defaults to ROLE_USER.\nReturns the created User object (including hashed password).\n\n⚠️ Will throw error if email already exists."
+					},
+					"response": []
+				},
+				{
+					"name": "Login User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"testuser@example.com\",\n    \"password\": \"password123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/users/login",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "users", "login"]
+						},
+						"description": "Login with email and password.\n\nReturns the full User object on success.\nThrows error if:\n- User not found\n- Account uses Google Login (no password set)\n- Invalid password"
+					},
+					"response": []
+				},
+				{
+					"name": "Sync Google User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"googleuser@gmail.com\",\n    \"fullName\": \"Google User\",\n    \"pictureUrl\": \"https://lh3.googleusercontent.com/a/default-user\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/users/sync",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "users", "sync"]
+						},
+						"description": "Sync/create a user from Google OAuth.\n\nIf user already exists (by email), updates fullName and pictureUrl.\nIf user doesn't exist, creates a new user with ROLE_USER.\nNo password is set for Google-synced users."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Current User (by Email)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/users/me?email={{userEmail}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "users", "me"],
+							"query": [
+								{
+									"key": "email",
+									"value": "{{userEmail}}",
+									"description": "Email address of the user to look up"
+								}
+							]
+						},
+						"description": "Get user details by email address.\n\nReturns the full User object.\nThrows error if user not found."
+					},
+					"response": []
+				},
+				{
+					"name": "Update User Role (Admin)",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"role\": \"ROLE_ADMIN\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/users/admin/users/{{userId}}/role",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "users", "admin", "users", "{{userId}}", "role"]
+						},
+						"description": "Update a user's role. Admin-level operation.\n\nValid roles:\n- ROLE_USER\n- ROLE_ADMIN\n- ROLE_TECHNICIAN\n\nReplace {{userId}} with the actual MongoDB _id of the user.\nThrows error if role is invalid or user not found."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "🔔 Notification APIs",
+			"description": "All Notification-related endpoints under /api/v1/notifications\n\n⚠️ These endpoints require authentication. You may need to adjust Spring Security config for Postman testing.",
+			"item": [
+				{
+					"name": "Get All Notifications (by User ID)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/notifications?userId={{userEmail}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "notifications"],
+							"query": [
+								{
+									"key": "userId",
+									"value": "{{userEmail}}",
+									"description": "The userId (email) of the user whose notifications to fetch"
+								}
+							]
+						},
+						"description": "Get all notifications for a user, ordered by createdAt descending (newest first).\n\nThe userId parameter is the user's email address.\nReturns a list of Notification objects."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Unread Notifications",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/notifications/unread?userId={{userEmail}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "notifications", "unread"],
+							"query": [
+								{
+									"key": "userId",
+									"value": "{{userEmail}}",
+									"description": "The userId (email) of the user"
+								}
+							]
+						},
+						"description": "Get only unread notifications for a user.\n\nReturns notifications where read=false, ordered by createdAt descending."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Unread Count",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/notifications/unread-count?userId={{userEmail}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "notifications", "unread-count"],
+							"query": [
+								{
+									"key": "userId",
+									"value": "{{userEmail}}",
+									"description": "The userId (email) of the user"
+								}
+							]
+						},
+						"description": "Get the count of unread notifications for a user.\n\nReturns: { \"unreadCount\": <number> }"
+					},
+					"response": []
+				},
+				{
+					"name": "Mark Single Notification as Read",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/notifications/{{notificationId}}/read",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "notifications", "{{notificationId}}", "read"]
+						},
+						"description": "Mark a single notification as read by its ID.\n\nReplace {{notificationId}} with the actual notification _id.\nSets read=true and readAt=now.\nReturns the updated notification, or 404 if not found."
+					},
+					"response": []
+				},
+				{
+					"name": "Mark All Notifications as Read",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/notifications/read-all?userId={{userEmail}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "notifications", "read-all"],
+							"query": [
+								{
+									"key": "userId",
+									"value": "{{userEmail}}",
+									"description": "The userId (email) of the user"
+								}
+							]
+						},
+						"description": "Mark all notifications as read for a given user.\n\nReturns: { \"message\": \"All notifications marked as read\" }"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Single Notification",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/notifications/{{notificationId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "notifications", "{{notificationId}}"]
+						},
+						"description": "Delete a single notification by its ID.\n\nReplace {{notificationId}} with the actual notification _id.\nReturns: { \"message\": \"Notification deleted successfully\" }"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete All Notifications",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/notifications?userId={{userEmail}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "notifications"],
+							"query": [
+								{
+									"key": "userId",
+									"value": "{{userEmail}}",
+									"description": "The userId (email) of the user whose notifications to delete"
+								}
+							]
+						},
+						"description": "Delete all notifications for a given user.\n\nReturns: { \"message\": \"All notifications deleted successfully\" }"
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

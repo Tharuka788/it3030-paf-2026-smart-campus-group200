@@ -18,6 +18,7 @@ public class BookingService {
     private final BookingRepository bookingRepository;
     private final FacilityRepository facilityRepository;
     private final EmailService emailService;
+    private final NotificationService notificationService;
 
     private void populateResourceName(Booking booking) {
         if (booking.getResourceName() == null || booking.getResourceName().isEmpty()) {
@@ -66,6 +67,20 @@ public class BookingService {
         populateResourceName(savedBooking);
         emailService.sendBookingConfirmation(savedBooking);
         
+        // Create notification for the user about their new booking submission
+        notificationService.createNotification(
+                savedBooking.getUserEmail(),
+                "BOOKING_CREATED",
+                "Booking Submitted",
+                "Your booking for " + (savedBooking.getResourceName() != null ? savedBooking.getResourceName() : "a resource") 
+                        + " on " + savedBooking.getStartTime().toLocalDate() 
+                        + " from " + savedBooking.getStartTime().toLocalTime() 
+                        + " to " + savedBooking.getEndTime().toLocalTime() 
+                        + " is pending approval.",
+                savedBooking.getId(),
+                "BOOKING"
+        );
+        
         return savedBooking;
     }
 
@@ -96,6 +111,35 @@ public class BookingService {
             if ("CANCELLED".equalsIgnoreCase(status)) {
                 populateResourceName(savedBooking);
                 emailService.sendBookingCancellation(savedBooking);
+                notificationService.createNotification(
+                        savedBooking.getUserEmail(),
+                        "BOOKING_CANCELLED",
+                        "Booking Cancelled",
+                        "Your booking for " + (savedBooking.getResourceName() != null ? savedBooking.getResourceName() : "a resource") + " has been cancelled.",
+                        savedBooking.getId(),
+                        "BOOKING"
+                );
+            }
+            
+            // Send notifications for booking status changes
+            if ("APPROVED".equalsIgnoreCase(status)) {
+                notificationService.createNotification(
+                        savedBooking.getUserEmail(),
+                        "BOOKING_APPROVED",
+                        "Booking Approved",
+                        "Your booking for " + savedBooking.getResourceName() + " has been approved.",
+                        savedBooking.getId(),
+                        "BOOKING"
+                );
+            } else if ("REJECTED".equalsIgnoreCase(status)) {
+                notificationService.createNotification(
+                        savedBooking.getUserEmail(),
+                        "BOOKING_REJECTED",
+                        "Booking Rejected",
+                        "Your booking for " + savedBooking.getResourceName() + " has been rejected. Reason: " + (savedBooking.getRejectionReason() != null ? savedBooking.getRejectionReason() : "No reason provided"),
+                        savedBooking.getId(),
+                        "BOOKING"
+                );
             }
             
             return savedBooking;

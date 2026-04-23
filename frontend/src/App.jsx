@@ -16,6 +16,7 @@ import AdminFacilities from './pages/AdminFacilities';
 import AdminBookings from './pages/AdminBookings';
 import AdminTickets from './pages/AdminTickets';
 import AdminUsers from './pages/AdminUsers';
+// import TechnicianDashboard from './pages/TechnicianDashboard';
 import './index.css';
 
 // Protected Route component to check auth status on every navigation
@@ -31,6 +32,13 @@ const AdminProtectedRoute = ({ children }) => {
   return (isAuthenticated && userRole === 'ROLE_ADMIN') ? children : <Navigate to="/dashboard" replace />;
 };
 
+// Technician Protected Route component
+const TechnicianProtectedRoute = ({ children }) => {
+  const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
+  const userRole = localStorage.getItem('userRole');
+  return (isAuthenticated && userRole === 'ROLE_TECHNICIAN') ? children : <Navigate to="/dashboard" replace />;
+};
+
 function App() {
   return (
     <Router>
@@ -43,6 +51,10 @@ function App() {
           path="/dashboard" 
           element={<ProtectedRoute><Dashboard /></ProtectedRoute>} 
         />
+        {/* <Route 
+          path="/technician/dashboard" 
+          element={<TechnicianProtectedRoute><TechnicianDashboard /></TechnicianProtectedRoute>} 
+        /> */}
         <Route 
           path="/admin/dashboard" 
           element={<AdminProtectedRoute><AdminDashboard /></AdminProtectedRoute>} 
