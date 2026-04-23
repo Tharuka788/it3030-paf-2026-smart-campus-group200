@@ -273,11 +273,11 @@ const MyTickets = () => {
                   <div className="modal-side-column">
                     {selectedTicket.adminComments ? (
                       <section className="detail-section admin-response-highlight">
-                        <div className="section-label">OFFICIAL RESPONSE FROM ADMIN</div>
+                        <div className="section-label">OFFICIAL SUPPORT & RESOLUTION FEEDBACK</div>
                         <div className="admin-msg-content">
                           <div className="msg-header">
                             <MessageSquare size={18} />
-                            <span>Institutional Feedback</span>
+                            <span>Support Team Feedback</span>
                           </div>
                           <p className="msg-text">{selectedTicket.adminComments}</p>
                         </div>
@@ -290,10 +290,10 @@ const MyTickets = () => {
                       </section>
                     ) : (
                       <section className="detail-section highlight-box pending-box">
-                        <div className="section-label">ADMIN STATUS</div>
+                        <div className="section-label">TICKET STATUS</div>
                         <div className="pending-content">
                           <Clock size={32} />
-                          <p>Your request is currently {selectedTicket.status?.replace('_', ' ')}. An administrator will provide feedback shortly.</p>
+                          <p>Your request is currently {selectedTicket.status?.replace('_', ' ')}. A technician or administrator will provide feedback shortly.</p>
                         </div>
                       </section>
                     )}
