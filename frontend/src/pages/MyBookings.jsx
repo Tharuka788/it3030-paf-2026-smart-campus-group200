@@ -10,7 +10,8 @@ import {
   Users,
   FileText,
   CheckCircle,
-  CalendarDays
+  CalendarDays,
+  AlertTriangle
 } from 'lucide-react';
 import { bookingService } from '../services/api';
 
@@ -183,6 +184,20 @@ const MyBookings = () => {
                             <FileText size={16} className="info-icon" />
                             <span>{booking.purpose}</span>
                          </div>
+
+                         {booking.status === 'REJECTED' && booking.rejectionReason && (
+                           <motion.div 
+                             className="rejection-reason-box"
+                             initial={{ opacity: 0, height: 0 }}
+                             animate={{ opacity: 1, height: 'auto' }}
+                           >
+                              <div className="reason-header">
+                                <AlertTriangle size={14} />
+                                <span>Reason for Rejection:</span>
+                              </div>
+                              <p>{booking.rejectionReason}</p>
+                           </motion.div>
+                         )}
                       </div>
 
                       {booking.status === 'PENDING' && (
@@ -432,6 +447,32 @@ const MyBookings = () => {
         
         .purpose-row .info-icon {
           margin-top: 2px;
+        }
+
+        .rejection-reason-box {
+          margin-top: 15px;
+          padding: 12px;
+          background: #fff1f2;
+          border-radius: 12px;
+          border: 1px solid #fee2e2;
+        }
+
+        .reason-header {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          color: #ef4444;
+          font-weight: 700;
+          font-size: 0.8rem;
+          margin-bottom: 6px;
+          text-transform: uppercase;
+        }
+
+        .rejection-reason-box p {
+          color: #b91c1c;
+          font-size: 0.85rem;
+          line-height: 1.4;
+          margin: 0;
         }
 
         .cancel-booking-btn {

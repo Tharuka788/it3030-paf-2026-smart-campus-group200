@@ -14,7 +14,11 @@ export const bookingService = {
   getAllBookings: () => api.get('/bookings'),
   getBookingsByUser: (email) => api.get(`/bookings/user/${email}`),
   getBookingsByResource: (resourceId) => api.get(`/bookings/resource/${resourceId}`),
-  updateStatus: (id, status) => api.patch(`/bookings/${id}/status?status=${status}`),
+  updateStatus: (id, status, reason) => {
+    let url = `/bookings/${id}/status?status=${status}`;
+    if (reason) url += `&reason=${encodeURIComponent(reason)}`;
+    return api.patch(url);
+  },
   deleteBooking: (id) => api.delete(`/bookings/${id}`),
 };
 

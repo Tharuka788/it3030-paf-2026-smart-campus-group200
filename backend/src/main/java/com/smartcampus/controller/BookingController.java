@@ -53,8 +53,11 @@ public class BookingController {
     }
 
     @PatchMapping("/{id}/status")
-    public Booking updateBookingStatus(@PathVariable String id, @RequestParam String status) {
-        return bookingService.updateBookingStatus(id, status);
+    public Booking updateBookingStatus(
+            @PathVariable String id, 
+            @RequestParam String status,
+            @RequestParam(required = false) String reason) {
+        return bookingService.updateBookingStatus(id, status, reason);
     }
 
     @DeleteMapping("/{id}")

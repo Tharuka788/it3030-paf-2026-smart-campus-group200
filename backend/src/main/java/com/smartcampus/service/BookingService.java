@@ -87,9 +87,12 @@ public class BookingService {
         return booking;
     }
 
-    public Booking updateBookingStatus(String id, String status) {
+    public Booking updateBookingStatus(String id, String status, String reason) {
         return bookingRepository.findById(id).map(booking -> {
             booking.setStatus(status);
+            if (reason != null) {
+                booking.setRejectionReason(reason);
+            }
             booking.setUpdatedAt(LocalDateTime.now());
             return bookingRepository.save(booking);
         }).orElseThrow(() -> new RuntimeException("Booking not found with id: " + id));

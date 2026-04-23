@@ -16,6 +16,8 @@ const AdminBookings = () => {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('ALL');
+  const [rejectingId, setRejectingId] = useState(null);
+  const [reason, setReason] = useState('');
 
   const fetchAllBookings = async () => {
     setLoading(true);
@@ -33,9 +35,11 @@ const AdminBookings = () => {
     fetchAllBookings();
   }, []);
 
-  const handleStatusUpdate = async (id, status) => {
+  const handleStatusUpdate = async (id, status, reasonText = null) => {
     try {
-      await bookingService.updateStatus(id, status);
+      await bookingService.updateStatus(id, status, reasonText);
+      setRejectingId(null);
+      setReason('');
       fetchAllBookings();
     } catch (err) {
       console.error('Failed to update status:', err);
@@ -113,14 +117,35 @@ const AdminBookings = () => {
 
                 <div className="card-actions">
                   {booking.status === 'PENDING' ? (
-                    <>
-                      <button className="approve-btn" onClick={() => handleStatusUpdate(booking.id, 'APPROVED')}>
-                        <CheckCircle size={18} /> Approve
-                      </button>
-                      <button className="reject-btn" onClick={() => handleStatusUpdate(booking.id, 'REJECTED')}>
-                        <XCircle size={18} /> Reject
-                      </button>
-                    </>
+                    <div className="action-wrapper">
+                      {rejectingId === booking.id ? (
+                        <div className="rejection-form">
+                          <textarea 
+                            placeholder="Type rejection reason..." 
+                            value={reason}
+                            onChange={(e) => setReason(e.target.value)}
+                            autoFocus
+                          />
+                          <div className="rejection-actions">
+                             <button className="confirm-reject-btn" onClick={() => handleStatusUpdate(booking.id, 'REJECTED', reason)}>
+                               Reject Booking
+                             </button>
+                             <button className="cancel-reject-btn" onClick={() => { setRejectingId(null); setReason(''); }}>
+                               Cancel
+                             </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <>
+                          <button className="approve-btn" onClick={() => handleStatusUpdate(booking.id, 'APPROVED')}>
+                            <CheckCircle size={18} /> Approve
+                          </button>
+                          <button className="reject-btn" onClick={() => setRejectingId(booking.id)}>
+                            <XCircle size={18} /> Reject
+                          </button>
+                        </>
+                      )}
+                    </div>
                   ) : (
                     <button className="status-change-btn" onClick={() => handleStatusUpdate(booking.id, 'PENDING')}>
                       Reset to Pending
@@ -226,6 +251,36 @@ const AdminBookings = () => {
         .reject-btn:hover { background: #fee2e2; transform: translateY(-2px); }
         .status-change-btn { background: #f1f5f9; color: #64748b; font-size: 0.8rem; }
         .status-change-btn:hover { background: #e2e8f0; }
+
+        .action-wrapper { width: 100%; display: flex; gap: 10px; }
+        .rejection-form { width: 100%; display: flex; flex-direction: column; gap: 10px; }
+        .rejection-form textarea {
+          width: 100%;
+          padding: 12px;
+          border-radius: 12px;
+          border: 1px solid #fee2e2;
+          background: #fef2f2;
+          font-family: inherit;
+          font-size: 0.9rem;
+          outline: none;
+        }
+        .rejection-actions { display: flex; gap: 10px; }
+        .confirm-reject-btn {
+          flex: 2;
+          background: #ef4444;
+          color: white;
+          padding: 10px;
+          border-radius: 10px;
+          font-weight: 600;
+        }
+        .cancel-reject-btn {
+          flex: 1;
+          background: #f1f5f9;
+          color: #64748b;
+          padding: 10px;
+          border-radius: 10px;
+          font-weight: 600;
+        }
       `}</style>
     </AdminLayout>
   );
