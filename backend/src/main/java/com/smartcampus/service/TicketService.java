@@ -4,6 +4,7 @@ import com.smartcampus.dto.TicketRequestDTO;
 import com.smartcampus.model.Ticket;
 import com.smartcampus.repository.TicketRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -19,6 +20,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class TicketService {
 
     private final TicketRepository ticketRepository;
@@ -26,13 +28,19 @@ public class TicketService {
     private final String uploadDir = "uploads/tickets";
 
     public Ticket createTicket(Ticket ticket) {
+        log.info("Creating new ticket with subject: '{}' for user: {}", ticket.getSubject(), ticket.getEmail());
         ticket.setCreatedAt(LocalDateTime.now());
         ticket.setUpdatedAt(LocalDateTime.now());
         ticket.setStatus("OPEN");
-        return ticketRepository.save(ticket);
+        Ticket savedTicket = ticketRepository.save(ticket);
+        log.info("Ticket created successfully with ID: {}", savedTicket.getId());
+        return savedTicket;
     }
 
     public Ticket saveTicketWithFiles(TicketRequestDTO dto, MultipartFile[] files) throws IOException {
+        log.info("Creating ticket with files for user: {} | Subject: '{}' | Category: {}",
+                dto.getEmail(), dto.getSubject(), dto.getCategory());
+
         Ticket ticket = new Ticket();
         ticket.setSubject(dto.getSubject());
         ticket.setDetailedDescription(dto.getDetailedDescription());
@@ -49,9 +57,11 @@ public class TicketService {
         ticket.setUpdatedAt(LocalDateTime.now());
 
         if (files != null && files.length > 0) {
+            log.debug("Processing {} file attachment(s) for ticket", files.length);
             Path uploadPath = Paths.get(uploadDir);
             if (!Files.exists(uploadPath)) {
                 Files.createDirectories(uploadPath);
+                log.debug("Created upload directory: {}", uploadPath.toAbsolutePath());
             }
 
             List<String> attachmentPaths = new ArrayList<>();
@@ -61,34 +71,50 @@ public class TicketService {
                     Path filePath = uploadPath.resolve(fileName);
                     Files.copy(file.getInputStream(), filePath);
                     attachmentPaths.add(filePath.toString());
+                    log.debug("File uploaded: {} ({} bytes)", fileName, file.getSize());
                 }
             }
             ticket.setAttachmentPaths(attachmentPaths);
+            log.info("Attached {} file(s) to ticket", attachmentPaths.size());
         }
 
-        return ticketRepository.save(ticket);
+        Ticket savedTicket = ticketRepository.save(ticket);
+        log.info("Ticket created successfully with ID: {} | Priority: {} | Impact: {}",
+                savedTicket.getId(), savedTicket.getPriority(), savedTicket.getImpact());
+        return savedTicket;
     }
 
     public List<Ticket> getAllTickets() {
-        return ticketRepository.findAll();
+        log.debug("Fetching all tickets");
+        List<Ticket> tickets = ticketRepository.findAll();
+        log.debug("Retrieved {} tickets", tickets.size());
+        return tickets;
     }
 
     public List<Ticket> getTicketsByUser(String email) {
-        return ticketRepository.findByEmail(email);
+        log.debug("Fetching tickets for user: {}", email);
+        List<Ticket> tickets = ticketRepository.findByEmail(email);
+        log.debug("Found {} tickets for user: {}", tickets.size(), email);
+        return tickets;
     }
 
     public Optional<Ticket> getTicketById(String id) {
+        log.debug("Fetching ticket by ID: {}", id);
         return ticketRepository.findById(id);
     }
 
     public Ticket updateTicketStatus(String id, String status, String adminComments) {
+        log.info("Updating ticket {} status to: {}", id, status);
         return ticketRepository.findById(id).map(ticket -> {
+            String previousStatus = ticket.getStatus();
             ticket.setStatus(status);
             if (adminComments != null) {
                 ticket.setAdminComments(adminComments);
             }
             ticket.setUpdatedAt(LocalDateTime.now());
             Ticket updated = ticketRepository.save(ticket);
+            log.info("Ticket {} status changed: {} → {} | User: {}",
+                    id, previousStatus, status, ticket.getEmail());
 
             // Create notification
             String title = "Ticket Update: " + status;
@@ -98,24 +124,32 @@ public class TicketService {
                     ticket.getId(), "TICKET");
 
             return updated;
-        }).orElseThrow(() -> new RuntimeException("Ticket not found"));
+        }).orElseThrow(() -> {
+            log.error("Ticket not found with ID: {}", id);
+            return new RuntimeException("Ticket not found");
+        });
     }
 
     public void deleteTicket(String id) {
+        log.info("Deleting ticket with ID: {}", id);
         ticketRepository.findById(id).ifPresent(ticket -> {
             // Delete associated files
             if (ticket.getAttachmentPaths() != null) {
+                log.debug("Cleaning up {} attachment(s) for ticket: {}", ticket.getAttachmentPaths().size(), id);
                 for (String filePathStr : ticket.getAttachmentPaths()) {
                     try {
                         Path filePath = Paths.get(filePathStr);
                         Files.deleteIfExists(filePath);
+                        log.debug("Deleted attachment: {}", filePathStr);
                     } catch (IOException e) {
-                        System.err.println("Failed to delete file: " + filePathStr + " - " + e.getMessage());
+                        log.error("Failed to delete attachment file: {} - {}", filePathStr, e.getMessage());
                     }
                 }
             }
             // Delete record
             ticketRepository.deleteById(id);
+            log.info("Ticket {} deleted successfully | Subject: '{}' | User: {}",
+                    id, ticket.getSubject(), ticket.getEmail());
         });
     }
 }
