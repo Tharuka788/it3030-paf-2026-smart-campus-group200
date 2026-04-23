@@ -104,7 +104,7 @@ const TechnicianDashboard = () => {
                 <ClipboardList size={20} />
                 <h3>Assigned Tasks</h3>
               </div>
-              <button className="text-btn" onClick={() => navigate('/admin/tickets')}>
+              <button className="text-btn" onClick={() => navigate('/technician/tickets')}>
                 View All <ArrowUpRight size={16} />
               </button>
             </div>

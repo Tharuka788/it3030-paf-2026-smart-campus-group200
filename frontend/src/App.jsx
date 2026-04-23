@@ -18,6 +18,7 @@ import AdminBookings from './pages/AdminBookings';
 import AdminTickets from './pages/AdminTickets';
 import AdminUsers from './pages/AdminUsers';
 import TechnicianDashboard from './pages/TechnicianDashboard';
+import TechnicianTickets from './pages/TechnicianTickets';
 import './index.css';
 
 // Protected Route component to check auth status on every navigation
@@ -94,6 +95,10 @@ function App() {
         <Route 
           path="/technician/dashboard" 
           element={<TechnicianProtectedRoute><TechnicianDashboard /></TechnicianProtectedRoute>} 
+        />
+        <Route 
+          path="/technician/tickets" 
+          element={<TechnicianProtectedRoute><TechnicianTickets /></TechnicianProtectedRoute>} 
         />
         <Route 
           path="/facilities" 
