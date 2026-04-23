@@ -1,337 +1,370 @@
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Bell, X, Check, Info, AlertTriangle, MessageSquare, Trash2 } from 'lucide-react';
-import { notificationService } from '../services/api';
-import { formatDistanceToNow } from 'date-fns';
+import { notificationService, bookingService, ticketService } from '../services/api';
+import '../styles/NotificationPanel.css';
 
-const NotificationPanel = () => {
+const NotificationPanel = ({ userId }) => {
   const [notifications, setNotifications] = useState([]);
+  const [bookings, setBookings] = useState([]);
+  const [tickets, setTickets] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  const userEmail = localStorage.getItem('userEmail');
+  const [activeTab, setActiveTab] = useState('all'); // 'all', 'bookings', 'tickets'
 
+  // Fetch notifications
   const fetchNotifications = async () => {
-    if (!userEmail) return;
+    if (!userId) return;
     try {
-      const response = await notificationService.getNotifications(userEmail);
+      const response = await notificationService.getNotifications(userId);
       setNotifications(response.data);
-      setUnreadCount(response.data.filter(n => !n.read).length);
-    } catch (err) {
-      console.error('Failed to fetch notifications:', err);
+    } catch (error) {
+      console.error('Error fetching notifications:', error);
     }
   };
 
-  useEffect(() => {
-    fetchNotifications();
-    const interval = setInterval(fetchNotifications, 30000); // Poll every 30s
-    return () => clearInterval(interval);
-  }, [userEmail]);
-
-  const handleMarkAsRead = async (id) => {
+  // Fetch user bookings
+  const fetchBookings = async () => {
+    if (!userId) return;
     try {
-      await notificationService.markAsRead(id);
-      setNotifications(notifications.map(n => n.id === id ? { ...n, read: true } : n));
-      setUnreadCount(prev => Math.max(0, prev - 1));
-    } catch (err) {
-      console.error('Failed to mark as read:', err);
+      const response = await bookingService.getBookingsByUser(userId);
+      setBookings(response.data);
+    } catch (error) {
+      console.error('Error fetching bookings:', error);
     }
   };
 
+  // Fetch user tickets
+  const fetchTickets = async () => {
+    if (!userId) return;
+    try {
+      const response = await ticketService.getTicketsByUser(userId);
+      setTickets(response.data);
+    } catch (error) {
+      console.error('Error fetching tickets:', error);
+    }
+  };
+
+  // Fetch unread count
+  const fetchUnreadCount = async () => {
+    if (!userId) return;
+    try {
+      const response = await notificationService.getUnreadCount(userId);
+      setUnreadCount(response.data.unreadCount);
+    } catch (error) {
+      console.error('Error fetching unread count:', error);
+    }
+  };
+
+  // Fetch all data
+  const fetchAll = async () => {
+    if (!userId) return;
+    setLoading(true);
+    await Promise.all([fetchNotifications(), fetchBookings(), fetchTickets(), fetchUnreadCount()]);
+    setLoading(false);
+  };
+
+  // Initial load and polling
+  useEffect(() => {
+    if (!userId) return;
+    
+    fetchAll();
+
+    // Set up polling interval (every 30 seconds)
+    const pollInterval = setInterval(() => {
+      fetchAll();
+    }, 30000);
+
+    return () => clearInterval(pollInterval);
+  }, [userId]);
+
+  // Mark as read
+  const handleMarkAsRead = async (notificationId) => {
+    try {
+      await notificationService.markAsRead(notificationId);
+      setNotifications(
+        notifications.map(notif =>
+          notif.id === notificationId ? { ...notif, read: true } : notif
+        )
+      );
+      fetchUnreadCount();
+    } catch (error) {
+      console.error('Error marking notification as read:', error);
+    }
+  };
+
+  // Mark all as read
   const handleMarkAllAsRead = async () => {
     try {
-      await notificationService.markAllAsRead(userEmail);
-      setNotifications(notifications.map(n => ({ ...n, read: true })));
+      await notificationService.markAllAsRead(userId);
+      setNotifications(
+        notifications.map(notif => ({ ...notif, read: true }))
+      );
       setUnreadCount(0);
-    } catch (err) {
-      console.error('Failed to mark all as read:', err);
+    } catch (error) {
+      console.error('Error marking all as read:', error);
     }
   };
 
-  const getIcon = (type) => {
-    switch (type) {
-      case 'BOOKING': return <Info size={18} className="icon-blue" />;
-      case 'TICKET': return <MessageSquare size={18} className="icon-purple" />;
-      case 'SYSTEM': return <AlertTriangle size={18} className="icon-yellow" />;
-      default: return <Info size={18} />;
+  // Delete notification
+  const handleDelete = async (notificationId) => {
+    try {
+      await notificationService.deleteNotification(notificationId);
+      setNotifications(notifications.filter(notif => notif.id !== notificationId));
+      fetchUnreadCount();
+    } catch (error) {
+      console.error('Error deleting notification:', error);
     }
   };
+
+  // Format timestamp to relative time
+  const formatTime = (datetime) => {
+    if (!datetime) return '';
+    const now = new Date();
+    const created = new Date(datetime);
+    const diffMs = now - created;
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+
+    if (diffMins < 1) return 'just now';
+    if (diffMins < 60) return `${diffMins}m ago`;
+    if (diffHours < 24) return `${diffHours}h ago`;
+    if (diffDays < 7) return `${diffDays}d ago`;
+    
+    return created.toLocaleDateString();
+  };
+
+  // Format date for bookings
+  const formatBookingDate = (datetime) => {
+    if (!datetime) return '';
+    const d = new Date(datetime);
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  };
+
+  const formatBookingTime = (datetime) => {
+    if (!datetime) return '';
+    const d = new Date(datetime);
+    return d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+  };
+
+  const getNotificationIcon = (type) => {
+    switch (type) {
+      case 'BOOKING_CREATED':
+        return '📋';
+      case 'BOOKING_APPROVED':
+        return '✅';
+      case 'BOOKING_REJECTED':
+        return '❌';
+      case 'BOOKING_CANCELLED':
+        return '🚫';
+      case 'TICKET_CREATED':
+        return '🎫';
+      case 'TICKET_STATUS_CHANGED':
+        return '🔄';
+      case 'TICKET_COMMENTED':
+        return '💬';
+      case 'SYSTEM_ALERT':
+        return '⚠️';
+      default:
+        return '🔔';
+    }
+  };
+
+  const getStatusBadge = (status) => {
+    const statusStyles = {
+      PENDING: { bg: '#fff3cd', color: '#856404', label: 'Pending' },
+      APPROVED: { bg: '#d4edda', color: '#155724', label: 'Approved' },
+      REJECTED: { bg: '#f8d7da', color: '#721c24', label: 'Rejected' },
+      CANCELLED: { bg: '#e2e3e5', color: '#383d41', label: 'Cancelled' },
+      OPEN: { bg: '#cce5ff', color: '#004085', label: 'Open' },
+      IN_PROGRESS: { bg: '#fff3cd', color: '#856404', label: 'In Progress' },
+      RESOLVED: { bg: '#d4edda', color: '#155724', label: 'Resolved' },
+      CLOSED: { bg: '#e2e3e5', color: '#383d41', label: 'Closed' },
+    };
+    const style = statusStyles[status] || { bg: '#e2e3e5', color: '#383d41', label: status };
+    return (
+      <span className="status-badge" style={{ backgroundColor: style.bg, color: style.color }}>
+        {style.label}
+      </span>
+    );
+  };
+
+  const totalCount = bookings.length + tickets.length;
+
+  // Close panel when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (isOpen && !e.target.closest('.notification-panel-container')) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isOpen]);
 
   return (
-    <div className="notification-container">
-      <div className="notification-trigger" onClick={() => setIsOpen(!isOpen)}>
-        <Bell size={24} className={unreadCount > 0 ? 'bell-anim' : ''} />
-        {unreadCount > 0 && (
-          <span className="notification-badge">{unreadCount}</span>
+    <div className="notification-panel-container">
+      {/* Bell Icon Button */}
+      <button
+        className="notification-bell"
+        onClick={() => setIsOpen(!isOpen)}
+        title="Notifications"
+      >
+        🔔
+        {(unreadCount > 0 || totalCount > 0) && (
+          <span className="unread-badge">
+            {unreadCount > 0 ? (unreadCount > 99 ? '99+' : unreadCount) : totalCount}
+          </span>
         )}
-      </div>
+      </button>
 
-      <AnimatePresence>
-        {isOpen && (
-          <>
-            <motion.div 
-              className="notification-backdrop"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setIsOpen(false)}
-            />
-            <motion.div 
-              className="notification-panel glass-morphism"
-              initial={{ opacity: 0, y: 10, x: 10, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, x: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 10, x: 10, scale: 0.95 }}
+      {/* Notification Panel Dropdown */}
+      {isOpen && (
+        <div className="notification-panel">
+          <div className="notification-header">
+            <h3>Notifications</h3>
+            {unreadCount > 0 && activeTab === 'all' && (
+              <button
+                className="mark-all-read-btn"
+                onClick={handleMarkAllAsRead}
+              >
+                Mark all as read
+              </button>
+            )}
+          </div>
+
+          {/* Tabs */}
+          <div className="notification-tabs">
+            <button
+              className={`tab-btn ${activeTab === 'all' ? 'active' : ''}`}
+              onClick={() => setActiveTab('all')}
             >
-              <div className="panel-header">
-                <h3>Notifications</h3>
-                <div className="header-actions">
-                   {unreadCount > 0 && (
-                     <button onClick={handleMarkAllAsRead} className="mark-all-btn">Mark all as read</button>
-                   )}
-                   <button onClick={() => setIsOpen(false)} className="close-panel-btn"><X size={18} /></button>
-                </div>
-              </div>
+              🔔 Alerts
+              {notifications.length > 0 && <span className="tab-count">{notifications.length}</span>}
+            </button>
+            <button
+              className={`tab-btn ${activeTab === 'bookings' ? 'active' : ''}`}
+              onClick={() => setActiveTab('bookings')}
+            >
+              📋 Bookings
+              {bookings.length > 0 && <span className="tab-count">{bookings.length}</span>}
+            </button>
+            <button
+              className={`tab-btn ${activeTab === 'tickets' ? 'active' : ''}`}
+              onClick={() => setActiveTab('tickets')}
+            >
+              🎫 Tickets
+              {tickets.length > 0 && <span className="tab-count">{tickets.length}</span>}
+            </button>
+          </div>
 
-              <div className="notification-list">
-                {notifications.length === 0 ? (
-                  <div className="empty-notifications">
-                    <Bell size={48} />
-                    <p>No notifications yet</p>
-                  </div>
-                ) : (
-                  notifications.map((notification) => (
-                    <div 
-                      key={notification.id} 
-                      className={`notification-item ${notification.read ? 'read' : 'unread'}`}
-                      onClick={() => !notification.read && handleMarkAsRead(notification.id)}
-                    >
-                      <div className="notification-icon">
-                        {getIcon(notification.type)}
-                      </div>
-                      <div className="notification-content">
-                        <div className="notification-title-row">
-                           <h4>{notification.title}</h4>
-                           {!notification.read && <span className="unread-dot"></span>}
-                        </div>
-                        <p>{notification.message}</p>
-                        <span className="notification-time">
-                          {formatDistanceToNow(new Date(notification.createdAt), { addSuffix: true })}
-                        </span>
-                      </div>
-                    </div>
-                  ))
+          <div className="notification-list">
+            {loading && <p className="loading-text">Loading...</p>}
+
+            {/* === ALL / NOTIFICATIONS TAB === */}
+            {!loading && activeTab === 'all' && (
+              <>
+                {notifications.length === 0 && (
+                  <p className="empty-text">No alerts yet</p>
                 )}
-              </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
+                {notifications.map(notification => (
+                  <div
+                    key={notification.id}
+                    className={`notification-item ${notification.read ? 'read' : 'unread'}`}
+                    onClick={() => !notification.read && handleMarkAsRead(notification.id)}
+                  >
+                    <div className="notification-icon-wrapper">
+                      {getNotificationIcon(notification.notificationType)}
+                    </div>
+                    
+                    <div className="notification-content">
+                      <p className="notification-title">{notification.title}</p>
+                      <p className="notification-message">{notification.message}</p>
+                      <p className="notification-time">{formatTime(notification.createdAt)}</p>
+                    </div>
 
-      <style jsx="true">{`
-        .notification-container {
-          position: relative;
-          display: flex;
-          align-items: center;
-        }
+                    <button
+                      className="delete-btn"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDelete(notification.id);
+                      }}
+                      title="Delete"
+                    >
+                      ✕
+                    </button>
 
-        .notification-trigger {
-          position: relative;
-          cursor: pointer;
-          color: #64748b;
-          padding: 8px;
-          border-radius: 12px;
-          transition: all 0.2s;
-        }
+                    {!notification.read && <div className="unread-indicator"></div>}
+                  </div>
+                ))}
+              </>
+            )}
 
-        .notification-trigger:hover {
-          background: #f1f5f9;
-          color: #6366f1;
-        }
+            {/* === BOOKINGS TAB === */}
+            {!loading && activeTab === 'bookings' && (
+              <>
+                {bookings.length === 0 && (
+                  <p className="empty-text">No bookings yet</p>
+                )}
+                {bookings.map(booking => (
+                  <div key={booking.id} className="notification-item booking-item">
+                    <div className="notification-icon-wrapper booking-icon">
+                      📋
+                    </div>
+                    <div className="notification-content">
+                      <div className="notification-title-row">
+                        <p className="notification-title">{booking.resourceName || 'Resource Booking'}</p>
+                        {getStatusBadge(booking.status)}
+                      </div>
+                      <p className="notification-message">
+                        {booking.purpose || 'No purpose specified'}
+                      </p>
+                      <p className="notification-meta">
+                        📅 {formatBookingDate(booking.startTime)} &nbsp;
+                        🕐 {formatBookingTime(booking.startTime)} - {formatBookingTime(booking.endTime)}
+                      </p>
+                      {booking.expectedAttendees && (
+                        <p className="notification-meta">
+                          👥 {booking.expectedAttendees} attendees
+                        </p>
+                      )}
+                      <p className="notification-time">{formatTime(booking.createdAt)}</p>
+                    </div>
+                  </div>
+                ))}
+              </>
+            )}
 
-        .notification-badge {
-          position: absolute;
-          top: 4px;
-          right: 4px;
-          background: #ef4444;
-          color: white;
-          font-size: 0.65rem;
-          font-weight: 700;
-          min-width: 18px;
-          height: 18px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          border-radius: 50%;
-          border: 2px solid white;
-        }
-
-        .notification-panel {
-          position: absolute;
-          top: calc(100% + 15px);
-          right: 0;
-          width: 380px;
-          max-height: 500px;
-          background: white;
-          border-radius: 20px;
-          box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-          border: 1px solid var(--glass-border);
-          display: flex;
-          flex-direction: column;
-          z-index: 10002;
-          overflow: hidden;
-        }
-
-        .panel-header {
-          padding: 20px;
-          border-bottom: 1px solid #f1f5f9;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          background: #f8fafc;
-        }
-
-        .panel-header h3 {
-          font-size: 1.1rem;
-          font-weight: 700;
-          color: #1e293b;
-        }
-
-        .header-actions {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-        }
-
-        .mark-all-btn {
-          font-size: 0.8rem;
-          color: #6366f1;
-          font-weight: 600;
-          background: none;
-          border: none;
-          cursor: pointer;
-        }
-
-        .close-panel-btn {
-          color: #94a3b8;
-          background: none;
-          border: none;
-          cursor: pointer;
-          display: flex;
-        }
-
-        .notification-list {
-          overflow-y: auto;
-          flex: 1;
-        }
-
-        .notification-item {
-          padding: 16px 20px;
-          display: flex;
-          gap: 15px;
-          border-bottom: 1px solid #f8fafc;
-          cursor: pointer;
-          transition: all 0.2s;
-        }
-
-        .notification-item:hover {
-          background: #f8fafc;
-        }
-
-        .notification-item.unread {
-          background: rgba(99, 102, 241, 0.03);
-        }
-
-        .notification-icon {
-          width: 40px;
-          height: 40px;
-          border-radius: 10px;
-          background: #f1f5f9;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          flex-shrink: 0;
-        }
-
-        .icon-blue { color: #3b82f6; }
-        .icon-purple { color: #a855f7; }
-        .icon-yellow { color: #f59e0b; }
-
-        .notification-content {
-          flex: 1;
-          display: flex;
-          flex-direction: column;
-          gap: 4px;
-        }
-
-        .notification-title-row {
-          display: flex;
-          justify-content: space-between;
-          align-items: flex-start;
-        }
-
-        .notification-title-row h4 {
-          font-size: 0.95rem;
-          font-weight: 700;
-          color: #1e293b;
-        }
-
-        .unread-dot {
-          width: 8px;
-          height: 8px;
-          background: #6366f1;
-          border-radius: 50%;
-          margin-top: 5px;
-        }
-
-        .notification-content p {
-          font-size: 0.85rem;
-          color: #64748b;
-          line-height: 1.4;
-        }
-
-        .notification-time {
-          font-size: 0.75rem;
-          color: #94a3b8;
-          margin-top: 4px;
-        }
-
-        .empty-notifications {
-          padding: 60px 20px;
-          text-align: center;
-          color: #cbd5e1;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 15px;
-        }
-
-        .empty-notifications p {
-          color: #94a3b8;
-          font-weight: 500;
-        }
-
-        @keyframes bell-ring {
-          0%, 100% { transform: rotate(0deg); }
-          20% { transform: rotate(15deg); }
-          40% { transform: rotate(-15deg); }
-          60% { transform: rotate(10deg); }
-          80% { transform: rotate(-10deg); }
-        }
-
-        .bell-anim {
-          animation: bell-ring 1s ease infinite;
-          color: #f59e0b;
-        }
-
-        .notification-backdrop {
-          position: fixed;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          z-index: 10001;
-        }
-      `}</style>
+            {/* === TICKETS TAB === */}
+            {!loading && activeTab === 'tickets' && (
+              <>
+                {tickets.length === 0 && (
+                  <p className="empty-text">No tickets yet</p>
+                )}
+                {tickets.map(ticket => (
+                  <div key={ticket.id} className="notification-item ticket-item">
+                    <div className="notification-icon-wrapper ticket-icon">
+                      🎫
+                    </div>
+                    <div className="notification-content">
+                      <div className="notification-title-row">
+                        <p className="notification-title">{ticket.subject}</p>
+                        {getStatusBadge(ticket.status)}
+                      </div>
+                      <p className="notification-message">{ticket.description}</p>
+                      <p className="notification-meta">
+                        📂 {ticket.category} &nbsp; | &nbsp;
+                        🔥 {ticket.priority} priority
+                      </p>
+                      <p className="notification-time">{formatTime(ticket.createdAt)}</p>
+                    </div>
+                  </div>
+                ))}
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

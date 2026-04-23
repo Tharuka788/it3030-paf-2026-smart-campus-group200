@@ -15,10 +15,13 @@ import java.time.LocalDateTime;
 public class Notification {
     @Id
     private String id;
-    private String userEmail;
+    private String userId; // Email of the user receiving notification
+    private String notificationType; // BOOKING_APPROVED, BOOKING_REJECTED, TICKET_STATUS_CHANGED, TICKET_COMMENTED, SYSTEM_ALERT
+    private String relatedResourceId; // Booking ID or Ticket ID
+    private String relatedResourceType; // BOOKING or TICKET
     private String title;
     private String message;
-    private String type; // BOOKING, TICKET, SYSTEM
-    private boolean isRead = false;
+    private boolean read = false;
     private LocalDateTime createdAt = LocalDateTime.now();
+    private LocalDateTime readAt;
 }

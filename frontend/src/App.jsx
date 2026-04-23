@@ -18,6 +18,7 @@ import AdminBookings from './pages/AdminBookings';
 import AdminTickets from './pages/AdminTickets';
 import AdminUsers from './pages/AdminUsers';
 import TechnicianDashboard from './pages/TechnicianDashboard';
+// import TechnicianDashboard from './pages/TechnicianDashboard';
 import './index.css';
 
 // Protected Route component to check auth status on every navigation
@@ -71,6 +72,10 @@ function App() {
           path="/dashboard" 
           element={<ProtectedRoute><Dashboard /></ProtectedRoute>} 
         />
+        {/* <Route 
+          path="/technician/dashboard" 
+          element={<TechnicianProtectedRoute><TechnicianDashboard /></TechnicianProtectedRoute>} 
+        /> */}
         <Route 
           path="/admin/dashboard" 
           element={<AdminProtectedRoute><AdminDashboard /></AdminProtectedRoute>} 

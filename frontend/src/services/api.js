@@ -56,4 +56,14 @@ export const notificationService = {
   markAllAsRead: (email) => api.patch(`/notifications/user/${email}/read-all`),
 };
 
+export const notificationService = {
+  getNotifications: (userId) => api.get('/notifications', { params: { userId } }),
+  getUnreadCount: (userId) => api.get('/notifications/unread-count', { params: { userId } }),
+  getUnreadNotifications: (userId) => api.get('/notifications/unread', { params: { userId } }),
+  markAsRead: (notificationId) => api.patch(`/notifications/${notificationId}/read`),
+  markAllAsRead: (userId) => api.patch('/notifications/read-all', null, { params: { userId } }),
+  deleteNotification: (notificationId) => api.delete(`/notifications/${notificationId}`),
+  deleteAllNotifications: (userId) => api.delete('/notifications', { params: { userId } }),
+};
+
 export default api;

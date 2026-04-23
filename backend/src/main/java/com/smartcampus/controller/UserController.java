@@ -72,4 +72,40 @@ public class UserController {
         return userRepository.findByEmail(email.toLowerCase())
                 .orElseThrow(() -> new RuntimeException("User not found"));
     }
+
+    @PatchMapping("/admin/users/{userId}/role")
+    public User updateUserRole(@PathVariable String userId, @RequestBody RoleUpdateRequest request) {
+        return userRepository.findById(userId)
+                .map(user -> {
+                    if (request.getRole() != null && 
+                        (request.getRole().equals("ROLE_USER") || 
+                         request.getRole().equals("ROLE_ADMIN") || 
+                         request.getRole().equals("ROLE_TECHNICIAN"))) {
+                        user.setRole(request.getRole());
+                        return userRepository.save(user);
+                    } else {
+                        throw new IllegalArgumentException("Invalid role: " + request.getRole());
+                    }
+                })
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
+    }
+
+    // DTO for role update request
+    public static class RoleUpdateRequest {
+        private String role;
+
+        public RoleUpdateRequest() {}
+
+        public RoleUpdateRequest(String role) {
+            this.role = role;
+        }
+
+        public String getRole() {
+            return role;
+        }
+
+        public void setRole(String role) {
+            this.role = role;
+        }
+    }
 }

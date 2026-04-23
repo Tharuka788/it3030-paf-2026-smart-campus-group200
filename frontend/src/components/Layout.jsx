@@ -25,23 +25,16 @@ const Layout = ({ children }) => {
              <p className="header-date">{new Date().toDateString()}</p>
            </div>
            <div className="header-right">
-              <button 
-                className="header-action-btn glass-morphism" 
-                onClick={() => window.location.reload()}
-                title="Refresh Page"
-              >
-                <RefreshCw size={20} />
-              </button>
-              <NotificationPanel />
-              <div className="profile-dropdown-container">
-                <div 
-                  className={`profile-pill glass-morphism ${isDropdownOpen ? 'active' : ''}`}
-                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                >
-                  <img src={localStorage.getItem('userPhoto') || `https://ui-avatars.com/api/?name=${localStorage.getItem('userName') || 'Student'}&background=6366f1&color=fff`} alt="Profile" />
-                  <span>{localStorage.getItem('userName') || 'Student'}</span>
-                  <ChevronDown size={18} className={`chevron-icon ${isDropdownOpen ? 'rotate' : ''}`} />
-                </div>
+             <NotificationPanel userId={localStorage.getItem('userEmail')} />
+             <div className="profile-dropdown-container">
+               <div 
+                 className={`profile-pill glass-morphism ${isDropdownOpen ? 'active' : ''}`}
+                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+               >
+                 <img src={localStorage.getItem('userPhoto') || `https://ui-avatars.com/api/?name=${localStorage.getItem('userName') || 'Student'}&background=6366f1&color=fff`} alt="Profile" />
+                 <span>{localStorage.getItem('userName') || 'Student'}</span>
+                 <ChevronDown size={18} className={`chevron-icon ${isDropdownOpen ? 'rotate' : ''}`} />
+               </div>
 
                <AnimatePresence>
                  {isDropdownOpen && (

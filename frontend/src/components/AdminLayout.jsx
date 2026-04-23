@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import AdminSidebar from './AdminSidebar';
+import NotificationPanel from './NotificationPanel';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, Bell, Settings, Command, LogOut, User, ChevronDown, RefreshCw } from 'lucide-react';
 
@@ -31,10 +32,7 @@ const AdminLayout = ({ children }) => {
             <button className="action-circle-btn">
               <Search size={20} />
             </button>
-            <button className="action-circle-btn">
-              <Bell size={20} />
-              <span className="notification-dot"></span>
-            </button>
+            <NotificationPanel userId={localStorage.getItem('userEmail')} />
             <button className="action-circle-btn">
               <Settings size={20} />
             </button>
