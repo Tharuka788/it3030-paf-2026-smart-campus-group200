@@ -156,8 +156,8 @@ const TechnicianTickets = () => {
       <div className="admin-tickets-page">
         <header className="page-header">
           <div className="header-text">
-            <h2>Maintenance Tickets</h2>
-            <p>Monitor and resolve your assigned support and maintenance tasks.</p>
+            <h2>Assigned Tickets</h2>
+            <p>Monitor and resolve all tickets currently assigned to you.</p>
           </div>
           <div className="header-actions">
             <button className="export-report-btn" onClick={exportToPDF}>

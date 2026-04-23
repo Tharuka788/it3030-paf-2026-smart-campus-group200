@@ -14,7 +14,7 @@ import { motion } from 'framer-motion';
 const TechnicianSidebar = () => {
   const navItems = [
     { name: 'Dashboard', icon: <LayoutDashboard size={22} />, path: '/technician/dashboard' },
-    { name: 'Maintenance Tickets', icon: <Ticket size={22} />, path: '/technician/tickets' }, // Reusing existing ticket management
+    { name: 'Assigned Tickets', icon: <Ticket size={22} />, path: '/technician/tickets' }, // Reusing existing ticket management
     { name: 'Facility Status', icon: <Building2 size={22} />, path: '/facilities' },
     { name: 'Service Logs', icon: <CheckCircle2 size={22} />, path: '/technician/logs' },
   ];

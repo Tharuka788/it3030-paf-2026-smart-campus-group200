@@ -28,22 +28,46 @@ const TechnicianDashboard = () => {
   useEffect(() => {
     const fetchTechStats = async () => {
       try {
-        // Mocking or fetching real data if ticketService exists
-        // For now, let's assume we have some data or use mock
+        const response = await ticketService.getAllTickets();
+        const allTickets = response.data;
+        const techEmail = localStorage.getItem('userEmail');
+        
+        // Filter tickets assigned to logged-in tech
+        const assignedTickets = allTickets.filter(t => t.assignedTo === techEmail);
+
+        // Stats calculation
+        const today = new Date().toDateString();
+        
+        const inProgress = assignedTickets.filter(t => t.status === 'IN_PROGRESS').length;
+        const pending = assignedTickets.filter(t => t.status === 'OPEN' || !t.status).length;
+        const completedToday = assignedTickets.filter(t => {
+          const isDone = t.status === 'RESOLVED' || t.status === 'CLOSED';
+          const isToday = new Date(t.updatedAt || t.createdAt).toDateString() === today;
+          return isDone && isToday;
+        }).length;
+        const criticalAlerts = assignedTickets.filter(t => 
+          (t.priority === 'HIGH' || t.priority === 'CRITICAL') && t.status !== 'RESOLVED' && t.status !== 'CLOSED'
+        ).length;
+
         setStats({
-          pendingTickets: 8,
-          inProgress: 3,
-          completedToday: 5,
-          criticalAlerts: 2
+          pendingTickets: pending,
+          inProgress,
+          completedToday,
+          criticalAlerts
         });
 
-        // Mock active tasks
-        setActiveTasks([
-          { id: '1', title: 'AC Repair - Lab 01', priority: 'CRITICAL', status: 'IN_PROGRESS', location: 'Computing Block' },
-          { id: '2', title: 'Projector Maintenance', priority: 'HIGH', status: 'PENDING', location: 'Hall A' },
-          { id: '3', title: 'Network Socket Fix', priority: 'MEDIUM', status: 'PENDING', location: 'Library' },
-          { id: '4', title: 'Light Replacement', priority: 'LOW', status: 'COMPLETED', location: 'Cafeteria' },
-        ]);
+        // Set active tasks from open/in-progress tickets
+        const active = assignedTickets
+          .filter(t => t.status !== 'RESOLVED' && t.status !== 'CLOSED')
+          .map(t => ({
+            id: t.id,
+            title: t.subject,
+            priority: t.priority || 'MEDIUM',
+            status: t.status || 'OPEN',
+            location: t.subcategory || 'General' // fallback location
+          }));
+          
+        setActiveTasks(active);
 
       } catch (err) {
         console.error('Failed to fetch technician stats:', err);
@@ -67,7 +91,7 @@ const TechnicianDashboard = () => {
         <header className="dashboard-header">
           <div className="header-text">
             <h1 className="gradient-text">Technician Overview</h1>
-            <p>Monitor facility health and manage maintenance requests.</p>
+            <p>Monitor and manage all your assigned tickets.</p>
           </div>
           <div className="tech-status">
             <Wrench size={18} className="spin-slow" />
@@ -102,7 +126,7 @@ const TechnicianDashboard = () => {
             <div className="panel-header">
               <div className="panel-title">
                 <ClipboardList size={20} />
-                <h3>Assigned Tasks</h3>
+                <h3>Assigned Tickets</h3>
               </div>
               <button className="text-btn" onClick={() => navigate('/technician/tickets')}>
                 View All <ArrowUpRight size={16} />
@@ -115,7 +139,7 @@ const TechnicianDashboard = () => {
               ) : activeTasks.length === 0 ? (
                 <div className="empty-state">
                   <h4>Clear Workspace!</h4>
-                  <p>No maintenance tasks assigned to you right now.</p>
+                  <p>No tickets assigned to you right now.</p>
                 </div>
               ) : (
                 <div className="task-list">
@@ -132,7 +156,7 @@ const TechnicianDashboard = () => {
                         <span className={`status-tag ${task.status.toLowerCase()}`}>
                           {task.status.replace('_', ' ')}
                         </span>
-                        <button className="action-btn">Update</button>
+                        <button className="action-btn" onClick={() => navigate('/technician/tickets')}>View</button>
                       </div>
                     </div>
                   ))}
