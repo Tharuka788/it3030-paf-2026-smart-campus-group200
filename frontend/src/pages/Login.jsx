@@ -127,7 +127,7 @@ const Login = () => {
             <button type="submit" className="manual-login-btn" disabled={loading}>
               {loading ? 'Signing in...' : (
                 <>
-                  <span>Sign In222</span>
+                  <span>Sign In</span>
                   <ArrowRight size={18} />
                 </>
               )}
