@@ -42,6 +42,7 @@ public class Ticket {
     
     private String adminComments;
     private String assignedTo;
+    private String technicianNotes;
 
     @CreatedDate
     private LocalDateTime createdAt;

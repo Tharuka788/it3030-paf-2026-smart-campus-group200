@@ -81,7 +81,7 @@ public class TicketService {
         return ticketRepository.findById(id);
     }
 
-    public Ticket updateTicketStatus(String id, String status, String adminComments, String assignedTo) {
+    public Ticket updateTicketStatus(String id, String status, String adminComments, String assignedTo, String technicianNotes) {
         return ticketRepository.findById(id).map(ticket -> {
             ticket.setStatus(status);
             if (adminComments != null) {
@@ -89,6 +89,9 @@ public class TicketService {
             }
             if (assignedTo != null) {
                 ticket.setAssignedTo(assignedTo);
+            }
+            if (technicianNotes != null) {
+                ticket.setTechnicianNotes(technicianNotes);
             }
             ticket.setUpdatedAt(LocalDateTime.now());
             Ticket updated = ticketRepository.save(ticket);

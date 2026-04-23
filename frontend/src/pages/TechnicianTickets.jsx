@@ -32,7 +32,7 @@ const TechnicianTickets = () => {
   const [selectedTicket, setSelectedTicket] = useState(null);
   const [adminComment, setAdminComment] = useState('');
   const [modalStatus, setModalStatus] = useState('');
-  const [modalAssignedTo, setModalAssignedTo] = useState('');
+  const [modalTechnicianNotes, setModalTechnicianNotes] = useState('');
   const [updating, setUpdating] = useState(false);
 
   const fetchAllTickets = async () => {
@@ -51,10 +51,10 @@ const TechnicianTickets = () => {
     fetchAllTickets();
   }, []);
 
-  const handleStatusUpdate = async (id, status, commentToUse, assignedToToUse) => {
+  const handleStatusUpdate = async (id, status, commentToUse, assignedToToUse, notesToUse) => {
     setUpdating(true);
     try {
-      const response = await ticketService.updateStatus(id, status, commentToUse, assignedToToUse);
+      const response = await ticketService.updateStatus(id, status, commentToUse, assignedToToUse, notesToUse);
       const updatedTicket = response.data;
       
       await fetchAllTickets();
@@ -75,11 +75,11 @@ const TechnicianTickets = () => {
     if (selectedTicket) {
       setAdminComment(selectedTicket.adminComments || '');
       setModalStatus(selectedTicket.status || 'OPEN');
-      setModalAssignedTo(selectedTicket.assignedTo || '');
+      setModalTechnicianNotes(selectedTicket.technicianNotes || '');
     } else {
       setAdminComment('');
       setModalStatus('');
-      setModalAssignedTo('');
+      setModalTechnicianNotes('');
     }
   }, [selectedTicket]);
 
@@ -242,7 +242,7 @@ const TechnicianTickets = () => {
                         <select 
                           className="status-select"
                           value={ticket.status} 
-                          onChange={(e) => handleStatusUpdate(ticket.id, e.target.value, ticket.adminComments, ticket.assignedTo)}
+                          onChange={(e) => handleStatusUpdate(ticket.id, e.target.value, ticket.adminComments, ticket.assignedTo, ticket.technicianNotes)}
                         >
                           <option value="OPEN">Open</option>
                           <option value="IN_PROGRESS">In Progress</option>
@@ -412,9 +412,20 @@ const TechnicianTickets = () => {
                         </select>
                       </div>
 
+                      <div className="admin-comment-input-group mb-20">
+                        <label>Internal Technician Notes (Hidden from User)</label>
+                        <textarea 
+                          placeholder="Add private technical notes, findings, or tasks here..."
+                          value={modalTechnicianNotes}
+                          onChange={(e) => setModalTechnicianNotes(e.target.value)}
+                          className="admin-comment-textarea"
+                          style={{ height: '80px', background: '#fffbeb', borderColor: '#fef3c7' }}
+                        />
+                      </div>
+
                       <button 
                         className={`save-update-btn ${updating ? 'updating' : ''}`}
-                        onClick={() => handleStatusUpdate(selectedTicket.id, modalStatus, adminComment, modalAssignedTo)}
+                        onClick={() => handleStatusUpdate(selectedTicket.id, modalStatus, adminComment, selectedTicket.assignedTo, modalTechnicianNotes)}
                         disabled={updating}
                       >
                         {updating ? (
