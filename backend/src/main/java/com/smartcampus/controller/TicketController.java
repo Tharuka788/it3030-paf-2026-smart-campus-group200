@@ -53,8 +53,9 @@ public class TicketController {
             @RequestParam String status,
             @RequestParam(required = false) String adminComments,
             @RequestParam(required = false) String assignedTo,
-            @RequestParam(required = false) String technicianNotes) {
-        return ticketService.updateTicketStatus(id, status, adminComments, assignedTo, technicianNotes);
+            @RequestParam(required = false) String notesForTechnician,
+            @RequestParam(required = false) String notesFromTechnician) {
+        return ticketService.updateTicketStatus(id, status, adminComments, assignedTo, notesForTechnician, notesFromTechnician);
     }
 
     @DeleteMapping("/v1/tickets/{id}")
