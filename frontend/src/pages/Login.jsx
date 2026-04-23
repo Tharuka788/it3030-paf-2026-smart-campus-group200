@@ -105,7 +105,7 @@ const Login = () => {
           
           <form onSubmit={handleManualLogin} className="login-form">
             <div className="input-group">
-              <label><Mail size={16} /> Email</label>
+              <label><Mail size={16} /> Email222</label>
               <input 
                 type="email" 
                 placeholder="name@campus.edu" 
