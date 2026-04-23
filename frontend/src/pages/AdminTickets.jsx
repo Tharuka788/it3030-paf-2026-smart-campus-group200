@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import DynamicLayout from '../components/DynamicLayout';
 import { ticketService } from '../services/api';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import { jsPDF } from 'jspdf';
+import autoTable from 'jspdf-autotable';
+import { IMAGE_BASE_URL } from '../services/api';
 import { 
   Ticket, 
   CheckCircle, 

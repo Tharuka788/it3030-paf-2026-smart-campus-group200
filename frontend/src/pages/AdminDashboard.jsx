@@ -8,10 +8,12 @@ import {
   ShieldAlert,
   ArrowUpRight,
   Activity,
-  BarChart3
+  BarChart3,
+  Ticket
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { facilityService, bookingService } from '../services/api';
+import { facilityService, bookingService, ticketService } from '../services/api';
+import { Ticket as TicketIcon } from 'lucide-react';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { 
   BarChart, 
@@ -37,32 +39,44 @@ const AdminDashboard = () => {
     totalUsers: 0,
     totalFacilities: 0,
     activeBookings: 0,
-    pendingApprovals: 0
+    pendingApprovals: 0,
+    totalTickets: 0,
+    activeTickets: 0
   });
   const [recentBookings, setRecentBookings] = useState([]);
+  const [recentTickets, setRecentTickets] = useState([]);
   const [facilities, setFacilities] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchAdminStats = async () => {
       try {
-        const [facilitiesRes, bookingsRes] = await Promise.all([
+        const [facilitiesRes, bookingsRes, ticketsRes] = await Promise.all([
           facilityService.getAllFacilities(),
-          bookingService.getAllBookings()
+          bookingService.getAllBookings(),
+          ticketService.getAllTickets()
         ]);
 
         setStats({
           totalUsers: 124, 
           totalFacilities: facilitiesRes.data.length,
           activeBookings: bookingsRes.data.filter(b => b.status === 'APPROVED').length,
-          pendingApprovals: bookingsRes.data.filter(b => b.status === 'PENDING').length
+          pendingApprovals: bookingsRes.data.filter(b => b.status === 'PENDING').length,
+          totalTickets: ticketsRes.data.length,
+          activeTickets: ticketsRes.data.filter(t => t.status === 'OPEN' || t.status === 'IN_PROGRESS').length
         });
 
         // Sort by update time and take latest 5
-        const sorted = [...bookingsRes.data].sort((a, b) => 
+        const sortedBookings = [...bookingsRes.data].sort((a, b) => 
           new Date(b.updatedAt || b.createdAt) - new Date(a.updatedAt || a.createdAt)
         ).slice(0, 5);
-        setRecentBookings(sorted);
+        
+        const sortedTickets = [...ticketsRes.data].sort((a, b) => 
+          new Date(b.createdAt) - new Date(a.createdAt)
+        ).slice(0, 5);
+
+        setRecentBookings(sortedBookings);
+        setRecentTickets(sortedTickets);
         setFacilities(facilitiesRes.data);
 
       } catch (err) {
@@ -99,7 +113,8 @@ const AdminDashboard = () => {
     { name: 'Total Users', value: stats.totalUsers, icon: <Users size={24} />, color: '#6366f1' },
     { name: 'Facilities', value: stats.totalFacilities, icon: <Building2 size={24} />, color: '#10b981' },
     { name: 'Approved Bookings', value: stats.activeBookings, icon: <CalendarCheck size={24} />, color: '#0ea5e9' },
-    { name: 'Pending Requests', value: stats.pendingApprovals, icon: <ShieldAlert size={24} />, color: '#f59e0b' },
+    { name: 'Support Tickets', value: stats.totalTickets, icon: <TicketIcon size={24} />, color: '#f59e0b' },
+    { name: 'Active Issues', value: stats.activeTickets, icon: <ShieldAlert size={24} />, color: '#ef4444' },
   ];
 
   return (
@@ -291,14 +306,79 @@ const AdminDashboard = () => {
                <button className="action-item" onClick={() => navigate('/admin/facilities')}>
                  <Building2 size={18} /> Add New Facility
                </button>
-               <button className="action-item" onClick={() => navigate('/admin/users')}>
-                 <Users size={18} /> Manage Permissions
-               </button>
-               <button className="action-item">
-                 <ShieldAlert size={18} /> Security Audit
-               </button>
-             </div>
-          </aside>
+                <button className="action-item" onClick={() => navigate('/admin/users')}>
+                  <Users size={18} /> Manage Permissions
+                </button>
+                <button className="action-item" onClick={() => navigate('/admin/tickets')}>
+                  <Ticket size={18} /> Support Queue
+                </button>
+                <button className="action-item">
+                  <ShieldAlert size={18} /> Security Audit
+                </button>
+              </div>
+           </aside>
+        </div>
+
+        <div className="dashboard-grid mt-30">
+          <section className="main-panel glass-morphism">
+            <div className="panel-header">
+              <div className="panel-title">
+                <Ticket size={20} />
+                <h3>Recent Support Tickets</h3>
+              </div>
+              <button className="text-btn" onClick={() => navigate('/admin/tickets')}>
+                View All Queue <ArrowUpRight size={16} />
+              </button>
+            </div>
+
+            <div className="bookings-table-container">
+              {loading ? (
+                <div className="table-loader">
+                  <LoadingSpinner />
+                </div>
+              ) : recentTickets.length === 0 ? (
+                <div className="empty-state">
+                  <Ticket size={48} />
+                  <h4>No active tickets</h4>
+                  <p>System is running smoothly without reported issues.</p>
+                </div>
+              ) : (
+                <table className="admin-table">
+                  <thead>
+                    <tr>
+                      <th>Ticket</th>
+                      <th>Category</th>
+                      <th>Priority</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {recentTickets.map((ticket) => (
+                      <tr key={ticket.id} onClick={() => navigate('/admin/tickets')} style={{ cursor: 'pointer' }}>
+                        <td>
+                          <div className="user-cell">
+                            <span className="u-name">{ticket.subject}</span>
+                            <span className="u-email">From: {ticket.userName}</span>
+                          </div>
+                        </td>
+                        <td><span className="res-tag">{ticket.category}</span></td>
+                        <td>
+                          <span className={`priority-text priority-${ticket.priority?.toLowerCase()}`}>
+                            {ticket.priority}
+                          </span>
+                        </td>
+                        <td>
+                          <span className={`status-pill-small ${(ticket.status || 'OPEN').toLowerCase()}`}>
+                            {ticket.status?.replace('_', ' ') || 'OPEN'}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
+          </section>
         </div>
       </div>
 
@@ -307,7 +387,15 @@ const AdminDashboard = () => {
           display: flex;
           flex-direction: column;
           gap: 30px;
+          padding-bottom: 50px;
         }
+
+        .mt-30 { margin-top: 30px; }
+
+        .priority-text { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; }
+        .priority-high { color: #ef4444; }
+        .priority-medium { color: #f59e0b; }
+        .priority-low { color: #10b981; }
 
         .dashboard-header {
           display: flex;
