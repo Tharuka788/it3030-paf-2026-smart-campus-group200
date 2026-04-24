@@ -81,7 +81,7 @@ const FacilitiesCatalogue = () => {
       icon: <Mic size={32} />, 
       color: '#3b82f6',
       countSuffix: 'Available',
-      filter: (f) => f.type === 'LECTURE_HALL' && f.name.includes('Auditorium')
+      filter: (f) => f.type === 'AUDITORIUM' || (f.type === 'LECTURE_HALL' && f.name.includes('Auditorium'))
     },
     { 
       id: 'lecture_halls', 

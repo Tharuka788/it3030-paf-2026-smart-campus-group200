@@ -135,6 +135,7 @@ const ManageFacility = () => {
                     <option value="LECTURE_HALL">Lecture Hall</option>
                     <option value="LAB">Laboratory / PC Lab</option>
                     <option value="EQUIPMENT">Equipment</option>
+                    <option value="AUDITORIUM">Auditorium</option>
                     <option value="OTHER">Other</option>
                 </select>
               </div>
