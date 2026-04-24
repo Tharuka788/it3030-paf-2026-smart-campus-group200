@@ -246,7 +246,7 @@ const FacilitiesCatalogue = () => {
                               <span>Under Maintenance</span>
                             </div>
                           ) : (
-                            (() => {
+                            userRole !== 'ROLE_TECHNICIAN' && (() => {
                               const type = fac.type?.toUpperCase().replace(/[\s_]/g, '');
                               const isLectureHall = type === 'LECTUREHALL';
                               const isLab = type === 'LAB';
