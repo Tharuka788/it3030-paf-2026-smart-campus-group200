@@ -29,7 +29,8 @@ const FacilitiesCatalogue = () => {
     setLoading(true);
     try {
       const { data } = await facilityService.getAllFacilities(filters);
-      setFacilities(data);
+      // Safety check for response format
+      setFacilities(Array.isArray(data) ? data : (data?.value || []));
     } catch (error) {
       console.error('Failed to fetch facilities:', error);
     } finally {
@@ -76,12 +77,12 @@ const FacilitiesCatalogue = () => {
 
   const categories = [
     { 
-      id: 'auditorium', 
-      title: 'Main Auditorium', 
-      icon: <Mic size={32} />, 
+      id: 'meeting_rooms', 
+      title: 'Meeting Rooms', 
+      icon: <Users size={32} />, 
       color: '#3b82f6',
       countSuffix: 'Available',
-      filter: (f) => f.type === 'LECTURE_HALL' && f.name.includes('Auditorium')
+      filter: (f) => f.type?.toUpperCase() === 'ROOM' || f.type?.toUpperCase() === 'AUDITORIUM'
     },
     { 
       id: 'lecture_halls', 
@@ -89,7 +90,7 @@ const FacilitiesCatalogue = () => {
       icon: <GraduationCap size={32} />, 
       color: '#10b981',
       countSuffix: 'Halls Available',
-      filter: (f) => f.type === 'LECTURE_HALL' && !f.name.includes('Auditorium')
+      filter: (f) => f.type?.toUpperCase() === 'LECTURE_HALL'
     },
     { 
       id: 'pc_labs', 
@@ -97,15 +98,23 @@ const FacilitiesCatalogue = () => {
       icon: <Monitor size={32} />, 
       color: '#6366f1',
       countSuffix: 'Workstations Online',
-      filter: (f) => f.type === 'LAB'
+      filter: (f) => f.type?.toUpperCase() === 'LAB'
     },
     { 
       id: 'equipment', 
       title: 'Equipment', 
-      icon: <Video size={32} />, 
+      icon: <Box size={32} />, 
       color: '#f59e0b',
       countSuffix: 'Items Ready',
-      filter: (f) => f.type === 'EQUIPMENT'
+      filter: (f) => f.type?.toUpperCase() === 'EQUIPMENT'
+    },
+    { 
+      id: 'others', 
+      title: 'Others', 
+      icon: <LayoutGrid size={32} />, 
+      color: '#64748b',
+      countSuffix: 'Resources',
+      filter: (f) => !['ROOM', 'LECTURE_HALL', 'LAB', 'EQUIPMENT', 'AUDITORIUM'].includes(f.type?.toUpperCase())
     }
   ];
 
@@ -114,11 +123,14 @@ const FacilitiesCatalogue = () => {
     : facilities;
 
   const getCategoryCount = (category) => {
-    const items = facilities.filter(category.filter);
+    const availableItems = facilities.filter(f => 
+      category.filter(f) && (f.status === 'ACTIVE' || f.status === 'IN_STOCK')
+    );
+    
     if (category.id === 'pc_labs' || category.id === 'equipment') {
-      return items.reduce((sum, item) => sum + (item.capacity || 0), 0);
+      return availableItems.reduce((sum, item) => sum + (item.capacity || 0), 0);
     }
-    return items.length;
+    return availableItems.length;
   };
 
   const containerVariants = {
@@ -230,7 +242,7 @@ const FacilitiesCatalogue = () => {
                         </span>
                       </div>
                       <div className="card-body">
-                        <p><Tag size={16} /> {fac.type.replace('_', ' ')}</p>
+                        <p><Tag size={16} /> {fac.type?.replace('_', ' ')}</p>
                         {fac.type !== 'EQUIPMENT' && <p><MapPin size={16} /> {fac.location || 'Main Campus'}</p>}
                         {fac.type === 'EQUIPMENT' ? (
                           <p><Box size={16} /> Quantity: {fac.capacity || 'N/A'}</p>

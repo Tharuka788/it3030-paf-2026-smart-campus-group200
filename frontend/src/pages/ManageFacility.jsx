@@ -131,7 +131,7 @@ const ManageFacility = () => {
               <div className="input-group">
                 <label><Tag size={18} /> Type</label>
                 <select name="type" value={formData.type} onChange={handleChange}>
-                    <option value="ROOM">Room / Meeting Room</option>
+                    <option value="ROOM">Meeting Room</option>
                     <option value="LECTURE_HALL">Lecture Hall</option>
                     <option value="LAB">Laboratory / PC Lab</option>
                     <option value="EQUIPMENT">Equipment</option>
