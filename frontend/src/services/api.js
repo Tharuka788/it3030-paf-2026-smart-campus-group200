@@ -44,8 +44,12 @@ export const ticketService = {
   }),
   getAllTickets: () => api.get('/v1/tickets'),
   getTicketsByUser: (email) => api.get(`/v1/tickets/user/${email}`),
-  updateStatus: (id, status, adminComments) =>
-    api.patch(`/v1/tickets/${id}/status?status=${status}${adminComments ? `&adminComments=${encodeURIComponent(adminComments)}` : ''}`),
+  updateStatus: (id, status, adminComments, assignedTo) => {
+    let url = `/v1/tickets/${id}/status?status=${status}`;
+    if (adminComments !== undefined && adminComments !== null) url += `&adminComments=${encodeURIComponent(adminComments)}`;
+    if (assignedTo !== undefined && assignedTo !== null) url += `&assignedTo=${encodeURIComponent(assignedTo)}`;
+    return api.patch(url);
+  },
   deleteTicket: (id) => api.delete(`/v1/tickets/${id}`),
 };
 
