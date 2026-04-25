@@ -72,10 +72,6 @@ function App() {
           path="/dashboard"
           element={<ProtectedRoute><Dashboard /></ProtectedRoute>}
         />
-        {/* <Route 
-          path="/technician/dashboard" 
-          element={<TechnicianProtectedRoute><TechnicianDashboard /></TechnicianProtectedRoute>} 
-        /> */}
         <Route
           path="/admin/dashboard"
           element={<AdminProtectedRoute><AdminDashboard /></AdminProtectedRoute>}
@@ -110,6 +106,10 @@ function App() {
         />
         <Route
           path="/bookings/new"
+          element={<ProtectedRoute><NewBooking /></ProtectedRoute>}
+        />
+        <Route
+          path="/bookings/edit/:id"
           element={<ProtectedRoute><NewBooking /></ProtectedRoute>}
         />
         <Route

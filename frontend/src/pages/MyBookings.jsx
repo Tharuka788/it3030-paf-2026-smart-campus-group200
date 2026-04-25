@@ -12,7 +12,8 @@ import {
   CheckCircle,
   CalendarDays,
   AlertTriangle,
-  MapPin
+  MapPin,
+  Edit2
 } from 'lucide-react';
 import { bookingService } from '../services/api';
 import LoadingSpinner from '../components/LoadingSpinner';
@@ -207,9 +208,14 @@ const MyBookings = () => {
                       </div>
 
                       {booking.status === 'PENDING' && (
-                        <button className="cancel-booking-btn" onClick={(e) => { e.stopPropagation(); handleDelete(booking.id); }}>
-                           Cancel Booking
-                        </button>
+                        <div className="card-actions">
+                          <button className="edit-booking-btn" onClick={() => navigate(`/bookings/edit/${booking.id}`)}>
+                             <Edit2 size={16} /> Edit
+                          </button>
+                          <button className="cancel-booking-btn" onClick={(e) => { e.stopPropagation(); handleDelete(booking.id); }}>
+                             Cancel Booking
+                          </button>
+                        </div>
                       )}
                    </motion.div>
                  ))}
@@ -481,21 +487,49 @@ const MyBookings = () => {
           margin: 0;
         }
 
-        .cancel-booking-btn {
+        .card-actions {
+          display: flex;
+          align-items: center;
+          gap: 15px;
           margin-top: auto;
+          padding-top: 15px;
+          border-top: 1px solid #f1f5f9;
+        }
+
+        .edit-booking-btn {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          background: #f0f9ff;
+          color: #0ea5e9;
+          border: 1px solid #bae6fd;
+          padding: 6px 12px;
+          border-radius: 8px;
+          font-weight: 600;
+          font-size: 0.85rem;
+          cursor: pointer;
+          transition: all 0.2s;
+        }
+
+        .edit-booking-btn:hover {
+          background: #e0f2fe;
+          border-color: #7dd3fc;
+        }
+
+        .cancel-booking-btn {
           background: transparent;
           color: #ef4444;
           border: none;
           padding: 8px 0;
           font-weight: 600;
+          font-size: 0.85rem;
           cursor: pointer;
           transition: all 0.3s;
-          width: fit-content;
           text-decoration: underline;
         }
 
         .cancel-booking-btn:hover {
-          background: rgba(239, 68, 68, 0.2);
+          color: #dc2626;
         }
 
         .empty-state {

@@ -35,6 +35,75 @@ public class BookingService {
     }
 
     public Booking createBooking(Booking booking) {
+        validateBooking(booking, null);
+
+        populateResourceName(booking);
+        booking.setCreatedAt(LocalDateTime.now());
+        booking.setUpdatedAt(LocalDateTime.now());
+        booking.setStatus("PENDING");
+        Booking savedBooking = bookingRepository.save(booking);
+        
+        // Populate resource name before sending email if it's missing
+        populateResourceName(savedBooking);
+        emailService.sendBookingConfirmation(savedBooking);
+        
+        // Create notification for the user about their new booking submission
+        notificationService.createNotification(
+                savedBooking.getUserEmail(),
+                "BOOKING_CREATED",
+                "Booking Submitted",
+                "Your booking for " + (savedBooking.getResourceName() != null ? savedBooking.getResourceName() : "a resource") 
+                        + " on " + savedBooking.getStartTime().toLocalDate() 
+                        + " from " + savedBooking.getStartTime().toLocalTime() 
+                        + " to " + savedBooking.getEndTime().toLocalTime() 
+                        + " is pending approval.",
+                savedBooking.getId(),
+                "BOOKING"
+        );
+        
+        return savedBooking;
+    }
+
+    public Booking updateBooking(String id, Booking updatedBooking) {
+        return bookingRepository.findById(id).map(existingBooking -> {
+            // Update fields
+            existingBooking.setStartTime(updatedBooking.getStartTime());
+            existingBooking.setEndTime(updatedBooking.getEndTime());
+            existingBooking.setPurpose(updatedBooking.getPurpose());
+            existingBooking.setExpectedAttendees(updatedBooking.getExpectedAttendees());
+            existingBooking.setSelectedSeats(updatedBooking.getSelectedSeats());
+            
+            // If resource changed (though usually not common in PUT), update it too
+            if (updatedBooking.getResourceId() != null) {
+                existingBooking.setResourceId(updatedBooking.getResourceId());
+            }
+
+            // Validate the updated data (excluding the current booking from overlap check)
+            validateBooking(existingBooking, id);
+
+            // If sensitive info changed, we might want to set status back to PENDING
+            // For now, let's keep it as is or reset if times changed
+            existingBooking.setStatus("PENDING");
+            existingBooking.setUpdatedAt(LocalDateTime.now());
+            
+            populateResourceName(existingBooking);
+            Booking saved = bookingRepository.save(existingBooking);
+            
+            // Notify user about the update
+            notificationService.createNotification(
+                    saved.getUserEmail(),
+                    "BOOKING_UPDATED",
+                    "Booking Updated",
+                    "Your booking for " + saved.getResourceName() + " has been updated and is pending re-approval.",
+                    saved.getId(),
+                    "BOOKING"
+            );
+            
+            return saved;
+        }).orElseThrow(() -> new RuntimeException("Booking not found with id: " + id));
+    }
+
+    private void validateBooking(Booking booking, String excludeId) {
         if (booking.getResourceId() == null) {
             throw new IllegalArgumentException("Resource ID is required for booking");
         }
@@ -71,6 +140,11 @@ public class BookingService {
                 booking.getResourceId(), Arrays.asList("PENDING", "APPROVED"));
 
         for (Booking existing : existingBookings) {
+            // Skip the current booking if we are updating it
+            if (excludeId != null && existing.getId() != null && existing.getId().equals(excludeId)) {
+                continue;
+            }
+
             LocalDateTime existingStart = existing.getStartTime();
             LocalDateTime existingEnd = existing.getEndTime();
             
@@ -99,32 +173,6 @@ public class BookingService {
                 }
             }
         }
-
-        populateResourceName(booking);
-        booking.setCreatedAt(LocalDateTime.now());
-        booking.setUpdatedAt(LocalDateTime.now());
-        booking.setStatus("PENDING");
-        Booking savedBooking = bookingRepository.save(booking);
-        
-        // Populate resource name before sending email if it's missing
-        populateResourceName(savedBooking);
-        emailService.sendBookingConfirmation(savedBooking);
-        
-        // Create notification for the user about their new booking submission
-        notificationService.createNotification(
-                savedBooking.getUserEmail(),
-                "BOOKING_CREATED",
-                "Booking Submitted",
-                "Your booking for " + (savedBooking.getResourceName() != null ? savedBooking.getResourceName() : "a resource") 
-                        + " on " + savedBooking.getStartTime().toLocalDate() 
-                        + " from " + savedBooking.getStartTime().toLocalTime() 
-                        + " to " + savedBooking.getEndTime().toLocalTime() 
-                        + " is pending approval.",
-                savedBooking.getId(),
-                "BOOKING"
-        );
-        
-        return savedBooking;
     }
 
     public List<Booking> getAllBookings() {

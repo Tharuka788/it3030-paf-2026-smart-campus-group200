@@ -21,6 +21,8 @@ export const bookingService = {
     return api.patch(url);
   },
   deleteBooking: (id) => api.delete(`/v1/bookings/${id}`),
+  updateBooking: (id, data) => api.put(`/v1/bookings/${id}`, data),
+  getBookingById: (id) => api.get(`/v1/bookings/${id}`),
 };
 
 export const facilityService = {

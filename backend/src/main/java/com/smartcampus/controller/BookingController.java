@@ -44,6 +44,22 @@ public class BookingController {
     }
 
     /**
+     * Update an existing booking.
+     * Re-validates time conflicts and sets status to PENDING for re-approval.
+     */
+    @PutMapping("/{id}")
+    public ResponseEntity<Booking> updateBooking(@PathVariable String id, @Valid @RequestBody BookingRequest bookingRequest) {
+        Booking booking = new Booking();
+        booking.setResourceId(bookingRequest.getResourceId());
+        booking.setStartTime(bookingRequest.getStartTime());
+        booking.setEndTime(bookingRequest.getEndTime());
+        booking.setPurpose(bookingRequest.getPurpose());
+        booking.setExpectedAttendees(bookingRequest.getExpectedAttendees());
+        booking.setSelectedSeats(bookingRequest.getSelectedSeats());
+        return ResponseEntity.ok(bookingService.updateBooking(id, booking));
+    }
+
+    /**
      * Get a list of all bookings in the system.
      * Used by administrators.
      */
