@@ -25,6 +25,9 @@ const Layout = ({ children }) => {
              <p className="header-date">{new Date().toDateString()}</p>
            </div>
            <div className="header-right">
+             <button className="header-action-btn" onClick={() => window.location.reload()} title="Refresh Page">
+               <RefreshCw size={20} />
+             </button>
              <NotificationPanel userId={localStorage.getItem('userEmail')} />
              <div className="profile-dropdown-container">
                <div 
