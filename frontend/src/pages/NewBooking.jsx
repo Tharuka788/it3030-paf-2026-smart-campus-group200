@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams, useParams } from 'react-router-dom';
 import DynamicLayout from '../components/DynamicLayout';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Calendar, Clock, MapPin, FileText, Send, AlertCircle, Info } from 'lucide-react';
@@ -8,7 +8,9 @@ import { format, parseISO, isSameDay, addDays } from 'date-fns';
 
 const NewBooking = () => {
   const [searchParams] = useSearchParams();
+  const { id } = useParams();
   const navigate = useNavigate();
+  const isEdit = !!id;
   const urlResourceId = searchParams.get('resourceId');
 
   const [formData, setFormData] = useState({
@@ -57,11 +59,6 @@ const NewBooking = () => {
   useEffect(() => {
     if (formData.resourceId) {
       fetchAvailability();
-      // Check if it's a lecture hall and redirect
-      if (formData.resourceId.includes('L') || formData.resourceId.length > 10) { // Simple heuristic or fetch type
-          // If we had the type here we could redirect. 
-          // For now let's just make sure FacilitiesCatalogue navigation is fixed.
-      }
     }
   }, [formData.resourceId]);
 
@@ -82,6 +79,33 @@ const NewBooking = () => {
     };
     checkResourceAndRedirect();
   }, [urlResourceId, navigate]);
+
+  useEffect(() => {
+    if (isEdit) {
+      const fetchBookingData = async () => {
+        setLoading(true);
+        try {
+          const { data } = await bookingService.getBookingById(id);
+          setFormData({
+            resourceId: data.resourceId,
+            resourceName: data.resourceName,
+            startTime: data.startTime,
+            endTime: data.endTime,
+            purpose: data.purpose,
+            expectedAttendees: data.expectedAttendees,
+            userEmail: data.userEmail,
+            userName: data.userName,
+          });
+        } catch (err) {
+          console.error('Failed to fetch booking:', err);
+          setError('Failed to load booking details.');
+        } finally {
+          setLoading(false);
+        }
+      };
+      fetchBookingData();
+    }
+  }, [id, isEdit]);
 
   const fetchAvailability = async () => {
     setFetchingAvailability(true);
@@ -116,34 +140,29 @@ const NewBooking = () => {
     setLoading(true);
     setError(null);
 
-    // Date and time validation objects
     const start = new Date(formData.startTime);
     const end = new Date(formData.endTime);
     const now = new Date();
     const nextWeek = addDays(now, 7);
 
-    // 1. Prevent bookings in the past
     if (start < now) {
       setError("Cannot book a resource in the past.");
       setLoading(false);
       return;
     }
 
-    // 2. Limit bookings to 7 days in advance
     if (start > nextWeek) {
       setError("Bookings can only be made up to 7 days in advance.");
       setLoading(false);
       return;
     }
 
-    // 3. Ensure end time is after start time
     if (end <= start) {
       setError("End time must be after start time.");
       setLoading(false);
       return;
     }
 
-    // 4. Validate word count for purpose (max 100 words)
     if (countWords(formData.purpose) > 100) {
       setError("Purpose must not exceed 100 words.");
       setLoading(false);
@@ -151,21 +170,27 @@ const NewBooking = () => {
     }
 
     try {
-      await bookingService.createBooking(formData);
-      setSuccess(true);
-      setFormData({
-        ...formData,
-        resourceId: '',
-        startTime: '',
-        endTime: '',
-        purpose: '',
-        expectedAttendees: '',
-      });
-      fetchAvailability();
-      setTimeout(() => setSuccess(false), 5000);
+      if (isEdit) {
+        await bookingService.updateBooking(id, formData);
+        setSuccess(true);
+        setTimeout(() => navigate('/bookings/my'), 2000);
+      } else {
+        await bookingService.createBooking(formData);
+        setSuccess(true);
+        setFormData({
+          ...formData,
+          resourceId: '',
+          startTime: '',
+          endTime: '',
+          purpose: '',
+          expectedAttendees: '',
+        });
+        fetchAvailability();
+        setTimeout(() => setSuccess(false), 5000);
+      }
     } catch (err) {
       console.error('Booking failed:', err);
-      const message = err.response?.data?.message || 'Failed to create booking. Please try again.';
+      const message = err.response?.data?.message || 'Failed to process booking. Please try again.';
       setError(message);
     } finally {
       setLoading(false);
@@ -187,8 +212,8 @@ const NewBooking = () => {
           animate={{ opacity: 1, y: 0 }}
         >
           <div className="form-header">
-            <h2 className="gradient-text">New Resource Booking</h2>
-            <p>Request access to campus facilities and equipment with automated conflict checking.</p>
+            <h2 className="gradient-text">{isEdit ? 'Update Booking' : 'New Resource Booking'}</h2>
+            <p>{isEdit ? 'Modify your existing resource reservation details.' : 'Request access to campus facilities and equipment with automated conflict checking.'}</p>
           </div>
 
           <div className="booking-grid">
@@ -282,7 +307,7 @@ const NewBooking = () => {
                 ) : (
                   <>
                     <Send size={20} />
-                    <span>Submit Request</span>
+                    <span>{isEdit ? 'Update Reservation' : 'Submit Request'}</span>
                   </>
                 )}
               </button>
@@ -295,7 +320,7 @@ const NewBooking = () => {
                     animate={{ scale: 1, opacity: 1 }}
                     exit={{ scale: 0.8, opacity: 0 }}
                   >
-                    Booking request submitted successfully!
+                    Booking {isEdit ? 'updated' : 'submitted'} successfully!
                   </motion.div>
                 )}
               </AnimatePresence>
