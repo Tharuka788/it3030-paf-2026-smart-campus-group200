@@ -4,7 +4,7 @@ import DynamicLayout from '../components/DynamicLayout';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Calendar, Clock, MapPin, FileText, Send, AlertCircle, Info } from 'lucide-react';
 import { bookingService, facilityService } from '../services/api';
-import { format, parseISO, isSameDay } from 'date-fns';
+import { format, parseISO, isSameDay, addDays } from 'date-fns';
 
 const NewBooking = () => {
   const [searchParams] = useSearchParams();
@@ -28,6 +28,15 @@ const NewBooking = () => {
   const [error, setError] = useState(null);
   const [existingBookings, setExistingBookings] = useState([]);
   const [fetchingAvailability, setFetchingAvailability] = useState(false);
+  
+  const minDateTime = format(new Date(), "yyyy-MM-dd'T'HH:mm");
+  const maxDateTime = format(addDays(new Date(), 7), "yyyy-MM-dd'T'HH:mm");
+
+  // Helper function to count words in the purpose field
+  const countWords = (str) => {
+    if (!str || str.trim() === '') return 0;
+    return str.trim().split(/\s+/).length;
+  };
 
   useEffect(() => {
     const fetchFacilities = async () => {
@@ -106,6 +115,41 @@ const NewBooking = () => {
     e.preventDefault();
     setLoading(true);
     setError(null);
+
+    // Date and time validation objects
+    const start = new Date(formData.startTime);
+    const end = new Date(formData.endTime);
+    const now = new Date();
+    const nextWeek = addDays(now, 7);
+
+    // 1. Prevent bookings in the past
+    if (start < now) {
+      setError("Cannot book a resource in the past.");
+      setLoading(false);
+      return;
+    }
+
+    // 2. Limit bookings to 7 days in advance
+    if (start > nextWeek) {
+      setError("Bookings can only be made up to 7 days in advance.");
+      setLoading(false);
+      return;
+    }
+
+    // 3. Ensure end time is after start time
+    if (end <= start) {
+      setError("End time must be after start time.");
+      setLoading(false);
+      return;
+    }
+
+    // 4. Validate word count for purpose (max 100 words)
+    if (countWords(formData.purpose) > 100) {
+      setError("Purpose must not exceed 100 words.");
+      setLoading(false);
+      return;
+    }
+
     try {
       await bookingService.createBooking(formData);
       setSuccess(true);
@@ -187,6 +231,8 @@ const NewBooking = () => {
                     name="startTime" 
                     value={formData.startTime}
                     onChange={handleChange}
+                    min={minDateTime}
+                    max={maxDateTime}
                     required 
                   />
                 </div>
@@ -197,6 +243,8 @@ const NewBooking = () => {
                     name="endTime" 
                     value={formData.endTime}
                     onChange={handleChange}
+                    min={minDateTime}
+                    max={maxDateTime}
                     required 
                   />
                 </div>
@@ -212,6 +260,9 @@ const NewBooking = () => {
                   rows="3" 
                   required
                 ></textarea>
+                <div className={`word-count ${countWords(formData.purpose) > 100 ? 'text-danger' : ''}`}>
+                  Words: {countWords(formData.purpose)}/100
+                </div>
               </div>
 
               {error && (
@@ -407,6 +458,18 @@ const NewBooking = () => {
           gap: 12px;
           font-size: 0.95rem;
           border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        .word-count {
+          font-size: 0.8rem;
+          text-align: right;
+          color: var(--text-muted);
+          margin-top: 4px;
+        }
+
+        .text-danger {
+          color: #ef4444 !important;
+          font-weight: 600;
         }
 
         .submit-btn {

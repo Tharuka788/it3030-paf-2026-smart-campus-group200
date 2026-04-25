@@ -25,6 +25,7 @@ public class TicketService {
 
     private final TicketRepository ticketRepository;
     private final NotificationService notificationService;
+    private final EmailService emailService;
     private final String uploadDir = "uploads/tickets";
 
     public Ticket createTicket(Ticket ticket) {
@@ -34,6 +35,13 @@ public class TicketService {
         ticket.setStatus("OPEN");
         Ticket savedTicket = ticketRepository.save(ticket);
         log.info("Ticket created successfully with ID: {}", savedTicket.getId());
+        
+        try {
+            emailService.sendTicketCreation(savedTicket);
+        } catch (Exception e) {
+            log.error("Failed to send ticket creation email for ticket {}", savedTicket.getId(), e);
+        }
+        
         return savedTicket;
     }
 
@@ -81,6 +89,13 @@ public class TicketService {
         Ticket savedTicket = ticketRepository.save(ticket);
         log.info("Ticket created successfully with ID: {} | Priority: {} | Impact: {}",
                 savedTicket.getId(), savedTicket.getPriority(), savedTicket.getImpact());
+        
+        try {
+            emailService.sendTicketCreation(savedTicket);
+        } catch (Exception e) {
+            log.error("Failed to send ticket creation email for ticket {}", savedTicket.getId(), e);
+        }
+        
         return savedTicket;
     }
 
@@ -103,13 +118,15 @@ public class TicketService {
         return ticketRepository.findById(id);
     }
 
-    public Ticket updateTicketStatus(String id, String status, String adminComments) {
-        log.info("Updating ticket {} status to: {}", id, status);
+    public Ticket updateTicketStatus(String id, String status, String adminComments, String assignedTo) {
         return ticketRepository.findById(id).map(ticket -> {
             String previousStatus = ticket.getStatus();
             ticket.setStatus(status);
             if (adminComments != null) {
                 ticket.setAdminComments(adminComments);
+            }
+            if (assignedTo != null) {
+                ticket.setAssignedTo(assignedTo);
             }
             ticket.setUpdatedAt(LocalDateTime.now());
             Ticket updated = ticketRepository.save(ticket);
@@ -122,6 +139,12 @@ public class TicketService {
                     ticket.getSubject(), status.toLowerCase());
             notificationService.createNotification(ticket.getEmail(), "TICKET_STATUS_CHANGED", title, message,
                     ticket.getId(), "TICKET");
+                    
+            try {
+                emailService.sendTicketStatusUpdate(updated);
+            } catch (Exception e) {
+                log.error("Failed to send ticket status update email for ticket {}", updated.getId(), e);
+            }
 
             return updated;
         }).orElseThrow(() -> {

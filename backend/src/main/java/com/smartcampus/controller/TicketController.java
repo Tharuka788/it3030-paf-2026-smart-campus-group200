@@ -51,8 +51,9 @@ public class TicketController {
     public Ticket updateStatus(
             @PathVariable String id, 
             @RequestParam String status,
-            @RequestParam(required = false) String adminComments) {
-        return ticketService.updateTicketStatus(id, status, adminComments);
+            @RequestParam(required = false) String adminComments,
+            @RequestParam(required = false) String assignedTo) {
+        return ticketService.updateTicketStatus(id, status, adminComments, assignedTo);
     }
 
     @DeleteMapping("/v1/tickets/{id}")

@@ -21,7 +21,8 @@ import {
   Building,
   ChevronRight,
   Trash2,
-  FileText
+  FileText,
+  Wrench
 } from 'lucide-react';
 
 const AdminTickets = () => {
@@ -31,6 +32,7 @@ const AdminTickets = () => {
   const [selectedTicket, setSelectedTicket] = useState(null);
   const [adminComment, setAdminComment] = useState('');
   const [modalStatus, setModalStatus] = useState('');
+  const [modalAssignedTo, setModalAssignedTo] = useState('');
   const [updating, setUpdating] = useState(false);
 
   const fetchAllTickets = async () => {
@@ -49,10 +51,10 @@ const AdminTickets = () => {
     fetchAllTickets();
   }, []);
 
-  const handleStatusUpdate = async (id, status, commentToUse) => {
+  const handleStatusUpdate = async (id, status, commentToUse, assignedToToUse) => {
     setUpdating(true);
     try {
-      const response = await ticketService.updateStatus(id, status, commentToUse || adminComment);
+      const response = await ticketService.updateStatus(id, status, commentToUse, assignedToToUse);
       const updatedTicket = response.data;
       
       await fetchAllTickets();
@@ -73,9 +75,11 @@ const AdminTickets = () => {
     if (selectedTicket) {
       setAdminComment(selectedTicket.adminComments || '');
       setModalStatus(selectedTicket.status || 'OPEN');
+      setModalAssignedTo(selectedTicket.assignedTo || '');
     } else {
       setAdminComment('');
       setModalStatus('');
+      setModalAssignedTo('');
     }
   }, [selectedTicket]);
 
@@ -213,6 +217,12 @@ const AdminTickets = () => {
                           <AlertCircle size={14} className={`priority-${ticket.priority?.toLowerCase()}`} />
                           <span>{ticket.priority} Priority</span>
                         </div>
+                        {ticket.assignedTo && (
+                          <div className="meta-item assigned-to-badge">
+                            <Wrench size={14} />
+                            <span>Assigned: {ticket.assignedTo}</span>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -228,7 +238,7 @@ const AdminTickets = () => {
                         <select 
                           className="status-select"
                           value={ticket.status} 
-                          onChange={(e) => handleStatusUpdate(ticket.id, e.target.value, '')}
+                          onChange={(e) => handleStatusUpdate(ticket.id, e.target.value, ticket.adminComments, ticket.assignedTo)}
                         >
                           <option value="OPEN">Open</option>
                           <option value="IN_PROGRESS">In Progress</option>
@@ -408,9 +418,22 @@ const AdminTickets = () => {
                         </select>
                       </div>
 
+                      <div className="status-control-wrapper mb-20">
+                        <label>Technician Assignment</label>
+                        <select 
+                          className="modal-status-select-large"
+                          value={modalAssignedTo} 
+                          onChange={(e) => setModalAssignedTo(e.target.value)}
+                        >
+                          <option value="">Unassigned</option>
+                          <option value="tech1@gmail.com">tech1@gmail.com</option>
+                          <option value="subtech@gmail.com">subtech@gmail.com</option>
+                        </select>
+                      </div>
+
                       <button 
                         className={`save-update-btn ${updating ? 'updating' : ''}`}
-                        onClick={() => handleStatusUpdate(selectedTicket.id, modalStatus)}
+                        onClick={() => handleStatusUpdate(selectedTicket.id, modalStatus, adminComment, modalAssignedTo)}
                         disabled={updating}
                       >
                         {updating ? (
@@ -530,6 +553,14 @@ const AdminTickets = () => {
         .priority-high { color: #ef4444; }
         .priority-medium { color: #f59e0b; }
         .priority-low { color: #10b981; }
+
+        .assigned-to-badge {
+          background: #e0e7ff;
+          color: #4338ca;
+          padding: 2px 8px;
+          border-radius: 6px;
+          font-weight: 700;
+        }
 
         .status-update-box label { font-size: 0.7rem; font-weight: 800; color: #94a3b8; text-transform: uppercase; margin-bottom: 8px; }
         .status-actions-mini { display: flex; align-items: center; gap: 8px; }

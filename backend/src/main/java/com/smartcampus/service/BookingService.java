@@ -38,6 +38,34 @@ public class BookingService {
         if (booking.getResourceId() == null) {
             throw new IllegalArgumentException("Resource ID is required for booking");
         }
+
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime nextWeek = now.plusDays(7);
+
+        // Validation 1: Prevent bookings in the past
+        if (booking.getStartTime().isBefore(now)) {
+            throw new IllegalArgumentException("Cannot book a resource in the past.");
+        }
+
+        // Validation 2: Restrict bookings to within the next 7 days only
+        if (booking.getStartTime().isAfter(nextWeek)) {
+            throw new IllegalArgumentException("Bookings can only be made up to 7 days in advance.");
+        }
+
+        // Validation 3: Logical check for start and end times
+        if (booking.getEndTime().isBefore(booking.getStartTime()) || booking.getEndTime().isEqual(booking.getStartTime())) {
+            throw new IllegalArgumentException("End time must be after start time.");
+        }
+
+        // Validation 4: Word count limit for the booking purpose (Max 100 words)
+        if (booking.getPurpose() != null) {
+            long wordCount = Arrays.stream(booking.getPurpose().trim().split("\\s+"))
+                    .filter(s -> !s.isEmpty())
+                    .count();
+            if (wordCount > 100) {
+                throw new IllegalArgumentException("Purpose must not exceed 100 words.");
+            }
+        }
         // Validate overlaps
         List<Booking> existingBookings = bookingRepository.findByResourceIdAndStatusIn(
                 booking.getResourceId(), Arrays.asList("PENDING", "APPROVED"));
