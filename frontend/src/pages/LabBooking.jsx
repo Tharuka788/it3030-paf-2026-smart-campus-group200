@@ -36,6 +36,7 @@ const LabBooking = () => {
   const minDateTime = format(new Date(), "yyyy-MM-dd'T'HH:mm");
   const maxDateTime = format(addDays(new Date(), 7), "yyyy-MM-dd'T'HH:mm");
 
+  // Helper to count words for validation
   const countWords = (str) => {
     if (!str || str.trim() === '') return 0;
     return str.trim().split(/\s+/).length;
@@ -132,24 +133,28 @@ const LabBooking = () => {
     const now = new Date();
     const nextWeek = addDays(now, 7);
 
+    // Block bookings in the past
     if (start < now) {
       setError("Cannot book a resource in the past.");
       setBookingLoading(false);
       return;
     }
 
+    // Limit advance bookings to 7 days
     if (start > nextWeek) {
       setError("Bookings can only be made up to 7 days in advance.");
       setBookingLoading(false);
       return;
     }
 
+    // Ensure logical time order
     if (end <= start) {
       setError("End time must be after start time.");
       setBookingLoading(false);
       return;
     }
 
+    // Enforce 100-word limit on purpose
     if (countWords(formData.purpose) > 100) {
       setError("Purpose must not exceed 100 words.");
       setBookingLoading(false);
@@ -294,12 +299,12 @@ const LabBooking = () => {
                     </div>
                   </div>
 
-                 <div className="card-actions">
-                   <button className="primary-btn" onClick={() => {
+                 <div className="card-actions">                   <button className="primary-btn" onClick={() => {
                      const start = new Date(formData.startTime);
                      const now = new Date();
                      const nextWeek = addDays(now, 7);
 
+                     // Basic validation before switching to PC selection screen
                      if (start < now) {
                        setError("Cannot book a resource in the past.");
                        return;
@@ -308,17 +313,18 @@ const LabBooking = () => {
                        setError("Bookings can only be made up to 7 days in advance.");
                        return;
                      }
-                      if (new Date(formData.endTime) <= start) {
-                        setError("End time must be after start time.");
-                        return;
-                      }
-                      if (countWords(formData.purpose) > 100) {
-                        setError("Purpose must not exceed 100 words.");
-                        return;
-                      }
-                      setError(null);
-                      setStep(2);
+                     if (new Date(formData.endTime) <= start) {
+                       setError("End time must be after start time.");
+                       return;
+                     }
+                     if (countWords(formData.purpose) > 100) {
+                       setError("Purpose must not exceed 100 words.");
+                       return;
+                     }
+                     setError(null);
+                     setStep(2);
                    }}>
+
                      Next: Select PCs <ChevronRight size={18} />
                    </button>
                  </div>

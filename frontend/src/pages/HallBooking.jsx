@@ -36,6 +36,7 @@ const HallBooking = () => {
   const minDateTime = format(new Date(), "yyyy-MM-dd'T'HH:mm");
   const maxDateTime = format(addDays(new Date(), 7), "yyyy-MM-dd'T'HH:mm");
 
+  // Counts words in purpose field to enforce limit
   const countWords = (str) => {
     if (!str || str.trim() === '') return 0;
     return str.trim().split(/\s+/).length;
@@ -62,6 +63,7 @@ const HallBooking = () => {
       }
     };
 
+    // Redirect to facilities list if no ID provided
     if (facilityId) {
       fetchFacilityDetails();
     } else {
@@ -154,24 +156,28 @@ const HallBooking = () => {
     const now = new Date();
     const nextWeek = addDays(now, 7);
 
+    // Validate that the start time is not in the past
     if (start < now) {
       setError("Cannot book a resource in the past.");
       setBookingLoading(false);
       return;
     }
 
+    // Validate that the booking is within the next 7 days
     if (start > nextWeek) {
       setError("Bookings can only be made up to 7 days in advance.");
       setBookingLoading(false);
       return;
     }
 
+    // Ensure the end time is after the start time
     if (end <= start) {
       setError("End time must be after start time.");
       setBookingLoading(false);
       return;
     }
 
+    // Ensure purpose does not exceed 100 words
     if (countWords(formData.purpose) > 100) {
       setError("Purpose must not exceed 100 words.");
       setBookingLoading(false);
@@ -312,6 +318,7 @@ const HallBooking = () => {
                     const now = new Date();
                     const nextWeek = addDays(now, 7);
 
+                    // Pre-validation before moving to seat selection step
                     if (start < now) {
                       setError("Cannot book a resource in the past.");
                       return;

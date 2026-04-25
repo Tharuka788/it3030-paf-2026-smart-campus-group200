@@ -32,6 +32,7 @@ const NewBooking = () => {
   const minDateTime = format(new Date(), "yyyy-MM-dd'T'HH:mm");
   const maxDateTime = format(addDays(new Date(), 7), "yyyy-MM-dd'T'HH:mm");
 
+  // Helper function to count words in the purpose field
   const countWords = (str) => {
     if (!str || str.trim() === '') return 0;
     return str.trim().split(/\s+/).length;
@@ -115,29 +116,34 @@ const NewBooking = () => {
     setLoading(true);
     setError(null);
 
+    // Date and time validation objects
     const start = new Date(formData.startTime);
     const end = new Date(formData.endTime);
     const now = new Date();
     const nextWeek = addDays(now, 7);
 
+    // 1. Prevent bookings in the past
     if (start < now) {
       setError("Cannot book a resource in the past.");
       setLoading(false);
       return;
     }
 
+    // 2. Limit bookings to 7 days in advance
     if (start > nextWeek) {
       setError("Bookings can only be made up to 7 days in advance.");
       setLoading(false);
       return;
     }
 
+    // 3. Ensure end time is after start time
     if (end <= start) {
       setError("End time must be after start time.");
       setLoading(false);
       return;
     }
 
+    // 4. Validate word count for purpose (max 100 words)
     if (countWords(formData.purpose) > 100) {
       setError("Purpose must not exceed 100 words.");
       setLoading(false);

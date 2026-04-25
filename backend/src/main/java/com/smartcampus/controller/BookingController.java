@@ -12,6 +12,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Controller for handling all booking-related API requests.
+ */
 @RestController
 @RequestMapping("/api/v1/bookings")
 @RequiredArgsConstructor
@@ -20,6 +23,10 @@ public class BookingController {
 
     private final BookingService bookingService;
 
+    /**
+     * Create a new booking request.
+     * Validates input using the BookingRequest DTO.
+     */
     @PostMapping()
     public ResponseEntity<Booking> createBooking(@Valid @RequestBody BookingRequest bookingRequest) {
         Booking booking = new Booking();
@@ -36,16 +43,26 @@ public class BookingController {
         return new ResponseEntity<>(bookingService.createBooking(booking), HttpStatus.CREATED);
     }
 
+    /**
+     * Get a list of all bookings in the system.
+     * Used by administrators.
+     */
     @GetMapping
     public List<Booking> getAllBookings() {
         return bookingService.getAllBookings();
     }
 
+    /**
+     * Get all bookings for a specific user by their email.
+     */
     @GetMapping("/user/{userEmail:.+}")
     public List<Booking> getBookingsByUser(@PathVariable String userEmail) {
         return bookingService.getBookingsByUser(userEmail.toLowerCase());
     }
 
+    /**
+     * Get details of a single booking by its ID.
+     */
     @GetMapping("/{id}")
     public ResponseEntity<Booking> getBookingById(@PathVariable String id) {
         return bookingService.getBookingById(id)
@@ -53,6 +70,9 @@ public class BookingController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    /**
+     * Update the status of a booking (e.g., APPROVED, REJECTED, CANCELLED).
+     */
     @PatchMapping("/{id}/status")
     public Booking updateBookingStatus(
             @PathVariable String id, 
@@ -61,17 +81,27 @@ public class BookingController {
         return bookingService.updateBookingStatus(id, status, reason);
     }
 
+    /**
+     * Delete a booking from the system.
+     */
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteBooking(@PathVariable String id) {
         bookingService.deleteBooking(id);
     }
 
+    /**
+     * Get all active bookings for a specific resource (e.g., a Lab or Hall).
+     * Used to check for availability conflicts.
+     */
     @GetMapping("/resource/{resourceId}")
     public List<Booking> getBookingsByResource(@PathVariable String resourceId) {
         return bookingService.getBookingsByResource(resourceId);
     }
 
+    /**
+     * Handles validation errors and returns a simple message to the frontend.
+     */
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<Map<String, String>> handleIllegalArgumentException(IllegalArgumentException ex) {
         return ResponseEntity.badRequest().body(Map.of("message", ex.getMessage()));
