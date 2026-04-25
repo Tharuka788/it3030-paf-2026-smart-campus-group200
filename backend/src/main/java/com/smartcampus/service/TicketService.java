@@ -118,15 +118,24 @@ public class TicketService {
         return ticketRepository.findById(id);
     }
 
-    public Ticket updateTicketStatus(String id, String status, String adminComments, String assignedTo) {
+    public Ticket updateTicketStatus(String id, String status, String adminComments, String technicianFeedback, String assignedTo, String notesForTechnician, String notesFromTechnician) {
         return ticketRepository.findById(id).map(ticket -> {
             String previousStatus = ticket.getStatus();
             ticket.setStatus(status);
             if (adminComments != null) {
                 ticket.setAdminComments(adminComments);
             }
+            if (technicianFeedback != null) {
+                ticket.setTechnicianFeedback(technicianFeedback);
+            }
             if (assignedTo != null) {
                 ticket.setAssignedTo(assignedTo);
+            }
+            if (notesForTechnician != null) {
+                ticket.setNotesForTechnician(notesForTechnician);
+            }
+            if (notesFromTechnician != null) {
+                ticket.setNotesFromTechnician(notesFromTechnician);
             }
             ticket.setUpdatedAt(LocalDateTime.now());
             Ticket updated = ticketRepository.save(ticket);

@@ -44,10 +44,13 @@ export const ticketService = {
   }),
   getAllTickets: () => api.get('/v1/tickets'),
   getTicketsByUser: (email) => api.get(`/v1/tickets/user/${email}`),
-  updateStatus: (id, status, adminComments, assignedTo) => {
+  updateStatus: (id, status, adminComments, technicianFeedback, assignedTo, notesForTechnician, notesFromTechnician) => {
     let url = `/v1/tickets/${id}/status?status=${status}`;
     if (adminComments !== undefined && adminComments !== null) url += `&adminComments=${encodeURIComponent(adminComments)}`;
+    if (technicianFeedback !== undefined && technicianFeedback !== null) url += `&technicianFeedback=${encodeURIComponent(technicianFeedback)}`;
     if (assignedTo !== undefined && assignedTo !== null) url += `&assignedTo=${encodeURIComponent(assignedTo)}`;
+    if (notesForTechnician !== undefined && notesForTechnician !== null) url += `&notesForTechnician=${encodeURIComponent(notesForTechnician)}`;
+    if (notesFromTechnician !== undefined && notesFromTechnician !== null) url += `&notesFromTechnician=${encodeURIComponent(notesFromTechnician)}`;
     return api.patch(url);
   },
   deleteTicket: (id) => api.delete(`/v1/tickets/${id}`),

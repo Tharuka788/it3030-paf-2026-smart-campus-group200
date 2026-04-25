@@ -52,8 +52,11 @@ public class TicketController {
             @PathVariable String id, 
             @RequestParam String status,
             @RequestParam(required = false) String adminComments,
-            @RequestParam(required = false) String assignedTo) {
-        return ticketService.updateTicketStatus(id, status, adminComments, assignedTo);
+            @RequestParam(required = false) String technicianFeedback,
+            @RequestParam(required = false) String assignedTo,
+            @RequestParam(required = false) String notesForTechnician,
+            @RequestParam(required = false) String notesFromTechnician) {
+        return ticketService.updateTicketStatus(id, status, adminComments, technicianFeedback, assignedTo, notesForTechnician, notesFromTechnician);
     }
 
     @DeleteMapping("/v1/tickets/{id}")
