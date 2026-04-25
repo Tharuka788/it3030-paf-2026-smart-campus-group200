@@ -32,7 +32,7 @@ public class Facility {
     private String description;
     
     public enum FacilityType {
-        ROOM, LECTURE_HALL, LAB, EQUIPMENT, OTHER, AUDITORIUM
+        ROOM, LECTURE_HALL, LAB, EQUIPMENT, AUDITORIUM, OTHER
     }
 
     public enum FacilityStatus {
