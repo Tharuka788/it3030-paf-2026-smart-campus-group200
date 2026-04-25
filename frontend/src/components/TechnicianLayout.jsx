@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import TechnicianSidebar from './TechnicianSidebar';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Bell, Settings, Command, LogOut, User, ChevronDown, Wrench } from 'lucide-react';
+import { Search, Bell, Settings, Command, LogOut, User, ChevronDown, Wrench, RefreshCw } from 'lucide-react';
 
 const TechnicianLayout = ({ children }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -25,6 +25,9 @@ const TechnicianLayout = ({ children }) => {
           </div>
           
           <div className="header-actions">
+            <button className="action-circle-btn" onClick={() => window.location.reload()} title="Refresh">
+              <RefreshCw size={20} />
+            </button>
             <button className="action-circle-btn">
               <Search size={20} />
             </button>

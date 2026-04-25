@@ -4,9 +4,7 @@ import ManageFacility from './ManageFacility';
 
 const AdminFacilities = () => {
   return (
-    <AdminLayout>
-      <ManageFacility />
-    </AdminLayout>
+    <ManageFacility />
   );
 };
 

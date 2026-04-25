@@ -124,34 +124,35 @@ const ManageFacility = () => {
         ) : (
           <form onSubmit={handleSubmit} className="booking-form">
             <div className="input-row">
-              <div className="input-group" style={{flex: 2}}>
+              <div className="input-group">
                 <label><Box size={18} /> Facility Name</label>
                 <input required type="text" name="name" value={formData.name} onChange={handleChange} placeholder="e.g. Auditorium A" />
               </div>
-              <div className="input-group" style={{flex: 1}}>
+              <div className="input-group">
                 <label><Tag size={18} /> Type</label>
                 <select name="type" value={formData.type} onChange={handleChange}>
-                    <option value="ROOM">Room / Meeting Room</option>
+                    <option value="ROOM">Meeting Room</option>
                     <option value="LECTURE_HALL">Lecture Hall</option>
                     <option value="LAB">Laboratory / PC Lab</option>
                     <option value="EQUIPMENT">Equipment</option>
+                    <option value="AUDITORIUM">Auditorium</option>
                     <option value="OTHER">Other</option>
                 </select>
               </div>
             </div>
 
-            <div className="input-row">
+            <div className="input-row three-col">
               {formData.type !== 'EQUIPMENT' && (
-                <div className="input-group" style={{flex: 2}}>
+                <div className="input-group">
                   <label><MapPin size={18} /> Location</label>
                   <input type="text" name="location" value={formData.location} onChange={handleChange} placeholder="e.g. Building 1, 3rd Floor" />
                 </div>
               )}
-              <div className="input-group" style={{flex: 1}}>
+              <div className="input-group">
                 <label><Info size={18} /> {formData.type === 'EQUIPMENT' ? 'Quantity' : 'Capacity'}</label>
                 <input type="number" name="capacity" value={formData.capacity} onChange={handleChange} placeholder={formData.type === 'EQUIPMENT' ? 'e.g. 10' : 'e.g. 50'} />
               </div>
-              <div className="input-group" style={{flex: 1}}>
+              <div className="input-group">
                 <label><ShieldAlert size={18} /> Status</label>
                 <select name="status" value={formData.status} onChange={handleChange}>
                     {formData.type === 'EQUIPMENT' ? (
@@ -222,210 +223,289 @@ const ManageFacility = () => {
 
       <style jsx="true">{`
         .manage-container {
-          max-width: 900px;
+          max-width: 1000px;
           margin: 0 auto;
-          padding: 20px 0 60px 0;
+          padding: 10px 20px 60px 20px;
         }
 
         .back-btn {
           display: flex;
           align-items: center;
-          gap: 8px;
-          color: #64748b;
-          font-weight: 600;
+          gap: 10px;
+          color: #6366f1;
+          font-weight: 700;
+          background: #f5f3ff;
+          border: none;
+          padding: 10px 18px;
+          border-radius: 12px;
           margin-bottom: 25px;
-          transition: color 0.3s;
+          cursor: pointer;
+          transition: all 0.3s;
+          width: fit-content;
         }
 
-        .back-btn:hover { color: #4f46e5; }
+        .back-btn:hover { 
+          transform: translateX(-5px); 
+          background: #e0e7ff; 
+        }
 
         .form-card {
-          padding: 40px;
-          background: rgba(255, 255, 255, 0.8);
-          border: 1px solid rgba(255, 255, 255, 0.5);
-          border-radius: 20px;
-          box-shadow: var(--box-shadow);
+          padding: 45px;
+          background: white;
+          border: 1px solid #f1f5f9;
+          border-radius: 28px;
+          box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
+          position: relative;
+          overflow: hidden;
         }
 
         .form-header {
-          margin-bottom: 35px;
-          padding-bottom: 20px;
+          margin-bottom: 40px;
+          padding-bottom: 25px;
           border-bottom: 1px solid #f1f5f9;
         }
 
         .form-header h2 {
-          font-size: 2.2rem;
-          font-weight: 800;
-          margin-bottom: 8px;
+          font-size: 2.4rem;
+          font-weight: 850;
+          margin-bottom: 10px;
+          letter-spacing: -0.02em;
         }
 
+        .text-muted { color: #64748b; font-size: 1.05rem; }
+
         .booking-form {
-          display: flex;
-          flex-direction: column;
-          gap: 25px;
+          display: grid;
+          grid-template-columns: 1fr;
+          gap: 30px;
         }
 
         .input-row {
-          display: flex;
-          gap: 20px;
+          display: grid;
+          grid-template-columns: 2fr 1fr;
+          gap: 25px;
+        }
+
+        .input-row.three-col {
+          grid-template-columns: 2fr 1fr 1fr;
         }
 
         .input-group {
           display: flex;
           flex-direction: column;
-          gap: 8px;
+          gap: 10px;
         }
 
         .input-group label {
           display: flex;
           align-items: center;
-          gap: 8px;
-          color: #475569;
-          font-weight: 600;
-          font-size: 0.9rem;
+          gap: 10px;
+          color: #1e293b;
+          font-weight: 700;
+          font-size: 0.95rem;
+        }
+
+        .input-group label svg {
+          color: #94a3b8;
         }
 
         input, textarea, select {
-          background: white;
+          background: #f8fafc;
           border: 1px solid #e2e8f0;
-          border-radius: 12px;
-          padding: 12px 15px;
+          border-radius: 14px;
+          padding: 14px 18px;
           color: #1e293b;
           font-family: inherit;
-          font-weight: 500;
-          transition: all 0.3s;
+          font-weight: 600;
+          font-size: 1rem;
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         input:focus, textarea:focus, select:focus {
           outline: none;
-          border-color: #4f46e5;
-          box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+          border-color: #6366f1;
+          background: white;
+          box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+          transform: translateY(-1px);
+        }
+
+        textarea {
+          resize: vertical;
+          min-height: 120px;
         }
 
         .availability-box {
           background: #f8fafc;
           border: 1px solid #e2e8f0;
-          border-radius: 15px;
-          padding: 25px;
+          border-radius: 20px;
+          padding: 30px;
+          margin-top: 10px;
         }
 
         .availability-header {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          margin-bottom: 20px;
+          margin-bottom: 25px;
         }
 
         .availability-header label {
           display: flex;
           align-items: center;
-          gap: 10px;
-          font-weight: 700;
-          color: #1e293b;
+          gap: 12px;
+          font-weight: 800;
+          font-size: 1.1rem;
+          color: #0f172a;
         }
 
         .add-window-btn {
           display: flex;
           align-items: center;
-          gap: 6px;
-          background: white;
-          color: #4f46e5;
-          border: 1px solid #e2e8f0;
-          padding: 8px 15px;
-          border-radius: 10px;
-          font-size: 0.85rem;
-          font-weight: 600;
+          gap: 8px;
+          background: #6366f1;
+          color: white;
+          border: none;
+          padding: 10px 20px;
+          border-radius: 12px;
+          font-size: 0.9rem;
+          font-weight: 700;
           transition: all 0.3s;
+          box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
         }
         
         .add-window-btn:hover { 
-          background: #4f46e5; 
-          color: white;
-          border-color: #4f46e5;
+          transform: translateY(-2px);
+          background: #4f46e5;
+          box-shadow: 0 8px 15px rgba(99, 102, 241, 0.3);
         }
 
-        .no-windows { color: #94a3b8; font-size: 0.9rem; text-align: center; font-style: italic; }
+        .no-windows { 
+          color: #94a3b8; 
+          font-size: 0.95rem; 
+          text-align: center; 
+          padding: 20px;
+          border: 2px dashed #e2e8f0;
+          border-radius: 14px;
+        }
 
         .windows-list {
           display: flex;
           flex-direction: column;
-          gap: 12px;
+          gap: 15px;
         }
 
         .window-item {
-          display: flex;
+          display: grid;
+          grid-template-columns: 2fr 1fr auto 1fr auto;
           align-items: center;
-          gap: 10px;
+          gap: 15px;
           background: white;
-          padding: 10px;
-          border-radius: 10px;
+          padding: 15px 20px;
+          border-radius: 16px;
           border: 1px solid #f1f5f9;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.02);
         }
 
         .window-item select, .window-item input {
-          padding: 8px;
-          border-radius: 8px;
-          font-size: 0.9rem;
+          padding: 10px 14px;
+          border-radius: 10px;
+          font-size: 0.95rem;
+          background: #fff;
         }
         
-        .to-text { color: #94a3b8; font-weight: 600; }
+        .to-text { color: #94a3b8; font-weight: 700; font-size: 0.9rem; }
         
         .del-btn {
           color: #ef4444; 
-          padding: 8px; 
-          border-radius: 8px; 
-          background: #fee2e2; 
-          transition: 0.3s;
-          margin-left: auto;
+          width: 40px;
+          height: 40px;
+          border-radius: 10px; 
+          background: #fef2f2; 
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: all 0.2s;
+          border: 1px solid #fee2e2;
         }
-        .del-btn:hover { background: #fecaca; }
+        .del-btn:hover { 
+          background: #ef4444; 
+          color: white; 
+          transform: scale(1.05);
+        }
 
         .form-footer {
           display: flex;
-          gap: 15px;
-          margin-top: 20px;
+          gap: 20px;
+          padding-top: 20px;
+          margin-top: 10px;
+          border-top: 1px solid #f1f5f9;
         }
 
         .submit-btn {
           flex: 2;
-          padding: 16px;
-          background: #4f46e5;
+          padding: 18px;
+          background: #6366f1;
           color: white;
-          border-radius: 12px;
-          font-weight: 700;
+          border: none;
+          border-radius: 16px;
+          font-weight: 800;
           font-size: 1.1rem;
           display: flex;
           align-items: center;
           justify-content: center;
-          gap: 10px;
-          transition: all 0.3s;
-          box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.3);
+          gap: 12px;
+          transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+          box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.4);
         }
 
         .submit-btn:hover:not(:disabled) {
-          transform: translateY(-2px);
-          box-shadow: 0 20px 25px -5px rgba(79, 70, 229, 0.4);
-          background: #4338ca;
+          transform: translateY(-3px);
+          box-shadow: 0 20px 30px -10px rgba(99, 102, 241, 0.5);
+          background: #4f46e5;
         }
 
         .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
         .cancel-btn {
           flex: 1;
-          padding: 16px;
+          padding: 18px;
           background: white;
           color: #64748b;
           border: 1px solid #e2e8f0;
-          border-radius: 12px;
-          font-weight: 600;
+          border-radius: 16px;
+          font-weight: 700;
           transition: all 0.3s;
         }
-        .cancel-btn:hover { background: #f8fafc; color: #1e293b; }
+        .cancel-btn:hover { background: #f8fafc; color: #1e293b; border-color: #cbd5e1; }
+
+        .loading-state {
+          padding: 60px;
+          text-align: center;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 20px;
+        }
+
+        .spinner {
+          width: 50px;
+          height: 50px;
+          border: 4px solid #f1f5f9;
+          border-top: 4px solid #6366f1;
+          border-radius: 50%;
+          animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
 
         @media (max-width: 768px) {
-          .input-row { flex-direction: column; }
-          .window-item { flex-direction: column; align-items: stretch; }
+          .input-row, .input-row.three-col { grid-template-columns: 1fr; }
+          .window-item { grid-template-columns: 1fr; }
           .form-footer { flex-direction: column; }
+          .form-card { padding: 25px; }
         }
       `}</style>
       </div>

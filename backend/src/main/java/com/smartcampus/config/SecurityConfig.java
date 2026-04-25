@@ -49,13 +49,15 @@ public class SecurityConfig {
                 .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers("/", "/error", "/webjars/**").permitAll()
                 .requestMatchers("/api/v1/users/**").permitAll()
-                .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/facilities/**").permitAll()
-                .requestMatchers("/api/v1/facilities/**").hasRole("ADMIN")
+                .requestMatchers("/api/v1/facilities/**").permitAll()
                 .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/bookings").permitAll()
                 .requestMatchers("/api/v1/bookings/**").permitAll()
                 .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/tickets").permitAll()
                 .requestMatchers("/api/v1/tickets/**").permitAll()
                 .requestMatchers(org.springframework.http.HttpMethod.GET, "/uploads/**").permitAll()
+                .requestMatchers("/api/v1/notifications/**").authenticated()
+                .requestMatchers("/api/v1/technician/**").hasRole("TECHNICIAN")
+                .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
                 .anyRequest().permitAll()
             );
         return http.build();

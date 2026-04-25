@@ -17,6 +17,7 @@ public class BookingService {
 
     private final BookingRepository bookingRepository;
     private final FacilityRepository facilityRepository;
+    private final EmailService emailService;
     private final NotificationService notificationService;
 
     private void populateResourceName(Booking booking) {
@@ -36,6 +37,34 @@ public class BookingService {
     public Booking createBooking(Booking booking) {
         if (booking.getResourceId() == null) {
             throw new IllegalArgumentException("Resource ID is required for booking");
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime nextWeek = now.plusDays(7);
+
+        // Validation 1: Prevent bookings in the past
+        if (booking.getStartTime().isBefore(now)) {
+            throw new IllegalArgumentException("Cannot book a resource in the past.");
+        }
+
+        // Validation 2: Restrict bookings to within the next 7 days only
+        if (booking.getStartTime().isAfter(nextWeek)) {
+            throw new IllegalArgumentException("Bookings can only be made up to 7 days in advance.");
+        }
+
+        // Validation 3: Logical check for start and end times
+        if (booking.getEndTime().isBefore(booking.getStartTime()) || booking.getEndTime().isEqual(booking.getStartTime())) {
+            throw new IllegalArgumentException("End time must be after start time.");
+        }
+
+        // Validation 4: Word count limit for the booking purpose (Max 100 words)
+        if (booking.getPurpose() != null) {
+            long wordCount = Arrays.stream(booking.getPurpose().trim().split("\\s+"))
+                    .filter(s -> !s.isEmpty())
+                    .count();
+            if (wordCount > 100) {
+                throw new IllegalArgumentException("Purpose must not exceed 100 words.");
+            }
         }
         // Validate overlaps
         List<Booking> existingBookings = bookingRepository.findByResourceIdAndStatusIn(
@@ -75,7 +104,27 @@ public class BookingService {
         booking.setCreatedAt(LocalDateTime.now());
         booking.setUpdatedAt(LocalDateTime.now());
         booking.setStatus("PENDING");
-        return bookingRepository.save(booking);
+        Booking savedBooking = bookingRepository.save(booking);
+        
+        // Populate resource name before sending email if it's missing
+        populateResourceName(savedBooking);
+        emailService.sendBookingConfirmation(savedBooking);
+        
+        // Create notification for the user about their new booking submission
+        notificationService.createNotification(
+                savedBooking.getUserEmail(),
+                "BOOKING_CREATED",
+                "Booking Submitted",
+                "Your booking for " + (savedBooking.getResourceName() != null ? savedBooking.getResourceName() : "a resource") 
+                        + " on " + savedBooking.getStartTime().toLocalDate() 
+                        + " from " + savedBooking.getStartTime().toLocalTime() 
+                        + " to " + savedBooking.getEndTime().toLocalTime() 
+                        + " is pending approval.",
+                savedBooking.getId(),
+                "BOOKING"
+        );
+        
+        return savedBooking;
     }
 
     public List<Booking> getAllBookings() {
@@ -103,24 +152,52 @@ public class BookingService {
                 booking.setRejectionReason(reason);
             }
             booking.setUpdatedAt(LocalDateTime.now());
-            Booking updated = bookingRepository.save(booking);
-
-            // Create notification
-            String title = "Booking " + (status.equals("APPROVED") ? "Approved" : "Rejected");
-            String message = String.format("Your booking for %s has been %s.", 
-                booking.getResourceName() != null ? booking.getResourceName() : "a facility",
-                status.toLowerCase());
-            if (status.equals("REJECTED") && reason != null) {
-                message += " Reason: " + reason;
+            Booking savedBooking = bookingRepository.save(booking);
+            
+            if ("CANCELLED".equalsIgnoreCase(status)) {
+                populateResourceName(savedBooking);
+                emailService.sendBookingCancellation(savedBooking);
+                notificationService.createNotification(
+                        savedBooking.getUserEmail(),
+                        "BOOKING_CANCELLED",
+                        "Booking Cancelled",
+                        "Your booking for " + (savedBooking.getResourceName() != null ? savedBooking.getResourceName() : "a resource") + " has been cancelled.",
+                        savedBooking.getId(),
+                        "BOOKING"
+                );
             }
-            notificationService.createNotification(booking.getUserEmail(), title, message, "BOOKING");
-
-            return updated;
+            
+            // Send notifications for booking status changes
+            if ("APPROVED".equalsIgnoreCase(status)) {
+                notificationService.createNotification(
+                        savedBooking.getUserEmail(),
+                        "BOOKING_APPROVED",
+                        "Booking Approved",
+                        "Your booking for " + savedBooking.getResourceName() + " has been approved.",
+                        savedBooking.getId(),
+                        "BOOKING"
+                );
+            } else if ("REJECTED".equalsIgnoreCase(status)) {
+                notificationService.createNotification(
+                        savedBooking.getUserEmail(),
+                        "BOOKING_REJECTED",
+                        "Booking Rejected",
+                        "Your booking for " + savedBooking.getResourceName() + " has been rejected. Reason: " + (savedBooking.getRejectionReason() != null ? savedBooking.getRejectionReason() : "No reason provided"),
+                        savedBooking.getId(),
+                        "BOOKING"
+                );
+            }
+            
+            return savedBooking;
         }).orElseThrow(() -> new RuntimeException("Booking not found with id: " + id));
     }
 
     public void deleteBooking(String id) {
-        bookingRepository.deleteById(id);
+        bookingRepository.findById(id).ifPresent(booking -> {
+            populateResourceName(booking);
+            emailService.sendBookingCancellation(booking);
+            bookingRepository.deleteById(id);
+        });
     }
 
     public List<Booking> getBookingsByResource(String resourceId) {
