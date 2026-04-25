@@ -43,7 +43,20 @@ public class FacilityService {
         return facilityRepository.findById(id).orElseThrow(() -> new RuntimeException("Facility not found with ID: " + id));
     }
 
+    private void validateFacility(Facility facility) {
+        if (facility.getName() == null || facility.getName().trim().isEmpty()) {
+            throw new RuntimeException("Facility name is required");
+        }
+        if (facility.getType() == null) {
+            throw new RuntimeException("Facility type is required");
+        }
+        if (facility.getCapacity() != null && facility.getCapacity() < 0) {
+            throw new RuntimeException("Capacity cannot be negative");
+        }
+    }
+
     public Facility createFacility(Facility facility) {
+        validateFacility(facility);
         if (facility.getStatus() == null) {
             facility.setStatus(Facility.FacilityStatus.ACTIVE);
         }
@@ -61,6 +74,7 @@ public class FacilityService {
         if (updatedFacility.getAvailabilityWindows() != null) existing.setAvailabilityWindows(updatedFacility.getAvailabilityWindows());
         if (updatedFacility.getDescription() != null) existing.setDescription(updatedFacility.getDescription());
         
+        validateFacility(existing);
         return facilityRepository.save(existing);
     }
 

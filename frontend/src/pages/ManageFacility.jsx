@@ -22,6 +22,7 @@ const ManageFacility = () => {
   });
 
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState({});
 
   useEffect(() => {
     if (editId) {
@@ -41,8 +42,22 @@ const ManageFacility = () => {
     }
   }, [editId]);
 
+  const validate = () => {
+    const newErrors = {};
+    if (!formData.name.trim()) newErrors.name = 'Facility name is required.';
+    if (formData.type !== 'EQUIPMENT' && !formData.location.trim()) newErrors.location = 'Location is required.';
+    if (!formData.capacity) {
+      newErrors.capacity = 'Capacity is required.';
+    } else if (parseInt(formData.capacity) < 1) {
+      newErrors.capacity = 'Capacity must be at least 1.';
+    }
+    return newErrors;
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
+    // Clear error for this field as user types
+    if (errors[name]) setErrors(prev => ({ ...prev, [name]: undefined }));
     setFormData(prev => {
       const newData = { ...prev, [name]: value };
       if (name === 'type') {
@@ -78,6 +93,13 @@ const ManageFacility = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const validationErrors = validate();
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return; // stop submission
+    }
+
     setLoading(true);
     
     try {
@@ -125,8 +147,16 @@ const ManageFacility = () => {
           <form onSubmit={handleSubmit} className="booking-form">
             <div className="input-row">
               <div className="input-group">
-                <label><Box size={18} /> Facility Name</label>
-                <input required type="text" name="name" value={formData.name} onChange={handleChange} placeholder="e.g. Auditorium A" />
+                <label><Box size={18} /> Facility Name <span className="required-star">*</span></label>
+                <input
+                  type="text"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  placeholder="e.g. Auditorium A"
+                  className={errors.name ? 'input-error' : ''}
+                />
+                {errors.name && <span className="error-msg">{errors.name}</span>}
               </div>
               <div className="input-group">
                 <label><Tag size={18} /> Type</label>
@@ -144,13 +174,30 @@ const ManageFacility = () => {
             <div className="input-row three-col">
               {formData.type !== 'EQUIPMENT' && (
                 <div className="input-group">
-                  <label><MapPin size={18} /> Location</label>
-                  <input type="text" name="location" value={formData.location} onChange={handleChange} placeholder="e.g. Building 1, 3rd Floor" />
+                  <label><MapPin size={18} /> Location <span className="required-star">*</span></label>
+                  <input
+                    type="text"
+                    name="location"
+                    value={formData.location}
+                    onChange={handleChange}
+                    placeholder="e.g. Building 1, 3rd Floor"
+                    className={errors.location ? 'input-error' : ''}
+                  />
+                  {errors.location && <span className="error-msg">{errors.location}</span>}
                 </div>
               )}
               <div className="input-group">
-                <label><Info size={18} /> {formData.type === 'EQUIPMENT' ? 'Quantity' : 'Capacity'}</label>
-                <input type="number" name="capacity" value={formData.capacity} onChange={handleChange} placeholder={formData.type === 'EQUIPMENT' ? 'e.g. 10' : 'e.g. 50'} />
+                <label><Info size={18} /> {formData.type === 'EQUIPMENT' ? 'Quantity' : 'Capacity'} <span className="required-star">*</span></label>
+                <input
+                  type="number"
+                  name="capacity"
+                  value={formData.capacity}
+                  onChange={handleChange}
+                  placeholder={formData.type === 'EQUIPMENT' ? 'e.g. 10' : 'e.g. 50'}
+                  min="1"
+                  className={errors.capacity ? 'input-error' : ''}
+                />
+                {errors.capacity && <span className="error-msg">{errors.capacity}</span>}
               </div>
               <div className="input-group">
                 <label><ShieldAlert size={18} /> Status</label>
@@ -327,6 +374,27 @@ const ManageFacility = () => {
           background: white;
           box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
           transform: translateY(-1px);
+        }
+
+        input.input-error {
+          border-color: #ef4444;
+          background: #fff5f5;
+          box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+        }
+
+        .error-msg {
+          color: #ef4444;
+          font-size: 0.82rem;
+          font-weight: 600;
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          margin-top: -4px;
+        }
+
+        .required-star {
+          color: #ef4444;
+          margin-left: 2px;
         }
 
         textarea {
