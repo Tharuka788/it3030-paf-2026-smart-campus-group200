@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import DynamicLayout from '../components/DynamicLayout';
+import TechnicianLayout from '../components/TechnicianLayout';
 import { ticketService } from '../services/api';
 import { motion, AnimatePresence } from 'framer-motion';
 import { jsPDF } from 'jspdf';
@@ -25,15 +25,14 @@ import {
   Wrench
 } from 'lucide-react';
 
-const AdminTickets = () => {
+const TechnicianTickets = () => {
   const [tickets, setTickets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('ALL');
   const [selectedTicket, setSelectedTicket] = useState(null);
-  const [adminComment, setAdminComment] = useState('');
+  const [modalTechFeedback, setModalTechFeedback] = useState('');
   const [modalStatus, setModalStatus] = useState('');
-  const [modalAssignedTo, setModalAssignedTo] = useState('');
-  const [modalNotesForTech, setModalNotesForTech] = useState('');
+  const [modalNotesFromTech, setModalNotesFromTech] = useState('');
   const [updating, setUpdating] = useState(false);
 
   const fetchAllTickets = async () => {
@@ -74,15 +73,13 @@ const AdminTickets = () => {
 
   useEffect(() => {
     if (selectedTicket) {
-      setAdminComment(selectedTicket.adminComments || '');
+      setModalTechFeedback(selectedTicket.technicianFeedback || '');
       setModalStatus(selectedTicket.status || 'OPEN');
-      setModalAssignedTo(selectedTicket.assignedTo || '');
-      setModalNotesForTech(selectedTicket.notesForTechnician || '');
+      setModalNotesFromTech(selectedTicket.notesFromTechnician || '');
     } else {
-      setAdminComment('');
+      setModalTechFeedback('');
       setModalStatus('');
-      setModalAssignedTo('');
-      setModalNotesForTech('');
+      setModalNotesFromTech('');
     }
   }, [selectedTicket]);
 
@@ -143,20 +140,24 @@ const AdminTickets = () => {
     });
 
     // Save PDF
-    doc.save(`smart-campus-tickets-${filter.toLowerCase()}-${new Date().getTime()}.pdf`);
+    doc.save(`smart-campus-tech-tickets-${filter.toLowerCase()}-${new Date().getTime()}.pdf`);
   };
 
+  // Optionally filter by technician email here
+  const techEmail = localStorage.getItem('userEmail') || '';
+  const myTickets = tickets.filter(t => t.assignedTo === techEmail || !techEmail);
+  
   const filteredTickets = filter === 'ALL' 
-    ? tickets 
-    : tickets.filter(t => t.status?.toUpperCase() === filter);
+    ? myTickets 
+    : myTickets.filter(t => t.status?.toUpperCase() === filter);
 
   return (
-    <DynamicLayout>
+    <TechnicianLayout>
       <div className="admin-tickets-page">
         <header className="page-header">
           <div className="header-text">
-            <h2>Support Management</h2>
-            <p>Monitor and resolve system-wide support requests and maintenance tickets.</p>
+            <h2>Assigned Tickets</h2>
+            <p>Monitor and resolve all tickets currently assigned to you.</p>
           </div>
           <div className="header-actions">
             <button className="export-report-btn" onClick={exportToPDF}>
@@ -248,16 +249,6 @@ const AdminTickets = () => {
                           <option value="RESOLVED">Resolved</option>
                           <option value="CLOSED">Closed</option>
                         </select>
-                        <button 
-                          className="delete-card-btn"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDelete(ticket.id);
-                          }}
-                          title="Delete Ticket"
-                        >
-                          <Trash2 size={16} />
-                        </button>
                       </div>
                     </div>
                   </div>
@@ -395,23 +386,23 @@ const AdminTickets = () => {
                     )}
 
                     <section className="detail-section status-footer-section">
-                      <div className="section-label">ADMIN MANAGEMENT</div>
+                      <div className="section-label">TICKET MANAGEMENT</div>
                       
                       <div className="admin-comment-input-group">
-                        <label>Admin Feedback / Resolution Notes</label>
+                        <label>Technician Feedback / Resolution Notes</label>
                         <textarea 
                           placeholder="Type a message to the user here..."
-                          value={adminComment}
-                          onChange={(e) => setAdminComment(e.target.value)}
+                          value={modalTechFeedback}
+                          onChange={(e) => setModalTechFeedback(e.target.value)}
                           className="admin-comment-textarea"
                         />
                       </div>
 
-                      {selectedTicket.technicianFeedback && (
+                      {selectedTicket.adminComments && (
                         <div className="admin-comment-input-group mt-15 read-only-note">
-                          <label>Technician Feedback to User</label>
+                          <label>Official Admin Message to User</label>
                           <div className="note-content" style={{ padding: '12px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '12px', fontSize: '0.9rem', color: '#475569' }}>
-                            {selectedTicket.technicianFeedback}
+                            {selectedTicket.adminComments}
                           </div>
                         </div>
                       )}
@@ -430,42 +421,29 @@ const AdminTickets = () => {
                         </select>
                       </div>
 
-                      <div className="status-control-wrapper mb-20">
-                        <label>Technician Assignment</label>
-                        <select 
-                          className="modal-status-select-large"
-                          value={modalAssignedTo} 
-                          onChange={(e) => setModalAssignedTo(e.target.value)}
-                        >
-                          <option value="">Unassigned</option>
-                          <option value="tech1@gmail.com">tech1@gmail.com</option>
-                          <option value="subtech@gmail.com">subtech@gmail.com</option>
-                        </select>
-                      </div>
-
-                      <div className="admin-comment-input-group mb-20">
-                        <label>Instructions for Technician (Hidden from User)</label>
-                        <textarea 
-                          placeholder="Add instructions, limits, or tasks for the technician..."
-                          value={modalNotesForTech}
-                          onChange={(e) => setModalNotesForTech(e.target.value)}
-                          className="admin-comment-textarea"
-                          style={{ height: '80px', background: '#e0f2fe', borderColor: '#bae6fd' }}
-                        />
-                      </div>
-
-                      {selectedTicket.notesFromTechnician && (
+                      {selectedTicket.notesForTechnician && (
                         <div className="admin-comment-input-group mb-20 read-only-note">
-                          <label>Update from Technician</label>
+                          <label>Instructions from Admin</label>
                           <div className="note-content" style={{ padding: '12px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '12px', fontSize: '0.9rem', color: '#475569' }}>
-                            {selectedTicket.notesFromTechnician}
+                            {selectedTicket.notesForTechnician}
                           </div>
                         </div>
                       )}
 
+                      <div className="admin-comment-input-group mb-20">
+                        <label>My Update for Admin (Hidden from User)</label>
+                        <textarea 
+                          placeholder="Add your progress, questions, or findings for the admin..."
+                          value={modalNotesFromTech}
+                          onChange={(e) => setModalNotesFromTech(e.target.value)}
+                          className="admin-comment-textarea"
+                          style={{ height: '80px', background: '#fffbeb', borderColor: '#fef3c7' }}
+                        />
+                      </div>
+
                       <button 
                         className={`save-update-btn ${updating ? 'updating' : ''}`}
-                        onClick={() => handleStatusUpdate(selectedTicket.id, modalStatus, adminComment, selectedTicket.technicianFeedback, modalAssignedTo, modalNotesForTech, selectedTicket.notesFromTechnician)}
+                        onClick={() => handleStatusUpdate(selectedTicket.id, modalStatus, selectedTicket.adminComments, modalTechFeedback, selectedTicket.assignedTo, selectedTicket.notesForTechnician, modalNotesFromTech)}
                         disabled={updating}
                       >
                         {updating ? (
@@ -479,14 +457,6 @@ const AdminTickets = () => {
                             <span>Save Changes</span>
                           </>
                         )}
-                      </button>
-
-                      <button 
-                        className="modal-delete-btn"
-                        onClick={() => handleDelete(selectedTicket.id)}
-                      >
-                        <Trash2 size={18} />
-                        <span>Delete Ticket Permanently</span>
                       </button>
                     </section>
                   </div>
@@ -727,8 +697,8 @@ const AdminTickets = () => {
         .spin { animation: spin 1s linear infinite; }
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
       `}</style>
-    </DynamicLayout>
+    </TechnicianLayout>
   );
 };
 
-export default AdminTickets;
+export default TechnicianTickets;

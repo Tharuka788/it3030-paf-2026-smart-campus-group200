@@ -1,9 +1,9 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { 
-  LayoutDashboard, 
-  Wrench, 
-  Ticket, 
+import {
+  LayoutDashboard,
+  Wrench,
+  Ticket,
   Building2,
   Bell,
   CheckCircle2,
@@ -14,13 +14,13 @@ import { motion } from 'framer-motion';
 const TechnicianSidebar = () => {
   const navItems = [
     { name: 'Dashboard', icon: <LayoutDashboard size={22} />, path: '/technician/dashboard' },
-    { name: 'Maintenance Tickets', icon: <Ticket size={22} />, path: '/admin/tickets' }, // Reusing existing ticket management
+    { name: 'Assigned Tickets', icon: <Ticket size={22} />, path: '/technician/tickets' }, // Reusing existing ticket management
     { name: 'Facility Status', icon: <Building2 size={22} />, path: '/facilities' },
     { name: 'Service Logs', icon: <CheckCircle2 size={22} />, path: '/technician/logs' },
   ];
 
   return (
-    <motion.aside 
+    <motion.aside
       className="technician-sidebar"
       initial={{ x: -100, opacity: 0 }}
       animate={{ x: 0, opacity: 1 }}
@@ -39,9 +39,9 @@ const TechnicianSidebar = () => {
       <nav className="sidebar-nav">
         <span className="nav-label">Operations</span>
         {navItems.map((item) => (
-          <NavLink 
-            key={item.name} 
-            to={item.path} 
+          <NavLink
+            key={item.name}
+            to={item.path}
             className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
           >
             <div className="icon-wrapper">{item.icon}</div>
@@ -52,8 +52,8 @@ const TechnicianSidebar = () => {
 
       <div className="sidebar-footer">
         <div className="alert-preview">
-           <AlertCircle size={20} />
-           <span>2 Critical Tasks</span>
+          <AlertCircle size={20} />
+          <span>2 Critical Tasks</span>
         </div>
       </div>
 

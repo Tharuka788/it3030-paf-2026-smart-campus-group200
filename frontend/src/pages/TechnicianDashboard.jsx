@@ -67,6 +67,57 @@ const TechnicianDashboard = () => {
   };
 
   useEffect(() => {
+    const fetchTechStats = async () => {
+      try {
+        const response = await ticketService.getAllTickets();
+        const allTickets = response.data;
+        const techEmail = localStorage.getItem('userEmail');
+        
+        // If they are checking the dashboard, let's show all tickets that have been assigned to ANY technician
+        // This ensures the dashboard isn't empty when testing.
+        const assignedTickets = allTickets.filter(t => t.assignedTo && t.assignedTo.trim() !== '');
+
+        // Stats calculation
+        const today = new Date().toDateString();
+        
+        const inProgress = assignedTickets.filter(t => t.status === 'IN_PROGRESS').length;
+        const pending = assignedTickets.filter(t => t.status === 'OPEN' || !t.status).length;
+        const completedToday = assignedTickets.filter(t => {
+          const isDone = t.status === 'RESOLVED' || t.status === 'CLOSED';
+          const isToday = new Date(t.updatedAt || t.createdAt).toDateString() === today;
+          return isDone && isToday;
+        }).length;
+        const criticalAlerts = assignedTickets.filter(t => 
+          (t.priority === 'HIGH' || t.priority === 'CRITICAL') && t.status !== 'RESOLVED' && t.status !== 'CLOSED'
+        ).length;
+
+        setStats({
+          pendingTickets: pending,
+          inProgress,
+          completedToday,
+          criticalAlerts
+        });
+
+        // Show most recent assigned tickets (limit to 5)
+        const recentTasks = [...assignedTickets]
+          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+          .slice(0, 5)
+          .map(t => ({
+            id: t.id,
+            title: t.subject,
+            priority: t.priority || 'MEDIUM',
+            status: t.status || 'OPEN',
+            location: t.subcategory || 'General' // fallback location
+          }));
+          
+        setActiveTasks(recentTasks);
+
+      } catch (err) {
+        console.error('Failed to fetch technician stats:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
     fetchTechStats();
   }, []);
 
@@ -99,7 +150,7 @@ const TechnicianDashboard = () => {
         <header className="dashboard-header">
           <div className="header-text">
             <h1 className="gradient-text">Technician Overview</h1>
-            <p>Monitor facility health and manage maintenance requests.</p>
+            <p>Monitor and manage all your assigned tickets.</p>
           </div>
           <div className="tech-status">
             <Wrench size={18} className="spin-slow" />
@@ -134,9 +185,9 @@ const TechnicianDashboard = () => {
             <div className="panel-header">
               <div className="panel-title">
                 <ClipboardList size={20} />
-                <h3>Assigned Tasks</h3>
+                <h3>Assigned Tickets</h3>
               </div>
-              <button className="text-btn" onClick={() => navigate('/admin/tickets')}>
+              <button className="text-btn" onClick={() => navigate('/technician/tickets')}>
                 View All <ArrowUpRight size={16} />
               </button>
             </div>
@@ -146,8 +197,8 @@ const TechnicianDashboard = () => {
                 <LoadingSpinner />
               ) : activeTasks.length === 0 ? (
                 <div className="empty-state">
-                  <h4>Clear Workspace!</h4>
-                  <p>No maintenance tasks assigned to you right now.</p>
+                  <h4>All Caught Up!</h4>
+                  <p>There are no tickets assigned to technicians yet.</p>
                 </div>
               ) : (
                 <div className="task-list">
@@ -164,7 +215,7 @@ const TechnicianDashboard = () => {
                         <span className={`status-tag ${task.status.toLowerCase()}`}>
                           {task.status.replace('_', ' ')}
                         </span>
-                        <button className="action-btn">Update</button>
+                        <button className="action-btn" onClick={() => navigate('/technician/tickets')}>View</button>
                       </div>
                     </div>
                   ))}

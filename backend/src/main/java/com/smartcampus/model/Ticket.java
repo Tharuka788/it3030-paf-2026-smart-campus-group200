@@ -41,7 +41,10 @@ public class Ticket {
     private List<String> attachmentPaths = new ArrayList<>();
     
     private String adminComments;
+    private String technicianFeedback;
     private String assignedTo;
+    private String notesForTechnician;
+    private String notesFromTechnician;
 
     @CreatedDate
     private LocalDateTime createdAt;
