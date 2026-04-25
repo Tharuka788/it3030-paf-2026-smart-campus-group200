@@ -16,7 +16,7 @@ import {
   Building2
 } from 'lucide-react';
 import { facilityService, bookingService } from '../services/api';
-import { format, addHours } from 'date-fns';
+import { format, addHours, addDays } from 'date-fns';
 
 const HallBooking = () => {
   const [searchParams] = useSearchParams();
@@ -32,6 +32,14 @@ const HallBooking = () => {
   const [fetchingSeats, setFetchingSeats] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
+  
+  const minDateTime = format(new Date(), "yyyy-MM-dd'T'HH:mm");
+  const maxDateTime = format(addDays(new Date(), 7), "yyyy-MM-dd'T'HH:mm");
+
+  const countWords = (str) => {
+    if (!str || str.trim() === '') return 0;
+    return str.trim().split(/\s+/).length;
+  };
 
   // Form data for booking
   const [formData, setFormData] = useState({
@@ -141,6 +149,35 @@ const HallBooking = () => {
     setBookingLoading(true);
     setError(null);
 
+    const start = new Date(formData.startTime);
+    const end = new Date(formData.endTime);
+    const now = new Date();
+    const nextWeek = addDays(now, 7);
+
+    if (start < now) {
+      setError("Cannot book a resource in the past.");
+      setBookingLoading(false);
+      return;
+    }
+
+    if (start > nextWeek) {
+      setError("Bookings can only be made up to 7 days in advance.");
+      setBookingLoading(false);
+      return;
+    }
+
+    if (end <= start) {
+      setError("End time must be after start time.");
+      setBookingLoading(false);
+      return;
+    }
+
+    if (countWords(formData.purpose) > 100) {
+      setError("Purpose must not exceed 100 words.");
+      setBookingLoading(false);
+      return;
+    }
+
     const bookingData = {
       resourceId: facilityId,
       resourceName: facility.name,
@@ -240,6 +277,8 @@ const HallBooking = () => {
                       type="datetime-local" 
                       value={formData.startTime}
                       onChange={(e) => setFormData({...formData, startTime: e.target.value})}
+                      min={minDateTime}
+                      max={maxDateTime}
                     />
                   </div>
                   <div className="input-group">
@@ -248,6 +287,8 @@ const HallBooking = () => {
                       type="datetime-local" 
                       value={formData.endTime}
                       onChange={(e) => setFormData({...formData, endTime: e.target.value})}
+                      min={minDateTime}
+                      max={maxDateTime}
                     />
                   </div>
                 </div>
@@ -260,10 +301,36 @@ const HallBooking = () => {
                       onChange={(e) => setFormData({...formData, purpose: e.target.value})}
                       rows="2"
                     />
+                    <div className={`word-count ${countWords(formData.purpose) > 100 ? 'text-danger' : ''}`}>
+                      Words: {countWords(formData.purpose)}/100
+                    </div>
                 </div>
 
                 <div className="card-footer">
-                  <button className="next-btn" onClick={() => setStep(2)}>
+                  <button className="next-btn" onClick={() => {
+                    const start = new Date(formData.startTime);
+                    const now = new Date();
+                    const nextWeek = addDays(now, 7);
+
+                    if (start < now) {
+                      setError("Cannot book a resource in the past.");
+                      return;
+                    }
+                    if (start > nextWeek) {
+                      setError("Bookings can only be made up to 7 days in advance.");
+                      return;
+                    }
+                    if (new Date(formData.endTime) <= start) {
+                      setError("End time must be after start time.");
+                      return;
+                    }
+                    if (countWords(formData.purpose) > 100) {
+                      setError("Purpose must not exceed 100 words.");
+                      return;
+                    }
+                    setError(null);
+                    setStep(2);
+                  }}>
                     Next Step <ChevronRight size={20} />
                   </button>
                 </div>
@@ -790,6 +857,18 @@ const HallBooking = () => {
             display: flex;
             align-items: center;
             gap: 10px;
+          }
+
+          .word-count {
+            font-size: 0.8rem;
+            text-align: right;
+            color: var(--text-muted);
+            margin-top: 4px;
+          }
+
+          .text-danger {
+            color: #ef4444 !important;
+            font-weight: 600;
           }
 
           .success-msg {
