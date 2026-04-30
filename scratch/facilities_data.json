@@ -1,0 +1,353 @@
+﻿{
+    "value":  [
+                  {
+                      "id":  "69e64ca385df8542b51dfeec",
+                      "name":  "Library meeting Room 1",
+                      "type":  "ROOM",
+                      "capacity":  10,
+                      "location":  "New Library 2nd floor",
+                      "status":  "ACTIVE",
+                      "availabilityWindows":  [
+
+                                              ],
+                      "description":  ""
+                  },
+                  {
+                      "id":  "69e64cdc85df8542b51dfeed",
+                      "name":  "Library meeting Room 2",
+                      "type":  "ROOM",
+                      "capacity":  20,
+                      "location":  "New Library 2nd floor",
+                      "status":  "ACTIVE",
+                      "availabilityWindows":  [
+
+                                              ],
+                      "description":  ""
+                  },
+                  {
+                      "id":  "69e64cf685df8542b51dfeee",
+                      "name":  "Library meeting Room 3",
+                      "type":  "ROOM",
+                      "capacity":  30,
+                      "location":  "New Library 2nd floor",
+                      "status":  "ACTIVE",
+                      "availabilityWindows":  [
+
+                                              ],
+                      "description":  ""
+                  },
+                  {
+                      "id":  "69e64d5485df8542b51dfeef",
+                      "name":  "Staff Conference Room",
+                      "type":  "ROOM",
+                      "capacity":  50,
+                      "location":  "New Building F304",
+                      "status":  "ACTIVE",
+                      "availabilityWindows":  [
+
+                                              ],
+                      "description":  ""
+                  },
+                  {
+                      "id":  "69e64d8285df8542b51dfef0",
+                      "name":  "Student Union Lounge",
+                      "type":  "ROOM",
+                      "capacity":  60,
+                      "location":  "Main building 2nd floor ",
+                      "status":  "ACTIVE",
+                      "availabilityWindows":  [
+
+                                              ],
+                      "description":  ""
+                  },
+                  {
+                      "id":  "69e64db985df8542b51dfef1",
+                      "name":  "Main Auditorium",
+                      "type":  "LECTURE_HALL",
+                      "capacity":  1000,
+                      "location":  "Main Auditorium",
+                      "status":  "ACTIVE",
+                      "availabilityWindows":  [
+
+                                              ],
+                      "description":  ""
+                  },
+                  {
+                      "id":  "69e64e0685df8542b51dfef2",
+                      "name":  "Lecture Hall",
+                      "type":  "LECTURE_HALL",
+                      "capacity":  500,
+                      "location":  "New Library F1401",
+                      "status":  "MAINTENANCE",
+                      "availabilityWindows":  [
+
+                                              ],
+                      "description":  ""
+                  },
+                  {
+                      "id":  "69e64e5f85df8542b51dfef3",
+                      "name":  "Lecture Hall",
+                      "type":  "LECTURE_HALL",
+                      "capacity":  120,
+                      "location":  "New Building F304",
+                      "status":  "MAINTENANCE",
+                      "availabilityWindows":  [
+                                                  "@{dayOfWeek=Monday; startTime=10:00; endTime=14:00}"
+                                              ],
+                      "description":  ""
+                  },
+                  {
+                      "id":  "69e64ead85df8542b51dfef4",
+                      "name":  "Lecture Hall",
+                      "type":  "LECTURE_HALL",
+                      "capacity":  120,
+                      "location":  "Main building A502",
+                      "status":  "ACTIVE",
+                      "availabilityWindows":  [
+
+                                              ],
+                      "description":  ""
+                  },
+                  {
+                      "id":  "69e64eed85df8542b51dfef5",
+                      "name":  "Lecture Hall",
+                      "type":  "ROOM",
+                      "capacity":  120,
+                      "location":  "New Building G503",
+                      "status":  "ACTIVE",
+                      "availabilityWindows":  [
+
+                                              ],
+                      "description":  ""
+                  },
+                  {
+                      "id":  "69e6513a85df8542b51dfef6",
+                      "name":  "Lecture Hall",
+                      "type":  "LECTURE_HALL",
+                      "capacity":  120,
+                      "location":  "Main building B406",
+                      "status":  "ACTIVE",
+                      "availabilityWindows":  [
+
+                                              ],
+                      "description":  ""
+                  },
+                  {
+                      "id":  "69e6515985df8542b51dfef7",
+                      "name":  "Lecture Hall",
+                      "type":  "LECTURE_HALL",
+                      "capacity":  120,
+                      "location":  "New Building F603",
+                      "status":  "ACTIVE",
+                      "availabilityWindows":  [
+
+                                              ],
+                      "description":  ""
+                  },
+                  {
+                      "id":  "69e651a485df8542b51dfef8",
+                      "name":  "Computer Lab",
+                      "type":  "LAB",
+                      "capacity":  60,
+                      "location":  "New Building F603",
+                      "status":  "ACTIVE",
+                      "availabilityWindows":  [
+
+                                              ],
+                      "description":  ""
+                  },
+                  {
+                      "id":  "69e651cd85df8542b51dfef9",
+                      "name":  "Computer Lab",
+                      "type":  "LAB",
+                      "capacity":  60,
+                      "location":  "Main building A603",
+                      "status":  "ACTIVE",
+                      "availabilityWindows":  [
+
+                                              ],
+                      "description":  ""
+                  },
+                  {
+                      "id":  "69e651f785df8542b51dfefa",
+                      "name":  "Advanced Chemistry Lab 1",
+                      "type":  "LAB",
+                      "capacity":  30,
+                      "location":  "New Building F1105",
+                      "status":  "ACTIVE",
+                      "availabilityWindows":  [
+
+                                              ],
+                      "description":  ""
+                  },
+                  {
+                      "id":  "69e6522485df8542b51dfefb",
+                      "name":  "Computer Systems Architecture Lab",
+                      "type":  "LAB",
+                      "capacity":  60,
+                      "location":  "New Building G504",
+                      "status":  "ACTIVE",
+                      "availabilityWindows":  [
+
+                                              ],
+                      "description":  ""
+                  },
+                  {
+                      "id":  "69e6525b85df8542b51dfefc",
+                      "name":  "Physics Practical Lab B",
+                      "type":  "LAB",
+                      "capacity":  30,
+                      "location":  "New Building G306",
+                      "status":  "MAINTENANCE",
+                      "availabilityWindows":  [
+
+                                              ],
+                      "description":  ""
+                  },
+                  {
+                      "id":  "69e65d79e18d7b4aadae69b3",
+                      "name":  "High-Res Overhead Projector (Model SP-4)",
+                      "type":  "EQUIPMENT",
+                      "capacity":  65,
+                      "location":  "",
+                      "status":  "IN_STOCK",
+                      "availabilityWindows":  [
+
+                                              ],
+                      "description":  ""
+                  },
+                  {
+                      "id":  "69e65e6ae18d7b4aadae69b4",
+                      "name":  "Portable PA System A",
+                      "type":  "EQUIPMENT",
+                      "capacity":  5,
+                      "location":  "",
+                      "status":  "IN_STOCK",
+                      "availabilityWindows":  [
+
+                                              ],
+                      "description":  ""
+                  },
+                  {
+                      "id":  "69e65e95e18d7b4aadae69b5",
+                      "name":  "Smart white Board",
+                      "type":  "EQUIPMENT",
+                      "capacity":  32,
+                      "location":  "",
+                      "status":  "IN_STOCK",
+                      "availabilityWindows":  [
+
+                                              ],
+                      "description":  ""
+                  },
+                  {
+                      "id":  "69e65f08e18d7b4aadae69b6",
+                      "name":  "Canon EOS R5 Mirrorless Camera",
+                      "type":  "EQUIPMENT",
+                      "capacity":  1,
+                      "location":  "",
+                      "status":  "OUT_OF_STOCK",
+                      "availabilityWindows":  [
+
+                                              ],
+                      "description":  ""
+                  },
+                  {
+                      "id":  "69e65f28e18d7b4aadae69b7",
+                      "name":  "Portable Whiteboards",
+                      "type":  "EQUIPMENT",
+                      "capacity":  43,
+                      "location":  "",
+                      "status":  "IN_STOCK",
+                      "availabilityWindows":  [
+
+                                              ],
+                      "description":  ""
+                  },
+                  {
+                      "id":  "69e65f6ae18d7b4aadae69b8",
+                      "name":  "Main Campus Cafeteria",
+                      "type":  "OTHER",
+                      "capacity":  60,
+                      "location":  "Main Building",
+                      "status":  "ACTIVE",
+                      "availabilityWindows":  [
+
+                                              ],
+                      "description":  ""
+                  },
+                  {
+                      "id":  "69e65f96e18d7b4aadae69b9",
+                      "name":  "Outdoor Tennis Court 2",
+                      "type":  "OTHER",
+                      "capacity":  50,
+                      "location":  "Tennis Court",
+                      "status":  "ACTIVE",
+                      "availabilityWindows":  [
+
+                                              ],
+                      "description":  ""
+                  },
+                  {
+                      "id":  "69eb04a1db77814ee5920897",
+                      "name":  "Grand Hall",
+                      "type":  "AUDITORIUM",
+                      "capacity":  500,
+                      "location":  "Building A",
+                      "status":  "OUT_OF_SERVICE",
+                      "availabilityWindows":  [
+
+                                              ],
+                      "description":  ""
+                  },
+                  {
+                      "id":  "69eb089ec89d9858dcdb3e3b",
+                      "name":  "Meeting Room A",
+                      "type":  "ROOM",
+                      "capacity":  10,
+                      "location":  "Building B",
+                      "status":  "ACTIVE",
+                      "availabilityWindows":  [
+
+                                              ],
+                      "description":  ""
+                  },
+                  {
+                      "id":  "69eb0909c89d9858dcdb3e3c",
+                      "name":  "Meeting Room A",
+                      "type":  "ROOM",
+                      "capacity":  10,
+                      "location":  "Building B",
+                      "status":  "ACTIVE",
+                      "availabilityWindows":  [
+
+                                              ],
+                      "description":  ""
+                  },
+                  {
+                      "id":  "69eb0c33c89d9858dcdb3e3d",
+                      "name":  "Lecture Hall",
+                      "type":  "ROOM",
+                      "capacity":  120,
+                      "location":  "New Building F603",
+                      "status":  "ACTIVE",
+                      "availabilityWindows":  [
+
+                                              ],
+                      "description":  ""
+                  },
+                  {
+                      "id":  "69eb0c5ec89d9858dcdb3e3e",
+                      "name":  "Lecture Hall",
+                      "type":  "ROOM",
+                      "capacity":  120,
+                      "location":  "New Building F603",
+                      "status":  "ACTIVE",
+                      "availabilityWindows":  [
+
+                                              ],
+                      "description":  ""
+                  }
+              ],
+    "Count":  29
+}

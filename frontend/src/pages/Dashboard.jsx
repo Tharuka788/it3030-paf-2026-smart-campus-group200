@@ -1,5 +1,6 @@
-import React from 'react';
-import Layout from '../components/Layout';
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import DynamicLayout from '../components/DynamicLayout';
 import { 
   CheckCircle, 
   Clock, 
@@ -8,17 +9,60 @@ import {
   ArrowUpRight
 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { bookingService } from '../services/api';
+import LoadingSpinner from '../components/LoadingSpinner';
 
 const Dashboard = () => {
+  const [bookings, setBookings] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchBookings = async () => {
+      try {
+        const userEmail = localStorage.getItem('userEmail');
+        if (userEmail) {
+          const response = await bookingService.getBookingsByUser(userEmail);
+          setBookings(response.data);
+        }
+      } catch (err) {
+        console.error('Failed to fetch dashboard data:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchBookings();
+  }, []);
+
   const stats = [
-    { name: 'Total Bookings', value: '12', icon: <Clock size={24} />, color: '#6366f1' },
-    { name: 'Approved', value: '8', icon: <CheckCircle size={24} />, color: '#10b981' },
-    { name: 'Pending', value: '3', icon: <Clock size={24} />, color: '#f59e0b' },
-    { name: 'Rejected', value: '1', icon: <XCircle size={24} />, color: '#ef4444' },
+    { 
+      name: 'Total Bookings', 
+      value: bookings.length.toString(), 
+      icon: <Clock size={24} />, 
+      color: '#6366f1' 
+    },
+    { 
+      name: 'Approved', 
+      value: bookings.filter(b => b.status === 'APPROVED').length.toString(), 
+      icon: <CheckCircle size={24} />, 
+      color: '#10b981' 
+    },
+    { 
+      name: 'Pending', 
+      value: bookings.filter(b => b.status === 'PENDING').length.toString(), 
+      icon: <Clock size={24} />, 
+      color: '#f59e0b' 
+    },
+    { 
+      name: 'Rejected', 
+      value: bookings.filter(b => b.status === 'REJECTED').length.toString(), 
+      icon: <XCircle size={24} />, 
+      color: '#ef4444' 
+    },
   ];
 
   return (
-    <Layout>
+    <DynamicLayout>
       <div className="dashboard-content">
         <section className="stats-grid">
           {stats.map((stat, index) => (
@@ -49,34 +93,43 @@ const Dashboard = () => {
            </div>
 
            <div className="activity-list glass-morphism">
-              <table className="activity-table">
-                <thead>
-                  <tr>
-                    <th>Room</th>
-                    <th>Date</th>
-                    <th>Time</th>
-                    <th>Status</th>
-                    <th>Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {[1, 2, 3].map((i) => (
-                    <tr key={i}>
-                      <td><span className="room-badge">Room 30{i}</span></td>
-                      <td>Oct {12 + i}, 2023</td>
-                      <td>10:00 AM - 12:00 PM</td>
-                      <td>
-                        <span className={`status-pill ${i === 1 ? 'pending' : 'approved'}`}>
-                          {i === 1 ? 'Pending' : 'Approved'}
-                        </span>
-                      </td>
-                      <td>
-                        <button className="action-btn">Details</button>
-                      </td>
+              {loading ? (
+                <LoadingSpinner />
+              ) : bookings.length === 0 ? (
+                <div style={{ padding: '40px', textAlign: 'center', color: 'var(--text-muted)' }}>No recent bookings found.</div>
+              ) : (
+                <table className="activity-table">
+                  <thead>
+                    <tr>
+                      <th>Room</th>
+                      <th>Date</th>
+                      <th>Time</th>
+                      <th>Status</th>
+                      <th>Action</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {bookings.slice(0, 5).map((booking) => (
+                      <tr key={booking.id}>
+                        <td><span className="room-badge">{booking.resourceId}</span></td>
+                        <td>{new Date(booking.startTime).toLocaleDateString()}</td>
+                        <td>
+                          {new Date(booking.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - 
+                          {new Date(booking.endTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </td>
+                        <td>
+                          <span className={`status-pill ${booking.status.toLowerCase()}`}>
+                            {booking.status.charAt(0) + booking.status.slice(1).toLowerCase()}
+                          </span>
+                        </td>
+                        <td>
+                          <button className="action-btn" onClick={() => navigate('/bookings/my')}>Details</button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
            </div>
         </section>
 
@@ -89,7 +142,7 @@ const Dashboard = () => {
         </motion.button>
       </div>
 
-      <style jsx>{`
+      <style jsx="true">{`
         .dashboard-content {
           display: flex;
           flex-direction: column;
@@ -228,7 +281,7 @@ const Dashboard = () => {
           z-index: 1000;
         }
       `}</style>
-    </Layout>
+    </DynamicLayout>
   );
 };
 

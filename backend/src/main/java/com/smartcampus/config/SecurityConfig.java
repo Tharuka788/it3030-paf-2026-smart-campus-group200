@@ -13,7 +13,14 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.Arrays;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -29,21 +36,50 @@ public class SecurityConfig {
     private final UserRepository userRepository;
 
     @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(authorize -> authorize
+                .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers("/", "/error", "/webjars/**").permitAll()
+                .requestMatchers("/api/v1/users/**").permitAll()
                 .requestMatchers("/api/v1/facilities/**").permitAll()
-                .requestMatchers("/api/v1/bookings/**").authenticated()
-                .anyRequest().authenticated()
-            )
-            .oauth2Login(oauth2 -> oauth2
-                .userInfoEndpoint(userInfo -> userInfo
-                    .userService(this.oauth2UserService())
-                )
+                .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/bookings").permitAll()
+                .requestMatchers("/api/v1/bookings/**").permitAll()
+                .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/tickets").permitAll()
+                .requestMatchers("/api/v1/tickets/**").permitAll()
+                .requestMatchers(org.springframework.http.HttpMethod.GET, "/uploads/**").permitAll()
+                .requestMatchers("/api/v1/notifications/**").authenticated()
+                .requestMatchers("/api/v1/technician/**").hasRole("TECHNICIAN")
+                .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
+                .anyRequest().permitAll()
             );
         return http.build();
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(Arrays.asList(
+            "http://localhost:5173", "http://127.0.0.1:5173",
+            "http://localhost:5174", "http://127.0.0.1:5174",
+            "http://localhost:5175", "http://127.0.0.1:5175"
+        ));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "X-Requested-With", "Accept", "Origin", "Access-Control-Request-Method", "Access-Control-Request-Headers"));
+        configuration.setExposedHeaders(Arrays.asList("Access-Control-Allow-Origin", "Access-Control-Allow-Credentials"));
+        configuration.setAllowCredentials(true);
+        configuration.setMaxAge(3600L);
+        
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 
     @Bean
@@ -62,13 +98,12 @@ public class SecurityConfig {
                 newUser.setEmail(email);
                 newUser.setFullName(name);
                 newUser.setPictureUrl(picture);
-                newUser.setRoles(new HashSet<>(Collections.singletonList("ROLE_USER")));
+                newUser.setRole("ROLE_USER");
                 return userRepository.save(newUser);
             });
 
-            Set<SimpleGrantedAuthority> authorities = user.getRoles().stream()
-                .map(SimpleGrantedAuthority::new)
-                .collect(Collectors.toSet());
+            String role = user.getRole() != null ? user.getRole() : "ROLE_USER";
+            Set<SimpleGrantedAuthority> authorities = Collections.singleton(new SimpleGrantedAuthority(role));
 
             return new DefaultOAuth2User(authorities, attributes, "email");
         };

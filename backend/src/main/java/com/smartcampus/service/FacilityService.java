@@ -43,7 +43,20 @@ public class FacilityService {
         return facilityRepository.findById(id).orElseThrow(() -> new RuntimeException("Facility not found with ID: " + id));
     }
 
+    private void validateFacility(Facility facility) {
+        if (facility.getName() == null || facility.getName().trim().isEmpty()) {
+            throw new RuntimeException("Facility name is required");
+        }
+        if (facility.getType() == null) {
+            throw new RuntimeException("Facility type is required");
+        }
+        if (facility.getCapacity() != null && facility.getCapacity() < 0) {
+            throw new RuntimeException("Capacity cannot be negative");
+        }
+    }
+
     public Facility createFacility(Facility facility) {
+        validateFacility(facility);
         if (facility.getStatus() == null) {
             facility.setStatus(Facility.FacilityStatus.ACTIVE);
         }
@@ -53,14 +66,15 @@ public class FacilityService {
     public Facility updateFacility(String id, Facility updatedFacility) {
         Facility existing = getFacilityById(id);
         
-        existing.setName(updatedFacility.getName());
-        existing.setType(updatedFacility.getType());
-        existing.setCapacity(updatedFacility.getCapacity());
-        existing.setLocation(updatedFacility.getLocation());
-        existing.setStatus(updatedFacility.getStatus());
-        existing.setAvailabilityWindows(updatedFacility.getAvailabilityWindows());
-        existing.setDescription(updatedFacility.getDescription());
+        if (updatedFacility.getName() != null) existing.setName(updatedFacility.getName());
+        if (updatedFacility.getType() != null) existing.setType(updatedFacility.getType());
+        if (updatedFacility.getCapacity() != null) existing.setCapacity(updatedFacility.getCapacity());
+        if (updatedFacility.getLocation() != null) existing.setLocation(updatedFacility.getLocation());
+        if (updatedFacility.getStatus() != null) existing.setStatus(updatedFacility.getStatus());
+        if (updatedFacility.getAvailabilityWindows() != null) existing.setAvailabilityWindows(updatedFacility.getAvailabilityWindows());
+        if (updatedFacility.getDescription() != null) existing.setDescription(updatedFacility.getDescription());
         
+        validateFacility(existing);
         return facilityRepository.save(existing);
     }
 

@@ -18,5 +18,6 @@ public class User {
     private String email;
     private String fullName;
     private String pictureUrl;
-    private Set<String> roles; // ROLE_USER, ROLE_ADMIN, etc.
+    private String password;
+    private String role = "ROLE_USER"; // ROLE_USER, ROLE_ADMIN, ROLE_TECHNICIAN
 }

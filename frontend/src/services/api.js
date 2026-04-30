@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:8080/api/v1';
+const API_BASE_URL = 'http://localhost:8080/api';
+export const IMAGE_BASE_URL = 'http://localhost:8080';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -10,19 +11,61 @@ const api = axios.create({
 });
 
 export const bookingService = {
-  createBooking: (data) => api.post('/bookings', data),
-  getAllBookings: () => api.get('/bookings'),
-  getBookingsByUser: (email) => api.get(`/bookings/user/${email}`),
-  updateStatus: (id, status) => api.patch(`/bookings/${id}/status?status=${status}`),
-  deleteBooking: (id) => api.delete(`/bookings/${id}`),
+  createBooking: (data) => api.post('/v1/bookings', data),
+  getAllBookings: () => api.get('/v1/bookings'),
+  getBookingsByUser: (email) => api.get(`/v1/bookings/user/${email}`),
+  getBookingsByResource: (resourceId) => api.get(`/v1/bookings/resource/${resourceId}`),
+  updateStatus: (id, status, reason) => {
+    let url = `/v1/bookings/${id}/status?status=${status}`;
+    if (reason) url += `&reason=${encodeURIComponent(reason)}`;
+    return api.patch(url);
+  },
+  deleteBooking: (id) => api.delete(`/v1/bookings/${id}`),
+  updateBooking: (id, data) => api.put(`/v1/bookings/${id}`, data),
+  getBookingById: (id) => api.get(`/v1/bookings/${id}`),
 };
 
 export const facilityService = {
-  createFacility: (data) => api.post('/facilities', data),
-  getAllFacilities: (params) => api.get('/facilities', { params }),
-  getFacilityById: (id) => api.get(`/facilities/${id}`),
-  updateFacility: (id, data) => api.put(`/facilities/${id}`, data),
-  deleteFacility: (id) => api.delete(`/facilities/${id}`),
+  createFacility: (data) => api.post('/v1/facilities', data),
+  getAllFacilities: (params) => api.get('/v1/facilities', { params }),
+  getFacilityById: (id) => api.get(`/v1/facilities/${id}`),
+  updateFacility: (id, data) => api.put(`/v1/facilities/${id}`, data),
+  deleteFacility: (id) => api.delete(`/v1/facilities/${id}`),
+};
+
+export const userService = {
+  register: (data) => api.post('/v1/users/register', data),
+  login: (data) => api.post('/v1/users/login', data),
+  syncUser: (data) => api.post('/v1/users/sync', data),
+  getMe: (email) => api.get('/v1/users/me', { params: { email } }),
+};
+
+export const ticketService = {
+  createTicket: (formData) => api.post('/admin/tickets', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  }),
+  getAllTickets: () => api.get('/v1/tickets'),
+  getTicketsByUser: (email) => api.get(`/v1/tickets/user/${email}`),
+  updateStatus: (id, status, adminComments, technicianFeedback, assignedTo, notesForTechnician, notesFromTechnician) => {
+    let url = `/v1/tickets/${id}/status?status=${status}`;
+    if (adminComments !== undefined && adminComments !== null) url += `&adminComments=${encodeURIComponent(adminComments)}`;
+    if (technicianFeedback !== undefined && technicianFeedback !== null) url += `&technicianFeedback=${encodeURIComponent(technicianFeedback)}`;
+    if (assignedTo !== undefined && assignedTo !== null) url += `&assignedTo=${encodeURIComponent(assignedTo)}`;
+    if (notesForTechnician !== undefined && notesForTechnician !== null) url += `&notesForTechnician=${encodeURIComponent(notesForTechnician)}`;
+    if (notesFromTechnician !== undefined && notesFromTechnician !== null) url += `&notesFromTechnician=${encodeURIComponent(notesFromTechnician)}`;
+    return api.patch(url);
+  },
+  deleteTicket: (id) => api.delete(`/v1/tickets/${id}`),
+};
+
+export const notificationService = {
+  getNotifications: (userId) => api.get('/v1/notifications', { params: { userId } }),
+  getUnreadCount: (userId) => api.get('/v1/notifications/unread-count', { params: { userId } }),
+  getUnreadNotifications: (userId) => api.get('/v1/notifications/unread', { params: { userId } }),
+  markAsRead: (notificationId) => api.patch(`/v1/notifications/${notificationId}/read`),
+  markAllAsRead: (userId) => api.patch('/v1/notifications/read-all', null, { params: { userId } }),
+  deleteNotification: (notificationId) => api.delete(`/v1/notifications/${notificationId}`),
+  deleteAllNotifications: (userId) => api.delete('/v1/notifications', { params: { userId } }),
 };
 
 export default api;

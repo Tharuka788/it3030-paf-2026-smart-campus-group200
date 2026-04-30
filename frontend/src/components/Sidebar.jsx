@@ -2,22 +2,31 @@ import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { 
   Home, 
-  PlusCircle, 
   Calendar,
   Box, 
   User, 
   Settings, 
   LogOut,
-  GraduationCap
+  GraduationCap,
+  Ticket,
+  ShieldCheck
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const Sidebar = () => {
+  const userRole = localStorage.getItem('userRole');
+  
   const navItems = [
     { name: 'Overview', icon: <Home size={22} />, path: '/dashboard' },
     { name: 'Facilities', icon: <Box size={22} />, path: '/facilities' },
-    { name: 'New Booking', icon: <PlusCircle size={22} />, path: '/bookings/new' },
+    ...(userRole === 'ROLE_ADMIN' ? [
+      { name: 'Admin Console', icon: <ShieldCheck size={22} />, path: '/admin/dashboard' },
+      { name: 'Manage Facilities', icon: <Settings size={22} />, path: '/facilities/manage' }
+    ] : userRole === 'ROLE_TECHNICIAN' ? [
+      { name: 'Tech Portal', icon: <ShieldCheck size={22} />, path: '/technician/dashboard' }
+    ] : []),
     { name: 'My Bookings', icon: <Calendar size={22} />, path: '/bookings/my' },
+    { name: 'My Tickets', icon: <Ticket size={22} />, path: '/tickets/my' },
     { name: 'Profile', icon: <User size={22} />, path: '/profile' },
     { name: 'Settings', icon: <Settings size={22} />, path: '/settings' },
   ];
@@ -41,20 +50,15 @@ const Sidebar = () => {
             to={item.path} 
             className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
           >
-            {item.icon}
+            <div className="icon-wrapper">{item.icon}</div>
             <span>{item.name}</span>
           </NavLink>
         ))}
       </nav>
 
-      <div className="sidebar-footer">
-        <button className="logout-btn">
-          <LogOut size={22} />
-          <span>Logout</span>
-        </button>
-      </div>
 
-      <style jsx>{`
+
+      <style jsx="true">{`
         .sidebar {
           width: 280px;
           height: calc(100vh - 40px);
@@ -65,6 +69,8 @@ const Sidebar = () => {
           flex-direction: column;
           padding: 30px 20px;
           z-index: 100;
+          box-shadow: var(--box-shadow);
+          border: 1px solid var(--glass-border);
         }
 
         .sidebar-header {
@@ -95,43 +101,33 @@ const Sidebar = () => {
           gap: 15px;
           padding: 12px 20px;
           border-radius: 12px;
-          color: var(--text-muted);
+          color: #334155;
           font-weight: 500;
           transition: all 0.3s;
         }
 
+        .nav-item .icon-wrapper {
+          color: #0ea5e9;
+          display: flex;
+          align-items: center;
+        }
+
         .nav-item:hover {
-          background: rgba(255, 255, 255, 0.05);
+          background: rgba(0, 0, 0, 0.03);
           color: var(--text-main);
         }
 
         .nav-item.active {
-          background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
-          color: white;
-          box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+          background: #f3e8ff;
+          color: #7c3aed;
+          box-shadow: none;
         }
 
-        .sidebar-footer {
-          margin-top: auto;
-          padding-top: 20px;
-          border-top: 1px solid var(--glass-border);
+        .nav-item.active .icon-wrapper {
+          color: #7c3aed;
         }
 
-        .logout-btn {
-          width: 100%;
-          display: flex;
-          align-items: center;
-          gap: 15px;
-          padding: 12px 20px;
-          color: #ef4444;
-          font-weight: 500;
-          border-radius: 12px;
-          transition: all 0.3s;
-        }
 
-        .logout-btn:hover {
-          background: rgba(239, 68, 68, 0.1);
-        }
       `}</style>
     </motion.aside>
   );
